@@ -1,6 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
 import _ from 'lodash';
-import mime from 'mime-types';
 import moment from 'moment';
 import {
   Between,
@@ -19,8 +17,7 @@ import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
-import { AppUtilities } from '../../app.utilities';
-import { Authorized, PaginationOptionsDTO } from '../interface';
+import { PaginationOptionsDto } from '../dto';
 
 export enum OrderType {
   asc = 'ASC',
@@ -36,7 +33,7 @@ export interface FilterOptions {
 export interface ReportOptions {
   date?: [string, string];
   dateColumn: string;
-  interval?: ReportInterval;
+  interval?: any/*ReportInterval*/;
   groupByCols?: string[];
   orderByCols?: string[];
   valueColumns: (
@@ -77,18 +74,18 @@ export class BaseService {
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilder: SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: Authorized
+    authorized?: any
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     repository: Repository<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: Authorized,
+    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilderOrRepository: Repository<T> | SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: Authorized,
+    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>> {
     options.limit =
@@ -193,7 +190,7 @@ export class BaseService {
     repository: Repository<T>,
     fields: string[],
     term: string,
-    pagination: PaginationOptionsDTO,
+    pagination: PaginationOptionsDto,
     options: any = {}
   ) {
     const { where: whereElse, ...findOptions } = options;
@@ -202,20 +199,5 @@ export class BaseService {
     const where: any = fields.map((field) => ({ [field]: ILike(`%${term}%`) }));
 
     return this.paginate(repository, pagination, { where, ...findOptions });
-  }
-
-  public async preUploadFile(file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('File is required!');
-    }
-    const token = AppUtilities.encode(
-      JSON.stringify({
-        name: file.originalname,
-        id: file.filename,
-        ext: String(mime.extension(file.mimetype)),
-      })
-    );
-
-    return { token };
   }
 }

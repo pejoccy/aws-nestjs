@@ -12,6 +12,10 @@ const CUSTOM_CHARS =
 export class AppUtilities {
   constructor(private configService: ConfigService) {}
 
+  public generateOtp(length = 8): string {
+    return Math.floor(Math.random() * Math.pow(10, length)).toString();
+  }
+
   public generateShortCode(): string {
     const nanoid = customAlphabet(CUSTOM_CHARS, 10);
     return nanoid();
