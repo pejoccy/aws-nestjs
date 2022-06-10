@@ -36,7 +36,7 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               isNullable: true,
             },
             {
-              name: 'created_at',
+              name: 'createdAt',
               type: 'timestamp',
               default: 'now()',
             },

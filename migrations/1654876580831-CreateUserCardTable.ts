@@ -55,7 +55,7 @@ export class CreateUserCardTable1654876580831 implements MigrationInterface {
               type: 'uuid',
             },
             {
-              name: 'created_at',
+              name: 'createdAt',
               type: 'timestamp',
               default: 'now()',
             },
