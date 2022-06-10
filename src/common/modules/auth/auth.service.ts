@@ -9,13 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { AppUtilities } from '../../../app.utilities';
-import { BaseService } from '../../../common/base/service';
-import {
-  AuthTokenTypes,
-  CachedAuthToken,
-  JwtPayload,
-  UserRole,
-} from '../../interfaces';
+import { BaseService } from '../../base/service';
+import { AuthTokenTypes, CachedAuthToken, UserRole } from '../../interfaces';
 import { Business } from '../business/business.entity';
 import { CacheService } from '../cache/cache.service';
 import { MailerService } from '../mailer/mailer.service';
@@ -44,27 +39,28 @@ export class AuthService extends BaseService {
     super();
   }
 
-  async forgotPassword({ email }: ForgotPasswordDto) {
-    const { raw, affected } = await this.userRepository
-      .createQueryBuilder()
-      .update({ passwordReset: true })
-      .where({ email })
-      .returning('*')
-      .execute();
+  public async forgotPassword({ email }: ForgotPasswordDto) {
+    const user = await this.userRepository.findOne({ email });
 
-    if (affected) {
-      const accessToken = this.generateJwtToken({
-        id: raw[0].id,
-        username: raw[0].username,
-        authType: 'reset',
-      });
+    if (user) {
+      const token = this.appUtilities.generateShortCode();
+      const otp = this.appUtilities.generateOtp();
+      await this.cacheService.set(
+        token,
+        {
+          authType: AuthTokenTypes.RESET,
+          userId: user.id,
+          otp,
+        },
+        15 * 60 * 60 * 1000 // 15 mins
+      );
 
       // emit forgotPassword event
-      this.mailService.sendForgotPasswordEmail(raw[0], accessToken);
+      this.mailService.sendForgotPasswordEmail(user, otp);
     }
   }
 
-  async signIn({ email, password }: SignInDto) {
+  public async signIn({ email, password }: SignInDto) {
     const user = await this.userRepository.findOne({ where: { email } });
     const isVerified = !!user && (await this.validatePassword(password, user));
     if (!user || !isVerified) {
@@ -80,7 +76,7 @@ export class AuthService extends BaseService {
 
     return {
       accessToken,
-      expiryTime: this.configService.get('jwt.expiresIn'),
+      expiryTime: this.configService.get('jwt.signOptions.expiresIn'),
       user: {
         id: user.id,
         role: user.role,
@@ -90,22 +86,30 @@ export class AuthService extends BaseService {
     };
   }
 
-  async signUp({
+  public async signUp({
     email,
     userType,
     business,
     ...userDto
   }: CreateUserDto): Promise<any> {
     const queryRunner = await this.startTransaction();
+    console.log({
+      ...userDto,
+      email,
+      role: userType,
+    })
     try {
+      let businessId = undefined;
+      if (userType === UserRole.BUSINESS) {
+        let mBusiness = await this.businessRepository.save(business);
+        businessId = mBusiness.id;
+      }
       const user = await this.userRepository.save({
         ...userDto,
         email,
         role: userType,
+        businessId,
       });
-      if (userType === UserRole.BUSINESS) {
-        await this.businessRepository.save(business);
-      }
       
       const token = this.appUtilities.generateShortCode();
       const otp = this.appUtilities.generateOtp();
@@ -118,6 +122,7 @@ export class AuthService extends BaseService {
         },
         15 * 60 * 60 * 1000 // 15 mins
       );
+
       this.mailService.sendUserAccountSetupEmail(otp, user);
 
       return { user, token };
@@ -133,7 +138,7 @@ export class AuthService extends BaseService {
     }
   }
 
-  async verifyPasswordResetOtp(
+  public async verifyPasswordResetOtp(
     { token, otp }: AuthOtpDto
   ): Promise<CachedAuthToken> {
     const data = await this.cacheService.get<CachedAuthToken>(token);
@@ -144,7 +149,7 @@ export class AuthService extends BaseService {
     return data;
   }
 
-  async resetPassword(item: ResetPasswordDto): Promise<any> {
+  public async resetPassword(item: ResetPasswordDto): Promise<any> {
    const authToken = await this.verifyPasswordResetOtp(item);
    const password = await this.hashPassword(item.password);
    await this.userService.changePassword(authToken.userId, password);
@@ -165,18 +170,5 @@ export class AuthService extends BaseService {
     options = { expiresIn: '15m', ...options };
 
     return this.jwtService.sign(payload, options);
-  }
-
-  public async setAuthTokenCache(
-    jwtPayload: JwtPayload,
-    ttl?: number,
-    cacheData?: any
-  ) {
-    ttl = ttl ?? this.configService.get<number>('jwt.signOptions.expiresIn');
-    const token = this.generateJwtToken(jwtPayload, { expiresIn: ttl });
-    const [, , cacheKey] = token.split('.');
-    await this.cacheService.set(cacheKey, cacheData || jwtPayload, ttl);
-
-    return token;
   }
 }

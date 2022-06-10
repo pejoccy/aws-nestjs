@@ -47,6 +47,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+      whitelist: true,
       exceptionFactory: (validationErrors: ValidationError[] = []) =>
         new BadRequestException(
           validationErrors.reduce(

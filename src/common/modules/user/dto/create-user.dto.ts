@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
@@ -12,6 +13,7 @@ import { UserRole } from '../../../interfaces';
 import { CreateBusinessDto } from '../../business/dto/create-business-dto';
 
 export class CreateUserDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   firstName: string;

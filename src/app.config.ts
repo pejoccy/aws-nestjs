@@ -8,7 +8,7 @@ const env = (key: string, defaultVal: any = undefined) =>
 
 const config = {
   app: {
-    host: env('APP_HOST', `localhost:${env('PORT', 3000)}`),
+    host: env('APP_HOST', `http://localhost:${env('PORT', 3000)}`),
     api: {
       version: env('APP_API_VERSION', 'api/v1'),
     },
@@ -43,10 +43,12 @@ const config = {
       host: env('REDIS_HOST', 'localhost'),
       port: Number(env('REDIS_PORT', '6379')),
       password: env('REDIS_PASSWORD'),
+      refreshThreshold: parseInt(env('CACHE_TTL')),
     },
   },
   jwt: {
-    secret: env('SECRET_KEY'),
+    secret: env('SECRET_KEY', 'MyJwtSecret'),
+    secretOrPrivateKey: env('SECRET_KEY', 'MyJwtSecret'),
     signOptions: {
       expiresIn: env('EXPIRY_TIME_SEC', 30 * 60),
     },

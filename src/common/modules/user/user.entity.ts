@@ -12,6 +12,12 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column()
+  phoneNumber: string;
+
+  @Column({ default: false })
+  isVerified: boolean;
+
   @Column({ unique: true })
   email: string;
 
@@ -22,10 +28,7 @@ export class User {
   lastLoggedInAt?: Date;
 
   @Column({ nullable: true, select: true })
-  lastLoggedIp?: string;
-
-  @Column({ default: false, select: false })
-  passwordReset: boolean;
+  lastLoginIp?: string;
 
   @Column({ nullable: true, enum: UserRole })
   role?: UserRole;

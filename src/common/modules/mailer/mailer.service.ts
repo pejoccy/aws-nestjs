@@ -1,9 +1,9 @@
 import { MailerService as NestJsMailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import ejs from 'ejs';
-import fs from 'fs';
-import path from 'path';
+import * as ejs from 'ejs';
+import * as fs from 'fs';
+import * as path from 'path';
 import { User } from '../user/user.entity';
 import { SendMailOptions } from './interfaces';
 
@@ -15,7 +15,7 @@ export class MailerService {
     private mailerService: NestJsMailerService,
     configService: ConfigService
   ) {
-    this.emailSender = configService.get('smtp.from');
+    this.emailSender = configService.get('smtp.defaults.from');
   }
 
   async send(data: SendMailOptions) {
@@ -24,7 +24,7 @@ export class MailerService {
 
   async sendUserAccountSetupEmail(otp: string, user: User) {
     const html = await this.getFileTemplate('account-setup', {
-      userName: user.firstName,
+      firstName: user.firstName,
       otp,
     });
     
@@ -37,17 +37,16 @@ export class MailerService {
 
   async sendForgotPasswordEmail(
     { email , firstName }: User,
-    accessToken: string
+    otp: string
   ) {
-    const url = `${process.env.PASSWORD_RESET_URL}=${accessToken}`;
     const html = await this.getFileTemplate('password-reset', {
-      url,
+      otp,
       firstName
     });
     
     return this.send({
       to: email,
-      subject: 'Password Reset Request',
+      subject: 'Reset Account Password',
       html,
     }).catch(console.error);
   }

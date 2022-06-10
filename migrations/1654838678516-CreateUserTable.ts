@@ -26,6 +26,7 @@ export class CreateUserTable1654838678516 implements MigrationInterface {
             {
               name: 'password',
               type: 'varchar',
+              isNullable: true,
             },
             {
               name: 'firstName',
@@ -47,14 +48,17 @@ export class CreateUserTable1654838678516 implements MigrationInterface {
             {
               name: 'isPrimaryUser',
               type: 'boolean',
+              default: false,
             },
             {
               name: 'lastLoggedInAt',
               type: 'timestamp',
+              isNullable: true,
             },
             {
               name: 'lastLoginIp',
               type: 'varchar',
+              isNullable: true,
             },
             {
               name: 'isVerified',
@@ -68,7 +72,7 @@ export class CreateUserTable1654838678516 implements MigrationInterface {
               default: `'${'active'}'`,
             },
             {
-              name: 'type',
+              name: 'role',
               type: 'enum',
               enum: ['patient', 'specialist', 'business_contact'],
             },

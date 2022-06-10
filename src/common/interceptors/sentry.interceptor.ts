@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { catchError, finalize, Observable, throwError } from 'rxjs';
-import { SentryService } from '../module/sentry/sentry.service';
+import { SentryService } from '../modules/sentry/sentry.service';
 
 /**
  * We must be in Request scope as we inject SentryService

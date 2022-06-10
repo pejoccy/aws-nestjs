@@ -3,7 +3,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from '../module/user/user.entity';
+import { User } from '../modules/user/user.entity';
 
 export interface UserAuthOptions {
   required?: boolean;

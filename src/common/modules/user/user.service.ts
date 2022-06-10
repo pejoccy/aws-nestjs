@@ -36,7 +36,7 @@ export class UserService extends BaseService {
   public async changePassword(userId: string, password: string): Promise<User> {
     const { affected, raw: [user] = [] } = await this.userRepository
       .createQueryBuilder()
-      .update({ password })
+      .update({ password, isVerified: true })
       .where({ id: userId })
       .returning('*')
       .execute();
