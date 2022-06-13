@@ -13,7 +13,10 @@ export class AppUtilities {
   constructor(private configService: ConfigService) {}
 
   public generateOtp(length = 8): string {
-    return Math.floor(Math.random() * Math.pow(10, length)).toString();
+    return Math
+      .floor(Math.random() * Math.pow(10, length))
+      .toString()
+      .padStart(length, '0');
   }
 
   public generateShortCode(): string {

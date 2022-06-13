@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         console.log('*******', config.get('jwt'))
-        return config.get('jwt')
+        return config.get('jwt');
       },
     }),
     MailerModule,
