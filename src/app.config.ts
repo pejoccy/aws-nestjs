@@ -12,10 +12,6 @@ const config = {
     api: {
       version: env('APP_API_VERSION', 'api/v1'),
     },
-    admin: {
-      user: env('APP_ADMIN_USER'),
-      pass: env('APP_ADMIN_PASS'),
-    },
     environment: env('NODE_ENV'),
     port: Number(env('PORT')),
   },

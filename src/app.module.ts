@@ -1,21 +1,22 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import config from './app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppUtilities } from './app.utilities';
-import { AuthModule } from './common/modules/auth/auth.module';
-import { JwtStrategy } from './common/modules/auth/strategy/jwt.strategy';
-import { CacheModule } from './common/modules/cache/cache.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/guards/jwt.guard';
+import { JwtStrategy } from './auth/strategy/jwt.strategy';
+import { CacheModule } from './common/cache/cache.module';
 import {
   NotificationController,
-} from './common/modules/notification/notification.controller';
+} from './common/notification/notification.controller';
 import {
   NotificationModule,
-} from './common/modules/notification/notification.module';
+} from './common/notification/notification.module';
 
 @Global()
 @Module({
@@ -31,7 +32,13 @@ import {
     }),
   ],
   controllers: [AppController, NotificationController],
-  providers: [AppService, AppUtilities, JwtStrategy],
+  providers: [
+    AppService,
+    AppUtilities,
+    JwtStrategy,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    JwtStrategy,
+  ],
   exports:[
     AppUtilities,
     AuthModule,

@@ -5,7 +5,7 @@ export class CreateUserCardTable1654876580831 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'user_card',
+          name: 'account_card',
           columns: [
             {
               name: 'id',
@@ -51,7 +51,7 @@ export class CreateUserCardTable1654876580831 implements MigrationInterface {
               default: `'${'active'}'`,
             },
             {
-              name: 'userId',
+              name: 'accountId',
               type: 'uuid',
             },
             {
@@ -73,16 +73,16 @@ export class CreateUserCardTable1654876580831 implements MigrationInterface {
         })
       );
 
-      await queryRunner.createForeignKey('user_card', new TableForeignKey({
-        name: 'fk_user_card_userId_user_id',
-        columnNames: ['userId'],
-        referencedTableName: 'user',
+      await queryRunner.createForeignKey('account_card', new TableForeignKey({
+        name: 'fk_account_card_accountId_account_id',
+        columnNames: ['accountId'],
+        referencedTableName: 'account',
         referencedColumnNames: ['id'],
       }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('user_card');
+      await queryRunner.dropTable('account_card');
     }
 
 }

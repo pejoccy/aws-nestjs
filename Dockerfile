@@ -20,4 +20,4 @@ RUN yarn migration:run
 RUN yarn build
 
 EXPOSE 3001
-CMD [ "node", "dist/src/main.js" ]
+CMD [ "node", "dist/src/main" ]
