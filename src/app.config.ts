@@ -8,12 +8,12 @@ const env = (key: string, defaultVal: any = undefined) =>
 
 const config = {
   app: {
-    host: env('APP_HOST', `http://localhost:${env('PORT', 3000)}`),
+    host: env('APP_HOST', `http://localhost:${env('PORT', 3001)}`),
     api: {
       version: env('APP_API_VERSION', 'api/v1'),
     },
     environment: env('NODE_ENV'),
-    port: Number(env('PORT')),
+    port: Number(env('APP_PORT', 3001)),
   },
   db: {
     pgsql: {
@@ -49,21 +49,11 @@ const config = {
       expiresIn: env('EXPIRY_TIME_SEC', 30 * 60),
     },
   },
-  smtp: {
-    transport: {
-      host: env('SMTP_HOST'),
-      port: Number(env('SMTP_PORT', 587)),
-      secure: env('SMTP_SECURE') === 'true',
-      auth: {
-        user: env('SMTP_USER'),
-        pass: env('SMTP_PASSWORD'),
-      },
-    },
-    defaults: {
-      from: {
-        name: env('APP_EMAIL_SENDER_NAME'),
-        address: env('APP_EMAIL_SENDER_ADDRESS'),
-      },
+  sendGrid: {
+    apiKey: env('SENDGRID_API_KEY'),
+    from: {
+      name: env('APP_EMAIL_SENDER_NAME'),
+      address: env('APP_EMAIL_SENDER_ADDRESS'),
     },
   },
   messaging: {

@@ -32,6 +32,7 @@ export class CreateUserDto {
   @IsEnum(UserRole)
   userType: UserRole;
 
+  @ApiProperty({ required: false })
   @IsNotEmpty()
   @Type(() => CreateBusinessDto)
   @ValidateIf(obj => obj.userType === UserRole.BUSINESS)

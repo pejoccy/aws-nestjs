@@ -82,6 +82,10 @@ export class AuthService extends BaseService {
         id: user.id,
         role: user.role,
         email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        isVerified: user.isVerified,
       },
       profile,
     };

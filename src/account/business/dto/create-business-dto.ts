@@ -29,12 +29,12 @@ export class CreateBusinessDto {
   @IsString()
   contactAddress: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsUrl()
   website?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsBase64()
   logo?: string;

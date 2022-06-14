@@ -15,7 +15,7 @@ export type CachedAuthToken = {
 export enum UserRole {
   PATIENT = 'patient',
   SPECIALIST = 'specialist',
-  BUSINESS = 'business_contact',
+  BUSINESS = 'business',
 }  
 
 // eslint-disable-next-line  @typescript-eslint/naming-convention

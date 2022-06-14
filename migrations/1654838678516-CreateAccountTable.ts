@@ -74,7 +74,7 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
             {
               name: 'role',
               type: 'enum',
-              enum: ['patient', 'specialist', 'business_contact'],
+              enum: ['patient', 'specialist', 'business'],
             },
             {
               name: 'businessId',

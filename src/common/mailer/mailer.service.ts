@@ -1,6 +1,6 @@
-import { MailerService as NestJsMailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import sgMail from '@sendgrid/mail';
 import * as ejs from 'ejs';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -12,14 +12,16 @@ export class MailerService {
   private emailSender: string;
 
   constructor(
-    private mailerService: NestJsMailerService,
+    // private mailerService: NestJsMailerService,
     configService: ConfigService
   ) {
-    this.emailSender = configService.get('smtp.defaults.from');
+    sgMail.setApiKey(configService.get('sendGrid.apiKey'));
+    const sender = configService.get('sendGrid.from');
+    this.emailSender = `${sender.name} <${sender.address}>`;
   }
 
   async send(data: SendMailOptions) {
-    return this.mailerService.sendMail({ from: this.emailSender, ...data });
+    return sgMail.send({ from: this.emailSender, ...data });
   }
 
   async sendUserAccountSetupEmail(otp: string, user: Account) {
