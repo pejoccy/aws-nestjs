@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orysx-api-deployment
+  # namespace: default
+  labels:
+    app: orysx-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orysx-api
+  template:
+    metadata:
+      labels:
+        app: orysx-api
+    spec:
+      imagePullSecrets:
+      - name: docker-secret
+      containers:
+      - name: orysx-api
+        image: princesegzy01/orysx-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+       
+      

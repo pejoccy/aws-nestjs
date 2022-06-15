@@ -1,7 +1,9 @@
 import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
-dotenv.config();
+// dotenv.config();
+dotenv.config({ path: process.env.ENV_PATH });
+
 
 const env = (key: string, defaultVal: any = undefined) =>
   process.env[key] || defaultVal;

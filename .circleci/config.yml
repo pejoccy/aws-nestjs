@@ -1,0 +1,84 @@
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: circleci/node:14
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - build:
+          context: orysx-test
+          environment: test
+          filters:
+            branches:
+              only:
+                - develop
+      - deploy:
+          environment: test
+          requires:
+            - build
+  prod_build_deploy:
+    jobs:
+      - build:
+          context: orysx-test
+          environment: production
+          filters:
+            branches:
+              only:
+                - master
+      - deploy:
+          environment: production
+          requires:
+            - build
+
+jobs:
+  experiment:
+    executor: node
+    steps:
+      - checkout
+  build:
+    parameters:
+      environment:
+        type: string
+        default: test
+    docker:
+      - image: cimg/node:17.6.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker build -t princesegzy01/orysx-api:<<parameters.environment>> .
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USER --password-stdin
+            docker push princesegzy01/orysx-api:<<parameters.environment>>
+            
+  deploy:
+    parameters:
+      environment:
+        type: string
+        default: test
+    docker:
+      - image: cimg/node:17.6.0
+    steps:
+      - attach_workspace:
+          at: .
+      - kubernetes/install-kubectl
+      - kubernetes/install-kubeconfig:
+          kubeconfig: KUBECONFIG_ENCODED
+      - checkout
+      - run:
+          name: Deploy orysx API
+          command: |
+            kubectl apply -k ./kustomize/environments/<<parameters.environment>> --namespace=<<parameters.environment>>
+            kubectl -n <<parameters.environment>> rollout restart deployment orysx-api-deployment
+
+orbs:
+  kubernetes: circleci/kubernetes@0.11.0
