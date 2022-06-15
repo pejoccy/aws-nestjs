@@ -14,7 +14,7 @@ RUN yarn
 COPY . .
 
 # Run db migrations
-RUN yarn migration:run
+# RUN yarn migration:run
 
 # Build app
 RUN yarn build
