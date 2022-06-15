@@ -11,8 +11,8 @@ export class AppController {
   }
 
 
-  @Get('/status')
-  test(): string {
-    return {'status' : 'API is in active state'};
+  @Get('api')
+  getStatus() {
+    return { status: 'API status is Active' };
   }
 }
