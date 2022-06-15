@@ -39,7 +39,7 @@ const config = {
     },
     redis: {
       host: env('REDIS_HOST', 'localhost'),
-      port: Number(env('REDIS_PORT', '6379')),
+      port: Number(env('REDIS_PORT', '80')),
       password: env('REDIS_PASSWORD'),
       refreshThreshold: parseInt(env('CACHE_TTL')),
     },
