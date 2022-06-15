@@ -35,7 +35,7 @@ spec:
         - name: ENV_PATH
           value: "/etc/orysx-api/.env/test.env"
         ports:
-        - containerPort: 3000
+        - containerPort: 3001
         volumeMounts:
         - name: env-file-vol
           mountPath: "/etc/orysx-api/.env"
