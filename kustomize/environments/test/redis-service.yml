@@ -12,5 +12,5 @@ spec:
   ports:
     - protocol: TCP
       name: http
-      port: 80
+      port: 6379
       targetPort: 6379   # It is listening on port 80 so I changed it  
