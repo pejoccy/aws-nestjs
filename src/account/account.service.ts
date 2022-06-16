@@ -13,14 +13,14 @@ import { Account } from './account.entity';
 export class AccountService extends BaseService {
   constructor(
     @InjectRepository(Account)
-    private userRepository: Repository<Account>
+    private accountRepository: Repository<Account>
   ) {
     super();
   }
 
   async updateUser(id: string, item: UpdateUserDto) {
     item = this.excludeExtraneousKeys(item);
-    const { affected, raw } = await this.userRepository
+    const { affected, raw } = await this.accountRepository
       .createQueryBuilder()
       .update(item)
       .where({ id })
@@ -34,7 +34,7 @@ export class AccountService extends BaseService {
   }
 
   public async changePassword(userId: string, password: string): Promise<Account> {
-    const { affected, raw: [user] = [] } = await this.userRepository
+    const { affected, raw: [user] = [] } = await this.accountRepository
       .createQueryBuilder()
       .update({ password, isVerified: true })
       .where({ id: userId })
@@ -48,7 +48,7 @@ export class AccountService extends BaseService {
   }
 
   async deleteUser(id: string) {
-    const result = await this.userRepository.delete(id);
+    const result = await this.accountRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`user with ${id} not found`);
     }

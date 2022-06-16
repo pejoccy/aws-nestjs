@@ -5,13 +5,16 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RealIP } from 'nestjs-real-ip';
+import { UserRole } from 'src/common/interfaces';
 import { PublicRoute } from '../common/decorators/public-route-decorator';
 import { ApiResponseMeta } from '../common/decorators/response.decorator';
-import { CreateUserDto } from '../account/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { InitAccountDto } from './dto/init-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SetupAccountDto } from './dto/setup-account.dto';
+import { SetupBusinessDto } from './dto/setup-business.dto';
 import { SignInDto } from './dto/sign-in.dto';
 
 @Controller('auth')
@@ -40,8 +43,36 @@ export class AuthController {
   })
   @Post('/register')
   @PublicRoute()
-  async signUp(@Body() item: CreateUserDto) {
-    return this.authService.signUp(item);
+  async signUp(@Body() item: InitAccountDto) {
+    return this.authService.initiateAccount(item);
+  }
+
+  @ApiResponseMeta({ message: 'Account created successfully!' })
+  @Post('/setup-patient')
+  @PublicRoute()
+  async completePatientAccountSetup(@Body() item: SetupAccountDto) {
+    return this.authService.signUp({ ...item, userType: UserRole.PATIENT });
+  }
+
+  @ApiResponseMeta({ message: 'Account created successfully!' })
+  @Post('/setup-specialist')
+  @PublicRoute()
+  async completeSpecialistAccountSetup(@Body() item: SetupAccountDto) {
+    return this.authService.signUp({ ...item, userType: UserRole.SPECIALIST });
+  }
+
+  @ApiResponseMeta({ message: 'Business account created successfully!' })
+  @Post('/setup-business')
+  @PublicRoute()
+  async completeBusinessSetup(
+    @Body() { otp, token, ...business }: SetupBusinessDto
+  ) {
+    return this.authService.signUp({
+      otp,
+      token,
+      business,
+      userType: UserRole.BUSINESS
+    });
   }
 
   @ApiResponseMeta({

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Account } from '../account.entity';
 
 @Entity()
 export class Business {
@@ -22,4 +23,8 @@ export class Business {
 
   @Column()
   logo: string;
+
+  @OneToMany(() => Account, account => account.business)
+  accounts: Account[];
+
 }

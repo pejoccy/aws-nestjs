@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner, Table, TableForeignKey, TableUnique} from "typeorm";
 
-export class CreateUserCardTable1654876580831 implements MigrationInterface {
+export class CreateAccountCardTable1654876580831 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(

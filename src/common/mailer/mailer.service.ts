@@ -24,14 +24,11 @@ export class MailerService {
     return sgMail.send({ from: this.emailSender, ...data });
   }
 
-  async sendUserAccountSetupEmail(otp: string, user: Account) {
-    const html = await this.getFileTemplate('account-setup', {
-      firstName: user.firstName,
-      otp,
-    });
+  async sendUserAccountSetupEmail(email: string, otp: string) {
+    const html = await this.getFileTemplate('account-setup', { otp });
     
     return this.send({
-      to: user.email,
+      to: email,
       subject: 'Complete Account Setup',
       html,
     }).catch(console.error);

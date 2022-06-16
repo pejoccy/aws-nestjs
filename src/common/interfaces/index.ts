@@ -4,12 +4,13 @@ export const PASSWORD_POLICY_REGEX =
 export enum AuthTokenTypes {
   AUTH = 'auth',
   RESET = 'reset',
+  SETUP = 'setup',
 }
 
-export type CachedAuthToken = {
+export type CachedAuthData<T = any> = {
   otp: string;
-  userId: string;
   authType: AuthTokenTypes;
+  data?: T;
 }
 
 export enum UserRole {
