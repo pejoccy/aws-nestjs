@@ -58,25 +58,6 @@ const config = {
       address: env('APP_EMAIL_SENDER_ADDRESS'),
     },
   },
-  messaging: {
-    sms: {
-      provider: 'dot_go',
-      dotGo: {
-        accountId: env('DOT_GO_ACCOUNT_ID'),
-        apiToken: env('DOT_GO_API_TOKEN'),
-        baseURL: env('DOT_GO_BASE_URL'),
-        senderMask: env('DOT_GO_SENDER_MASK'),
-      },
-      hollaTags: {
-        user: env('HOLLATAGS_USER'),
-        pass: env('HOLLATAGS_PASS'),
-        baseURL: env('HOLLATAGS_BASE_URL'),
-        senderMask: env('HOLLATAGS_SENDER_MASK'),
-      },
-    },
-    whatsapp: {},
-    richsms: {},
-  },
   sentry: {
     dsn: env('SENTRY_DNS'),
     debug: env('SENTRY_DEBUG') === 'true',
