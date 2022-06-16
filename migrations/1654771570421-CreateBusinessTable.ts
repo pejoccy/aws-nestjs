@@ -18,6 +18,10 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               type: 'varchar',
             },
             {
+              name: 'email',
+              type: 'varchar',
+            },
+            {
               name: 'phoneNumber',
               type: 'varchar',
             },

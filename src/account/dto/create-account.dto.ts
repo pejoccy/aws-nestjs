@@ -1,41 +1,39 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsEmail,
-  IsEnum,
   IsMobilePhone,
   IsNotEmpty,
+  IsOptional,
   IsString,
-  ValidateIf,
-  ValidateNested,
 } from 'class-validator';
-import { UserRole } from '../../common/interfaces';
 import { CreateBusinessDto } from '../business/dto/create-business-dto';
 
-export class CreateUserDto {
+export class CreateAccountDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  firstName: string;
+  otp: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  lastName: string;
+  token: string;
 
-  @IsEmail()
-  email: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  firstName?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
   @IsMobilePhone()
-  phoneNumber: string;
-
-  @IsEnum(UserRole)
-  userType: UserRole;
+  @IsOptional()
+  phoneNumber?: string;
 
   @ApiProperty({ required: false })
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => CreateBusinessDto)
-  @ValidateIf(obj => obj.userType === UserRole.BUSINESS)
-  @ValidateNested()
   business?: CreateBusinessDto;
 }

@@ -10,17 +10,18 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import { AuthTokenTypes, CachedAuthToken, UserRole } from '../common/interfaces';
+import { AuthTokenTypes, CachedAuthData, UserRole } from '../common/interfaces';
 import { Business } from '../account/business/business.entity';
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
-import { CreateUserDto } from '../account/dto/create-user.dto';
+import { CreateAccountDto } from '../account/dto/create-account.dto';
 import { Account } from '../account/account.entity';
 import { AccountService } from '../account/account.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { InitAccountDto } from './dto/init-account.dto';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -34,7 +35,7 @@ export class AuthService extends BaseService {
     private cacheService: CacheService,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
-    private userService: AccountService
+    private accountService: AccountService
   ) {
     super();
   }
@@ -48,7 +49,7 @@ export class AuthService extends BaseService {
         token,
         {
           authType: AuthTokenTypes.RESET,
-          userId: user.id,
+          data: { userId: user.id },
           otp,
         },
         15 * 60 * 60 * 1000 // 15 mins
@@ -62,70 +63,122 @@ export class AuthService extends BaseService {
   }
 
   public async signIn({ email, password }: SignInDto) {
-    const user = await this.accountRepository.findOne({ where: { email } });
-    const isVerified = !!user && (await this.validatePassword(password, user));
-    if (!user || !isVerified) {
+    const account = await this.accountRepository.findOne({
+      where: { email },
+      relations: ['business'],
+    });
+    const passwordMatches = !!account && (await this.validatePassword(password, account));
+    if (!account || !passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!account.isVerified) {
+      throw new UnauthorizedException('Account not verified!');
+    }
+
     const accessToken = this.generateJwtToken(
-      { email, id: user.id },
+      { email, id: account.id },
       { expiresIn: this.configService.get('jwt.signOptions.expiresIn') }
     );
-
-    const profile = {}
 
     return {
       accessToken,
       expiryTime: this.configService.get('jwt.signOptions.expiresIn'),
       user: {
-        id: user.id,
-        role: user.role,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phoneNumber: user.phoneNumber,
-        isVerified: user.isVerified,
+        id: account.id,
+        role: account.role,
+        email: account.email,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        phoneNumber: account.phoneNumber,
+        isVerified: account.isVerified,
+        business: account.business,
       },
-      profile,
     };
   }
 
-  public async signUp({
+  public async initiateAccount({
     email,
+    password,
     userType,
-    business,
     ...userDto
-  }: CreateUserDto): Promise<any> {
+  }: InitAccountDto): Promise<any> {
+    const user = await this.accountRepository.findOne({ where: { email }});
+    if (user) {
+      throw new NotAcceptableException(
+        'An account with same email already exists!'
+      );
+    }
+    
+    const token = this.appUtilities.generateShortCode();
+    const otp = this.appUtilities.generateOtp();
+    let accountInitData: InitAccountDto = { email, password, userType };
+    if (userType === UserRole.BUSINESS) {
+      accountInitData = { ...accountInitData, ...userDto };
+    }
+    await this.cacheService.set(
+      token,
+      {
+        authType: AuthTokenTypes.SETUP,
+        data: accountInitData,
+        otp,
+      },
+      7 * 24 * 60 * 60 // 7 day
+    );
+
+    this.mailService.sendUserAccountSetupEmail(email, otp);
+
+    return { token };
+  }
+
+  public async signUp({
+    otp,
+    token,
+    business,
+    userType,
+    ...userDto
+  }: CreateAccountDto & { userType: UserRole }) {
     const queryRunner = await this.startTransaction();
+    const initData = await this.verifyOtp(token, otp);
+    console.log(initData.data);
+    if (
+      initData.authType !== AuthTokenTypes.SETUP ||
+      initData.data?.userType !== userType
+    ) {
+      throw new UnauthorizedException('Invalid sign up token/OTP!');
+    }
+
     try {
       let businessId = undefined;
+      const password = await this.hashPassword(initData.data?.password);
       if (userType === UserRole.BUSINESS && !!business) {
         let mBusiness = await this.businessRepository.save(business);
+        console.log(mBusiness);
         businessId = mBusiness.id;
       }
-      const user = await this.accountRepository.save({
-        ...userDto,
+      const {
+        firstName,
+        lastName,
         email,
-        role: userType,
+        phoneNumber,
+        userType: userRole,
+      } = initData.data || {};
+
+      const user = await this.accountRepository.save({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        ...userDto,
+        password,
+        role: userRole,
         businessId,
+        isVerified: true,
       });
-      
-      const token = this.appUtilities.generateShortCode();
-      const otp = this.appUtilities.generateOtp();
-      await this.cacheService.set(
-        token,
-        {
-          authType: AuthTokenTypes.RESET,
-          userId: user.id,
-          otp,
-        },
-        15 * 60 * 60 * 1000 // 15 mins
-      );
+      delete user.password;
+      this.cacheService.remove(token);
 
-      this.mailService.sendUserAccountSetupEmail(otp, user);
-
-      return { user, token };
+      return user;
     } catch (error) {
       if (error.code === '23505') {
         throw new NotAcceptableException(
@@ -140,19 +193,31 @@ export class AuthService extends BaseService {
 
   public async verifyPasswordResetOtp(
     { token, otp }: AuthOtpDto
-  ): Promise<CachedAuthToken> {
-    const data = await this.cacheService.get<CachedAuthToken>(token);
-    if (!data || data.otp !== otp || data.authType !== AuthTokenTypes.RESET) {
-      throw new UnauthorizedException('Invalid token');
+  ): Promise<CachedAuthData> {
+    const data = await this.verifyOtp(token, otp);
+    if (data?.authType !== AuthTokenTypes.RESET) {
+      throw new UnauthorizedException('Invalid reset token/OTP');
     }
 
     return data;
   }
 
-  public async resetPassword(item: ResetPasswordDto): Promise<any> {
+  public async resetPassword(item: ResetPasswordDto) {
    const authToken = await this.verifyPasswordResetOtp(item);
    const password = await this.hashPassword(item.password);
-   await this.userService.changePassword(authToken.userId, password);
+   await this.accountService.changePassword(authToken.data?.userId, password);
+  }
+
+  private async verifyOtp<T = any>(
+    token: string,
+    otp: string
+  ): Promise<CachedAuthData<T>> {
+    const data = await this.cacheService.get<CachedAuthData<T>>(token);
+    if (!data || data.otp !== otp) {
+      throw new UnauthorizedException('Invalid OTP');
+    }
+
+    return data;
   }
 
   private async hashPassword(password: string, rounds = 10): Promise<string> {
