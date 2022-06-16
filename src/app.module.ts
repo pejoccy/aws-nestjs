@@ -37,7 +37,6 @@ import {
     AppUtilities,
     JwtStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    JwtStrategy,
   ],
   exports:[
     AppUtilities,
