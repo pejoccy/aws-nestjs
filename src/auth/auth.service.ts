@@ -152,7 +152,18 @@ export class AuthService extends BaseService {
       let businessId = undefined;
       const password = await this.hashPassword(initData.data?.password);
       if (userType === UserRole.BUSINESS && !!business) {
-        let mBusiness = await this.businessRepository.save(business);
+        let mBusiness = await this
+          .businessRepository
+          .createQueryBuilder('business')
+          .where(
+            "LOWER(business.name) = LOWER(:name)",
+            { name: business.name }
+          )
+          .getOne();
+        if (mBusiness) {
+          throw new NotAcceptableException('Business name already exists!');
+        }
+        mBusiness = await this.businessRepository.save(business);
         console.log(mBusiness);
         businessId = mBusiness.id;
       }

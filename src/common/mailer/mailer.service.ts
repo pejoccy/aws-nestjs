@@ -21,7 +21,13 @@ export class MailerService {
   }
 
   async send(data: SendMailOptions) {
-    return sgMail.send({ from: this.emailSender, ...data });
+    return sgMail
+      .send({ from: this.emailSender, ...data })
+      .then(resp => {
+        console.log(resp);
+
+        return resp;
+      });
   }
 
   async sendUserAccountSetupEmail(email: string, otp: string) {
