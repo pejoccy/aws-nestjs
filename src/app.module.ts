@@ -5,7 +5,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import config from './app.config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AppUtilities } from './app.utilities';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
@@ -33,7 +32,6 @@ import {
   ],
   controllers: [AppController, NotificationController],
   providers: [
-    AppService,
     AppUtilities,
     JwtStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
