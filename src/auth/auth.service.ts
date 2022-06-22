@@ -202,11 +202,13 @@ export class AuthService extends BaseService {
     }
   }
 
-  public async verifyPasswordResetOtp(
+  public async verifyTokenizedOtp(
     { token, otp }: AuthOtpDto
   ): Promise<CachedAuthData> {
     const data = await this.verifyOtp(token, otp);
-    if (data?.authType !== AuthTokenTypes.RESET) {
+    if (
+      ![AuthTokenTypes.RESET, AuthTokenTypes.SETUP].includes(data?.authType)
+    ) {
       throw new UnauthorizedException('Invalid reset token/OTP');
     }
 
@@ -214,7 +216,7 @@ export class AuthService extends BaseService {
   }
 
   public async resetPassword(item: ResetPasswordDto) {
-   const authToken = await this.verifyPasswordResetOtp(item);
+   const authToken = await this.verifyTokenizedOtp(item);
    const password = await this.hashPassword(item.password);
    await this.accountService.changePassword(authToken.data?.userId, password);
   }

@@ -90,7 +90,7 @@ export class AuthController {
   @Post('/verifyToken')
   @PublicRoute()
   async verifyToken(@Body() item: AuthOtpDto) {
-    await this.authService.verifyPasswordResetOtp(item);
+    await this.authService.verifyTokenizedOtp(item);
   }
 
   @ApiResponseMeta({ message: 'Password successfully reset'})
