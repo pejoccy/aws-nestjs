@@ -8,15 +8,23 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
-import { AppUtilities } from '../app.utilities';
-import { BaseService } from '../common/base/service';
-import { AuthTokenTypes, CachedAuthData, UserRole } from '../common/interfaces';
-import { Business } from '../account/business/business.entity';
-import { CacheService } from '../common/cache/cache.service';
-import { MailerService } from '../common/mailer/mailer.service';
-import { CreateAccountDto } from '../account/dto/create-account.dto';
 import { Account } from '../account/account.entity';
 import { AccountService } from '../account/account.service';
+import { BusinessService } from '../account/business/business.service';
+import { CreateAccountDto } from '../account/dto/create-account.dto';
+import { Specialist } from '../account/specialist/specialist.entity';
+import { AppUtilities } from '../app.utilities';
+import { BaseService } from '../common/base/service';
+import {
+  AuthTokenTypes,
+  CachedAuthData,
+  UserRoles,
+} from '../common/interfaces';
+import { CacheService } from '../common/cache/cache.service';
+import { MailerService } from '../common/mailer/mailer.service';
+import {
+  SpecializationService,
+} from '../common/specialization/specialization.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -28,14 +36,16 @@ export class AuthService extends BaseService {
   constructor(
     @InjectRepository(Account)
     private accountRepository: Repository<Account>,
-    @InjectRepository(Business)
-    private businessRepository: Repository<Business>,
+    @InjectRepository(Specialist)
+    private specialistRepository: Repository<Specialist>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private cacheService: CacheService,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private businessService: BusinessService,
+    private specializationService: SpecializationService
   ) {
     super();
   }
@@ -65,7 +75,7 @@ export class AuthService extends BaseService {
   public async signIn({ email, password }: SignInDto) {
     const account = await this.accountRepository.findOne({
       where: { email },
-      relations: ['business'],
+      relations: ['business', 'specialist', 'specialist.specialization'],
     });
     const passwordMatches = !!account && (await this.validatePassword(password, account));
     if (!account || !passwordMatches) {
@@ -92,7 +102,8 @@ export class AuthService extends BaseService {
         lastName: account.lastName,
         phoneNumber: account.phoneNumber,
         isVerified: account.isVerified,
-        business: account.business,
+        business: account.business || undefined,
+        specialist: account.specialist || undefined,
       },
     };
   }
@@ -113,7 +124,7 @@ export class AuthService extends BaseService {
     const token = this.appUtilities.generateShortCode();
     const otp = this.appUtilities.generateOtp();
     let accountInitData: InitAccountDto = { email, password, userType };
-    if (userType === UserRole.BUSINESS) {
+    if (userType === UserRoles.BUSINESS) {
       accountInitData = { ...accountInitData, ...userDto };
     }
     await this.cacheService.set(
@@ -135,9 +146,10 @@ export class AuthService extends BaseService {
     otp,
     token,
     business,
+    specialist,
     userType,
     ...userDto
-  }: CreateAccountDto & { userType: UserRole }) {
+  }: CreateAccountDto & { userType: UserRoles }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
     console.log(initData.data);
@@ -151,21 +163,8 @@ export class AuthService extends BaseService {
     try {
       let businessId = undefined;
       const password = await this.hashPassword(initData.data?.password);
-      if (userType === UserRole.BUSINESS && !!business) {
-        let mBusiness = await this
-          .businessRepository
-          .createQueryBuilder('business')
-          .where(
-            "LOWER(business.name) = LOWER(:name)",
-            { name: business.name }
-          )
-          .getOne();
-        if (mBusiness) {
-          throw new NotAcceptableException('Business name already exists!');
-        }
-        mBusiness = await this.businessRepository.save(business);
-        console.log(mBusiness);
-        businessId = mBusiness.id;
+      if (userType === UserRoles.BUSINESS && !!business) {
+        ({ id: businessId } = await this.businessService.create(business));
       }
       const {
         firstName,
@@ -188,6 +187,19 @@ export class AuthService extends BaseService {
       });
       delete user.password;
       this.cacheService.remove(token);
+
+      if (userType === UserRoles.SPECIALIST && !!specialist) {
+        let specializationId = specialist.specializationId;
+        if (!specializationId) {
+          ({ id: specializationId } = await this.specializationService
+            .setupSpecialization({ title: specialist.otherSpecialization }));
+        }
+        user.specialist = await this.specialistRepository.save({
+          specializationId,
+          accountId: user.id,
+          category: specialist.category,
+        });
+      }
 
       return user;
     } catch (error) {

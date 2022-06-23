@@ -74,18 +74,15 @@ export class BaseService {
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilder: SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     repository: Repository<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilderOrRepository: Repository<T> | SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>> {
     options.limit =
@@ -94,20 +91,7 @@ export class BaseService {
 
     const query: FindManyOptions = {};
     searchOptions = this.excludeExtraneousKeys(searchOptions);
-
-    if (authorized && authorized.tenant) {
-      searchOptions.where = {
-        ...(searchOptions as any)?.where,
-        tenantId: authorized.tenant.id,
-      };
-    }
-    if (authorized && authorized.app) {
-      searchOptions.where = {
-        ...(searchOptions as any)?.where,
-        appId: authorized.app.id,
-      };
-    }
-
+    
     if (queryBuilderOrRepository instanceof Repository && !!searchOptions) {
       let columnsData = queryBuilderOrRepository.metadata.columns.reduce(
         (acc, column) => {
@@ -129,54 +113,59 @@ export class BaseService {
         },
         columnsData
       );
+      
+      const composeWhereOptions = (options = {}) => {
+        return Object.entries(options).reduce(
+          (acc, [key, value]) => {
+            const [relation] = key.split('.');
+            if (
+              typeof columnsData[key] !== 'undefined' ||
+              (typeof columnsData[relation] !== 'undefined' &&
+                (searchOptions?.relations || []).includes(relation))
+            ) {
+              if (
+                (!columnsData[key]?.enum &&
+                  typeof columnsData[key]?.type === 'function' &&
+                  columnsData[key]?.type?.prototype === String.prototype) ||
+                columnsData[key]?.type === 'string' ||
+                columnsData[relation]?.type === 'string'
+              ) {
+                if (key.includes('.')) {
+                  _.set(acc, key, ILike(`%${value}%`));
+                } else {
+                  acc[key] = ILike(`%${value}%`);
+                }
+              } else if (
+                columnsData[key]?.type === 'timestamp' &&
+                Array.isArray(value)
+              ) {
+                const [from, to] = value;
+                if (from && to) {
+                  acc[key] = Between(
+                    moment(from).format('YYYY-MM-DD HH:MM:SS'),
+                    moment(to).format('YYYY-MM-DD HH:MM:SS')
+                  );
+                } else if (from) {
+                  acc[key] = MoreThanOrEqual(from);
+                } else if (to) {
+                  acc[key] = LessThanOrEqual(to);
+                }
+              } else if (typeof value !== 'undefined') {
+                acc[key] = value;
+              }
+            }
+  
+            return acc;
+          },
+          {}
+        );
+      }
 
       // console.log(searchOptions, columnsData)
-      query.where = Object.entries(searchOptions.where || {}).reduce(
-        (acc, [key, value]) => {
-          const [relation] = key.split('.');
-          if (
-            typeof columnsData[key] !== 'undefined' ||
-            (typeof columnsData[relation] !== 'undefined' &&
-              (searchOptions?.relations || []).includes(relation))
-          ) {
-            if (
-              (!columnsData[key]?.enum &&
-                typeof columnsData[key]?.type === 'function' &&
-                columnsData[key]?.type?.prototype === String.prototype) ||
-              columnsData[key]?.type === 'string' ||
-              columnsData[relation]?.type === 'string'
-            ) {
-              if (key.includes('.')) {
-                _.set(acc, key, ILike(`%${value}%`));
-              } else {
-                acc[key] = ILike(`%${value}%`);
-              }
-            } else if (
-              columnsData[key]?.type === 'timestamp' &&
-              Array.isArray(value)
-            ) {
-              const [from, to] = value;
-              if (from && to) {
-                acc[key] = Between(
-                  moment(from).format('YYYY-MM-DD HH:MM:SS'),
-                  moment(to).format('YYYY-MM-DD HH:MM:SS')
-                );
-              } else if (from) {
-                acc[key] = MoreThanOrEqual(from);
-              } else if (to) {
-                acc[key] = LessThanOrEqual(to);
-              }
-            } else if (typeof value !== 'undefined') {
-              acc[key] = value;
-            }
-          }
-
-          return acc;
-        },
-        {}
-      );
+      query.where = Array.isArray(searchOptions.where)
+        ? searchOptions.where.map(composeWhereOptions)
+        : composeWhereOptions(searchOptions.where || {});
     }
-    // console.log('++++++++++++++', query)
 
     return queryBuilderOrRepository instanceof SelectQueryBuilder
       ? paginate<T, CustomMetaType>(queryBuilderOrRepository, options)
@@ -194,9 +183,11 @@ export class BaseService {
     options: any = {}
   ) {
     const { where: whereElse, ...findOptions } = options;
-
-    term = String(term).replace(/\s/g, '%');
-    const where: any = fields.map((field) => ({ [field]: ILike(`%${term}%`) }));
+    let where = {};
+    if (term) {
+      term = String(term).replace(/\s/g, '%');
+      where = fields.map((field) => ({ [field]: term, ...whereElse }));
+    }
 
     return this.paginate(repository, pagination, { where, ...findOptions });
   }
