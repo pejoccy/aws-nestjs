@@ -5,8 +5,9 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { UserRole } from '../common/interfaces';
+import { UserRoles } from '../common/interfaces';
 import { Business } from './business/business.entity';
+import { Specialist } from './specialist/specialist.entity';
 
 @Entity()
 export class Account {
@@ -37,8 +38,8 @@ export class Account {
   @Column({ nullable: true, select: true })
   lastLoginIp?: string;
 
-  @Column({ nullable: true, enum: UserRole })
-  role?: UserRole;
+  @Column({ nullable: true, enum: UserRoles })
+  role?: UserRoles;
 
   @Column({ nullable: true })
   businessId?: string;
@@ -46,4 +47,7 @@ export class Account {
   @OneToOne(() => Business)
   @JoinColumn()
   business?: Business;
+
+  @OneToOne(() => Specialist, specialist => specialist.account)
+  specialist?: Specialist;
 }

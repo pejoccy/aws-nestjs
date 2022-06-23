@@ -13,7 +13,7 @@ export type CachedAuthData<T = any> = {
   data?: T;
 }
 
-export enum UserRole {
+export enum UserRoles {
   PATIENT = 'patient',
   SPECIALIST = 'specialist',
   BUSINESS = 'business',
@@ -64,6 +64,8 @@ export interface MessageBulkData {
   subject?: string;
 }
 
-export enum Currency {
-  NGN = 'NGN',
+export enum SpecialistCategories {
+  SPECIALIST = 'specialist',
+  UNDERGRADUATE = 'undergraduate',
+  POSTGRADUATE = 'postgraduate',
 }

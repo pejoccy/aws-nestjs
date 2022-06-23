@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { CreateBusinessDto } from '../business/dto/create-business-dto';
+import { CreateSpecialistDto } from '../specialist/dto/create-specialist-dto';
 
 export class CreateAccountDto {
   @ApiProperty()
@@ -36,4 +37,9 @@ export class CreateAccountDto {
   @IsOptional()
   @Type(() => CreateBusinessDto)
   business?: CreateBusinessDto;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => CreateSpecialistDto)
+  specialist?: CreateSpecialistDto;
 }
