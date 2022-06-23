@@ -74,18 +74,15 @@ export class BaseService {
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilder: SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     repository: Repository<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilderOrRepository: Repository<T> | SelectQueryBuilder<T>,
     options: IPaginationOptions<CustomMetaType>,
-    authorized?: any,
     searchOptions?: FindManyOptions<T>
   ): Promise<Pagination<T, CustomMetaType>> {
     options.limit =
@@ -94,19 +91,6 @@ export class BaseService {
 
     const query: FindManyOptions = {};
     searchOptions = this.excludeExtraneousKeys(searchOptions);
-
-    if (authorized && authorized.tenant) {
-      searchOptions.where = {
-        ...(searchOptions as any)?.where,
-        tenantId: authorized.tenant.id,
-      };
-    }
-    if (authorized && authorized.app) {
-      searchOptions.where = {
-        ...(searchOptions as any)?.where,
-        appId: authorized.app.id,
-      };
-    }
 
     if (queryBuilderOrRepository instanceof Repository && !!searchOptions) {
       let columnsData = queryBuilderOrRepository.metadata.columns.reduce(

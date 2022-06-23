@@ -54,9 +54,7 @@ export enum MessageScheduleStatus {
 }
 
 export interface JwtPayload {
-  email: string;
-  id: string;
-  authType?: 'reset';
+  authType?: AuthTokenTypes;
 }
 export interface MessageBulkData {
   recipients: string | string[];
@@ -66,4 +64,20 @@ export interface MessageBulkData {
 
 export enum Currency {
   NGN = 'NGN',
+}
+
+export enum ResourcePermissions {
+  SCAN_AND_UPLOAD = 'scan-and-upload',
+  BULK_SCAN_AND_UPLOAD = 'bulk-scan-and-upload',
+  VIDEO_AUDIO_CALL_AND_RECORDING = 'video-audio-call-and-recording',
+  ADD_MULTIPLE_PAYMENT_CARDS = 'add-multiple-payment-cards',
+  SHARE_AND_GRANT_ACCESS = 'share-and-grant-access',
+  VIEW_DETAILED_REPORT = 'view-detailed-report',
+  DOWNLOAD_EXPORT = 'download-and-export',
+}
+
+export enum TimeUnits {
+  DAY = 'day',
+  MONTH = 'month',
+  YEAR = 'year',
 }

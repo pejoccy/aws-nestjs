@@ -1,11 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableUnique } from "typeorm";
 
-export class CreateBusinessTable1654771570421 implements MigrationInterface {
-
+export class CreatePlanTable1655739459446 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'business',
+          name: 'plan',
           columns: [
             {
               name: 'id',
@@ -18,26 +17,52 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               type: 'varchar',
             },
             {
-              name: 'email',
-              type: 'varchar',
+              name: 'price',
+              type: 'integer',
+              comment: 'value in kobo, cent, etc',
             },
             {
-              name: 'phoneNumber',
-              type: 'varchar',
-            },
-            {
-              name: 'contactAddress',
-              type: 'varchar',
-            },
-            {
-              name: 'website',
-              type: 'varchar',
+              name: 'ranking',
+              type: 'integer',
               isNullable: true,
             },
             {
-              name: 'logo',
+              name: 'currency',
+              type: 'varchar',
+              length: '3',
+              comment: 'iso-3 currency code',
+            },
+            {
+              name: 'timeUnit',
+              type: 'varchar',
+              comment: 'month, day, year',
+              default: "'month'",
+            },
+            {
+              name: 'validity',
+              type: 'integer',
+              default: 1,
+            },
+            {
+              name: 'trialTimeUnit',
               type: 'varchar',
               isNullable: true,
+              comment: 'month, day, year',
+            },
+            {
+              name: 'trialPeriod',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'status',
+              type: 'boolean',
+              default: true,
+            },
+            {
+              name: 'isDefault',
+              type: 'boolean',
+              default: false,
             },
             {
               name: 'createdAt',
@@ -55,20 +80,21 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               isNullable: true,
             },
           ],
-        })
+        }),
+        true
       );
 
       await queryRunner.createUniqueConstraint(
-        'business',
+        'plan',
         new TableUnique({
-          name: 'uniq_business_name',
+          name: 'uniq_plan_name',
           columnNames: ['name'],
         })
       );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('business');
+      await queryRunner.dropTable('plan');
     }
 
 }

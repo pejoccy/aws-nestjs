@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { UserRole } from '../common/interfaces';
+import { Subscription } from '../common/subscription/subscription.entity';
 import { Business } from './business/business.entity';
 
 @Entity()
@@ -40,10 +41,17 @@ export class Account {
   @Column({ nullable: true, enum: UserRole })
   role?: UserRole;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   businessId?: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  subscriptionId?: string;
 
   @OneToOne(() => Business)
   @JoinColumn()
   business?: Business;
+
+  @OneToOne(() => Subscription)
+  @JoinColumn()
+  subscription?: Subscription;
 }

@@ -1,11 +1,11 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableUnique } from "typeorm";
 
-export class CreateBusinessTable1654771570421 implements MigrationInterface {
+export class CreatePermissionTable1655736725415 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'business',
+          name: 'permission',
           columns: [
             {
               name: 'id',
@@ -14,30 +14,17 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               default: 'uuid_generate_v4()',
             },
             {
+              name: 'slug',
+              type: 'varchar',
+            },
+            {
               name: 'name',
               type: 'varchar',
             },
             {
-              name: 'email',
-              type: 'varchar',
-            },
-            {
-              name: 'phoneNumber',
-              type: 'varchar',
-            },
-            {
-              name: 'contactAddress',
-              type: 'varchar',
-            },
-            {
-              name: 'website',
-              type: 'varchar',
-              isNullable: true,
-            },
-            {
-              name: 'logo',
-              type: 'varchar',
-              isNullable: true,
+              name: 'status',
+              type: 'boolean',
+              default: true,
             },
             {
               name: 'createdAt',
@@ -59,16 +46,16 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
       );
 
       await queryRunner.createUniqueConstraint(
-        'business',
+        'permission',
         new TableUnique({
-          name: 'uniq_business_name',
-          columnNames: ['name'],
+          name: 'uniq_permission_slug',
+          columnNames: ['slug'],
         })
       );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('business');
+      await queryRunner.dropTable('permission');
     }
 
 }

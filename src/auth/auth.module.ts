@@ -6,6 +6,7 @@ import { Account } from '../account/account.entity';
 import { AccountModule } from '../account/account.module';
 import { Business } from '../account/business/business.entity';
 import { MailerModule } from '../common/mailer/mailer.module';
+import { SubscriptionModule } from '../common/subscription/subscription.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
@@ -13,13 +14,14 @@ import { AuthService } from './auth.service';
   providers: [AuthService, JwtService],
   controllers: [AuthController],
   imports: [
+    AccountModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => config.get('jwt'),
     }),
     MailerModule,
     TypeOrmModule.forFeature([Account, Business]),
-    AccountModule,
+    SubscriptionModule,
   ],
   exports: [TypeOrmModule, AccountModule]
 })

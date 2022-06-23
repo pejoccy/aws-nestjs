@@ -46,10 +46,12 @@ const config = {
   },
   jwt: {
     secret: env('SECRET_KEY', 'MyJwtSecret'),
-    secretOrPrivateKey: env('SECRET_KEY', 'MyJwtSecret'),
     signOptions: {
-      expiresIn: env('EXPIRY_TIME_SEC', 30 * 60),
+      expiresIn: Number(env('EXPIRY_TIME_SEC', 15 * 60)),
     },
+    refreshToken: {
+      expiresIn: Number(env('REFRESH_EXPIRY_TIME_SEC', 3 * 60 * 60)), // 3 hrs
+    }
   },
   sendGrid: {
     apiKey: env('SENDGRID_API_KEY'),

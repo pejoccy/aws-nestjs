@@ -31,7 +31,12 @@ export class CacheService {
     config?: CachingConfig
   ): Promise<any> {
     
-    return this.cache.wrap(key, cb, config);
+    const data = await this.cache.wrap(key, cb, config);
+    if (!!data && config?.ttl && typeof config.ttl === 'number') {
+      this.set(key, data, config.ttl);
+    }
+
+    return data;
   }
 
   async wrap2(key: string, cb: () => Promise<any>): Promise<any> {

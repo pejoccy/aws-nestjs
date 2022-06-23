@@ -12,7 +12,7 @@ const CUSTOM_CHARS =
 export class AppUtilities {
   constructor(private configService: ConfigService) {}
 
-  public generateOtp(length = 8): string {
+  public generateOtp(length = 4): string {
     return Math
       .floor(Math.random() * Math.pow(10, length))
       .toString()
