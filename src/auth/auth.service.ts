@@ -15,9 +15,10 @@ import { CreateAccountDto } from '../account/dto/create-account.dto';
 import { Specialist } from '../account/specialist/specialist.entity';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import {
+import { 
   AuthTokenTypes,
   CachedAuthData,
+  PG_DB_ERROR_CODES,
   UserRoles,
 } from '../common/interfaces';
 import { CacheService } from '../common/cache/cache.service';
@@ -25,6 +26,7 @@ import { MailerService } from '../common/mailer/mailer.service';
 import {
   SpecializationService,
 } from '../common/specialization/specialization.service';
+import { SubscriptionService } from '../common/subscription/subscription.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -40,6 +42,7 @@ export class AuthService extends BaseService {
     private specialistRepository: Repository<Specialist>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private subscriptionService: SubscriptionService,
     private cacheService: CacheService,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
@@ -75,7 +78,14 @@ export class AuthService extends BaseService {
   public async signIn({ email, password }: SignInDto) {
     const account = await this.accountRepository.findOne({
       where: { email },
-      relations: ['business', 'specialist', 'specialist.specialization'],
+      relations: [
+        'business',
+        'subscription',
+        'subscription.plan',
+        'subscription.plan.permissions',
+        'specialist',
+        'specialist.specialization',
+      ],
     });
     const passwordMatches = !!account && (await this.validatePassword(password, account));
     if (!account || !passwordMatches) {
@@ -85,15 +95,21 @@ export class AuthService extends BaseService {
     if (!account.isVerified) {
       throw new UnauthorizedException('Account not verified!');
     }
-
-    const accessToken = this.generateJwtToken(
-      { email, id: account.id },
-      { expiresIn: this.configService.get('jwt.signOptions.expiresIn') }
+    else if (!account.subscription) {
+      account.subscription = await this
+        .subscriptionService
+        .setupDefaultSubscription(account);
+    }
+    const jwtExpiration = this.configService.get('jwt.signOptions.expiresIn');
+    const expiresIn = new Date().getTime() + jwtExpiration;
+    const accessToken = await this.setAuthTokenCache(
+      AuthTokenTypes.AUTH,
+      account
     );
 
     return {
       accessToken,
-      expiryTime: this.configService.get('jwt.signOptions.expiresIn'),
+      expiresIn,
       user: {
         id: account.id,
         role: account.role,
@@ -104,6 +120,7 @@ export class AuthService extends BaseService {
         isVerified: account.isVerified,
         business: account.business || undefined,
         specialist: account.specialist || undefined,
+        // subscription: account.subscription,
       },
     };
   }
@@ -134,7 +151,7 @@ export class AuthService extends BaseService {
         data: accountInitData,
         otp,
       },
-      7 * 24 * 60 * 60 // 7 day
+      24 * 60 * 60 // 1 day
     );
 
     this.mailService.sendUserAccountSetupEmail(email, otp);
@@ -152,7 +169,6 @@ export class AuthService extends BaseService {
   }: CreateAccountDto & { userType: UserRoles }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
-    console.log(initData.data);
     if (
       initData.authType !== AuthTokenTypes.SETUP ||
       initData.data?.userType !== userType
@@ -174,7 +190,7 @@ export class AuthService extends BaseService {
         userType: userRole,
       } = initData.data || {};
 
-      const user = await this.accountRepository.save({
+      const account = await this.accountRepository.save({
         firstName,
         lastName,
         email,
@@ -185,7 +201,10 @@ export class AuthService extends BaseService {
         businessId,
         isVerified: true,
       });
-      delete user.password;
+      // setup default subscription
+      await this.subscriptionService.setupDefaultSubscription(account);
+      // clean up
+      delete account.password;
       this.cacheService.remove(token);
 
       if (userType === UserRoles.SPECIALIST && !!specialist) {
@@ -194,16 +213,16 @@ export class AuthService extends BaseService {
           ({ id: specializationId } = await this.specializationService
             .setupSpecialization({ title: specialist.otherSpecialization }));
         }
-        user.specialist = await this.specialistRepository.save({
+        account.specialist = await this.specialistRepository.save({
           specializationId,
-          accountId: user.id,
+          accountId: account.id,
           category: specialist.category,
         });
       }
 
-      return user;
+      return account;
     } catch (error) {
-      if (error.code === '23505') {
+      if (error.code === PG_DB_ERROR_CODES.CONFLICT) {
         throw new NotAcceptableException(
           'An account with same email already exists!'
         );
@@ -264,5 +283,30 @@ export class AuthService extends BaseService {
     };
 
     return this.jwtService.sign(payload, options);
+  }
+
+  private async setAuthTokenCache(
+    authType: AuthTokenTypes,
+    cacheData?: any,
+    ttl: number = this.configService.get<number>('jwt.signOptions.expiresIn')
+  ) {
+    let refreshTokenTtl = ttl;
+    if (authType === AuthTokenTypes.AUTH) {
+      refreshTokenTtl = this.configService.get<number>(
+        'jwt.refreshToken.expiresIn'
+      );
+    }
+    const token = this.generateJwtToken(
+      { authType },
+      { expiresIn: refreshTokenTtl }
+    );
+    const [, , cacheKey] = token.split('.');
+    await this.cacheService.set(
+      cacheKey,
+      { data: cacheData, authType },
+      ttl
+    );
+
+    return token;
   }
 }

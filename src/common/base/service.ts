@@ -91,7 +91,6 @@ export class BaseService {
 
     const query: FindManyOptions = {};
     searchOptions = this.excludeExtraneousKeys(searchOptions);
-    
     if (queryBuilderOrRepository instanceof Repository && !!searchOptions) {
       let columnsData = queryBuilderOrRepository.metadata.columns.reduce(
         (acc, column) => {

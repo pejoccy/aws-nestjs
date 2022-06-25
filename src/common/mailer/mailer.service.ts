@@ -37,7 +37,7 @@ export class MailerService {
       to: email,
       subject: 'Complete Account Setup',
       html,
-    }).catch(console.error);
+    }).catch(err => console.log(JSON.stringify(err, null, 2)));
   }
 
   async sendForgotPasswordEmail(
@@ -53,7 +53,7 @@ export class MailerService {
       to: email,
       subject: 'Reset Account Password',
       html,
-    }).catch(console.error);
+    }).catch(console.dir);
   }
 
   protected async getFileTemplate(

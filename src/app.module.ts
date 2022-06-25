@@ -16,6 +16,9 @@ import {
 import {
   NotificationModule,
 } from './common/notification/notification.module';
+import { PlanModule } from './common/plan/plan.module';
+import { SubscriptionModule } from './common/subscription/subscription.module';
+import { PermissionGuard } from './auth/guards/permission.guard';
 
 @Global()
 @Module({
@@ -25,6 +28,8 @@ import {
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     NotificationModule,
     PassportModule.register({}),
+    PlanModule,
+    SubscriptionModule,
     TypeOrmModule.forRootAsync({
       useFactory: async (config: ConfigService) => config.get('db.pgsql'),
       inject: [ConfigService],
@@ -35,6 +40,7 @@ import {
     AppUtilities,
     JwtStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    PermissionGuard,
   ],
   exports:[
     AppUtilities,

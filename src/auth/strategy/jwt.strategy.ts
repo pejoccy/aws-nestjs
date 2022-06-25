@@ -1,32 +1,61 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { Repository } from 'typeorm';
-import { JwtPayload } from '../../common/interfaces';
-import { Account } from '../../account/account.entity';
+import { CacheService } from '../../common/cache/cache.service';
+import {
+  AuthTokenTypes,
+  CachedAuthData,
+  JwtPayload,
+} from '../../common/interfaces';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    @InjectRepository(Account)
-    private userRepository: Repository<Account>,
-    configService: ConfigService
+    private cacheService: CacheService,
+    private configService: ConfigService
   ) {
     super({
       secretOrKey: configService.get('jwt.secret'),
+      passReqToCallback: true,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
   }
 
-  async validate(payload: JwtPayload): Promise<Account & { authType?: 'reset' }> {
-    const { email } = payload;
-    const user: Account = await this.userRepository.findOne({ where: { email } });
-    if (!user) {
+  async validate(
+    request: Request,
+    jwtPayload: JwtPayload
+  ): Promise<CachedAuthData> {
+    const data = await this.refreshAuthToken(request, jwtPayload);
+    ;
+    if (!data) {
       throw new UnauthorizedException();
     }
+
+    return data;
+  }
+
+  private async refreshAuthToken(request: Request, jwtPayload: JwtPayload) {
+    let [, token] = String(request.headers['authorization']).split(/\s+/);
+    const [, , cacheKey] = String(token).split('.');
+    if (!cacheKey) {
+      return undefined;
+    }
+
+    if (jwtPayload.authType !== AuthTokenTypes.AUTH) {
+      return this.cacheService.get(cacheKey);
+    }
+
+    const cacheData = await this.cacheService.wrap(
+      cacheKey,
+      (cachedData, error) => {
+        if (error) console.error(error);
+
+        return cachedData
+      },
+      { ttl: this.configService.get<number>('jwt.signOptions.expiresIn') }
+    );  
     
-    return { ...user, authType: payload.authType };
+    return cacheData;
   }
 }
