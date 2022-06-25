@@ -6,8 +6,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { CreateSpecialistDto } from './create-specialist-dto';
 
-export class SetupAccountDto {
+export class SetupSpecialistDto extends CreateSpecialistDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

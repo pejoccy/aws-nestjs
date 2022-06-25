@@ -5,16 +5,19 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RealIP } from 'nestjs-real-ip';
-import { UserRole } from 'src/common/interfaces';
+import { SetupBusinessDto } from '../account/business/dto/setup-business.dto';
+import { SetupPatientDto } from '../account/dto/setup-patient.dto';
+import {
+  SetupSpecialistDto,
+} from '../account/specialist/dto/setup-specialist.dto';
 import { PublicRoute } from '../common/decorators/public-route-decorator';
 import { ApiResponseMeta } from '../common/decorators/response.decorator';
+import { UserRoles } from '../common/interfaces';
 import { AuthService } from './auth.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { InitAccountDto } from './dto/init-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { SetupAccountDto } from './dto/setup-account.dto';
-import { SetupBusinessDto } from './dto/setup-business.dto';
 import { SignInDto } from './dto/sign-in.dto';
 
 @Controller('auth')
@@ -47,18 +50,29 @@ export class AuthController {
     return this.authService.initiateAccount(item);
   }
 
-  @ApiResponseMeta({ message: 'Account created successfully!' })
+  @ApiResponseMeta({ message: 'Patient account created successfully!' })
   @Post('/setup-patient')
   @PublicRoute()
-  async completePatientAccountSetup(@Body() item: SetupAccountDto) {
-    return this.authService.signUp({ ...item, userType: UserRole.PATIENT });
+  async completePatientAccountSetup(@Body() item: SetupPatientDto) {
+    return this.authService.signUp({ ...item, userType: UserRoles.PATIENT });
   }
 
-  @ApiResponseMeta({ message: 'Account created successfully!' })
+  @ApiResponseMeta({ message: 'Specialist account created successfully!' })
   @Post('/setup-specialist')
   @PublicRoute()
-  async completeSpecialistAccountSetup(@Body() item: SetupAccountDto) {
-    return this.authService.signUp({ ...item, userType: UserRole.SPECIALIST });
+  async completeSpecialistAccountSetup(
+    @Body() {
+      category,
+      specializationId,
+      otherSpecialization,
+      ...item
+    }: SetupSpecialistDto
+  ) {
+    return this.authService.signUp({
+      ...item,
+      specialist: { category, specializationId, otherSpecialization },
+      userType: UserRoles.SPECIALIST,
+    });
   }
 
   @ApiResponseMeta({ message: 'Business account created successfully!' })
@@ -71,7 +85,7 @@ export class AuthController {
       otp,
       token,
       business,
-      userType: UserRole.BUSINESS
+      userType: UserRoles.BUSINESS
     });
   }
 
@@ -90,7 +104,7 @@ export class AuthController {
   @Post('/verifyToken')
   @PublicRoute()
   async verifyToken(@Body() item: AuthOtpDto) {
-    await this.authService.verifyPasswordResetOtp(item);
+    await this.authService.verifyTokenizedOtp(item);
   }
 
   @ApiResponseMeta({ message: 'Password successfully reset'})
