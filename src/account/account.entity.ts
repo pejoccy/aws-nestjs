@@ -1,12 +1,17 @@
+import { FileToCollaborator } from 'src/pacs/file/file-collaborator.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
   JoinColumn,
+  ManyToMany,
+  OneToMany,
+  JoinTable,
 } from 'typeorm';
 import { UserRoles } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
+import { File } from '../pacs/file/file.entity';
 import { Business } from './business/business.entity';
 import { Specialist } from './specialist/specialist.entity';
 
@@ -52,10 +57,20 @@ export class Account {
   @JoinColumn()
   business?: Business;
 
-  @OneToOne(() => Subscription)
+  @OneToOne(() => Subscription, subscription => subscription.account)
   @JoinColumn()
   subscription?: Subscription;
   
   @OneToOne(() => Specialist, specialist => specialist.account)
   specialist?: Specialist;
+
+  @OneToMany(
+    () => FileToCollaborator,
+    fileToCollaborator => fileToCollaborator.collaborator
+  )
+  public fileToCollaborators!: Promise<FileToCollaborator[]>;
+
+  @ManyToMany(() => File, file => file.collaborators)
+  @JoinTable({ name: 'file_collaborator' })
+  collaboratedFiles: File[];
 }

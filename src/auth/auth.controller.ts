@@ -20,8 +20,8 @@ import { InitAccountDto } from './dto/init-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
 
-@Controller('auth')
 @ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService

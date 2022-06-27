@@ -5,10 +5,10 @@ import { AccountModule } from '../account/account.module';
 import { BusinessModule } from '../account/business/business.module';
 import { SpecialistModule } from '../account/specialist/specialist.module';
 import { MailerModule } from '../common/mailer/mailer.module';
-import { SubscriptionModule } from '../common/subscription/subscription.module';
 import {
   SpecializationModule,
 } from '../common/specialization/specialization.module';
+import { SubscriptionModule } from '../common/subscription/subscription.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 

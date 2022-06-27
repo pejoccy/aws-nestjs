@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
 
 export class CreatePlanTable1655739459446 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {

@@ -1,3 +1,15 @@
+import { NotAcceptableException } from "@nestjs/common";
+
+export const imageFileFilter = (req, file, callback) => {
+  if (!file.originalname.match(/\.(png|jpeg|jpg)$/)) {
+    return callback(
+      new NotAcceptableException('Only image files are allowed!'),
+      false
+    );
+  }
+  return callback(null, true);
+};
+
 export const PASSWORD_POLICY_REGEX =
   '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})';
 
@@ -82,4 +94,20 @@ export enum TimeUnits {
   DAY = 'day',
   MONTH = 'month',
   YEAR = 'year',
+}
+
+export enum ShareOptions {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+}
+
+export enum FileModality {
+  X_RAY = 'x-ray',
+  MRI = 'mri',
+  CT_SCAN = 'ct-scan',
+}
+
+export enum ResourcePermissions {
+  READ_ONLY = 'read-only',
+  READ_WRITE = 'read-write',
 }

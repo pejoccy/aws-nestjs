@@ -41,7 +41,6 @@ const config = {
       host: env('REDIS_HOST', 'localhost'),
       port: Number(env('REDIS_PORT', '80')),
       password: env('REDIS_PASSWORD'),
-      refreshThreshold: parseInt(env('CACHE_TTL')),
     },
   },
   jwt: {
@@ -65,6 +64,13 @@ const config = {
     debug: env('SENTRY_DEBUG') === 'true',
     tracesSampleRate: 1.0,
   },
+  storage: {
+    s3: {
+      accessKeyId: env('AWS_S3_ACCESS_KEY_ID'),
+      secretAccessKey: env('AWS_S3_SECRET_ACCESS_KEY'),
+      region: env('AWS_S3_REGION'),
+    },
+  }
 };
 
 export default () => config;

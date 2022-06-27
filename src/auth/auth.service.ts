@@ -80,11 +80,11 @@ export class AuthService extends BaseService {
       where: { email },
       relations: [
         'business',
+        'specialist',
+        'specialist.specialization',
         'subscription',
         'subscription.plan',
         'subscription.plan.permissions',
-        'specialist',
-        'specialist.specialization',
       ],
     });
     const passwordMatches = !!account && (await this.validatePassword(password, account));

@@ -6,11 +6,12 @@ import {
   TableUnique,
 } from 'typeorm';
 
-export class CreateSubscriptionTable1655740990301 implements MigrationInterface {
+export class CreateFileCollaboratorTable1655995655954 implements MigrationInterface {
+
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'subscription',
+          name: 'file_collaborator',
           columns: [
             {
               name: 'id',
@@ -19,42 +20,18 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
               default: 'uuid_generate_v4()',
             },
             {
-              name: 'planId',
-              type: 'uuid',
-            },
-            {
               name: 'accountId',
               type: 'uuid',
             },
             {
-              name: 'paymentId',
+              name: 'fileId',
               type: 'uuid',
-              isNullable: true,
             },
             {
-              name: 'recurring',
-              type: 'boolean',
-              default: true,
-            },
-            {
-              name: 'status',
-              type: 'boolean',
-              default: true,
-            },
-            {
-              name: 'isTrial',
-              type: 'boolean',
-              default: false,
-            },
-            {
-              name: 'billingStartDate',
-              type: 'timestamp',
-              default: 'now()',
-            },
-            {
-              name: 'nextBillingDate',
-              type: 'timestamp',
-              isNullable: true,
+              name: 'permission',
+              type: 'varchar',
+              default: `'read-write'`,
+              comment: 'e.g. read-write, readonly',
             },
             {
               name: 'createdAt',
@@ -76,31 +53,31 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
       );
 
       await queryRunner.createUniqueConstraint(
-        'subscription',
+        'file_collaborator',
         new TableUnique({
-          name: 'uniq_subscription_paymentId',
-          columnNames: ['paymentId'],
+          name: 'uniq_file_collaborator_fileId_accountId',
+          columnNames: ['fileId', 'accountId'],
         })
       );
 
-      await queryRunner.createForeignKeys('subscription', [
+      await queryRunner.createForeignKeys('file_collaborator', [
         new TableForeignKey({
-          name: 'fk_subscription_accountId_account_id',
+          name: 'fk_file_collaborator_accountId_account_id',
           columnNames: ['accountId'],
           referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
         new TableForeignKey({
-          name: 'fk_subscription_planId_plan_id',
-          columnNames: ['planId'],
-          referencedTableName: 'plan',
+          name: 'fk_file_collaborator_folderId_folder_id',
+          columnNames: ['fileId'],
+          referencedTableName: 'file',
           referencedColumnNames: ['id'],
         }),
       ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('subscription');
+      await queryRunner.dropTable('file_collaborator');
     }
 
 }

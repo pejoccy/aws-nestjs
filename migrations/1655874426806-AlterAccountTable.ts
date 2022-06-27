@@ -1,4 +1,10 @@
-import {MigrationInterface, QueryRunner, TableColumn, TableForeignKey, TableUnique} from "typeorm";
+import {
+  MigrationInterface,
+  QueryRunner,
+  TableColumn,
+  TableForeignKey,
+  TableUnique,
+} from 'typeorm';
 
 export class AlterAccountTable1655874426806 implements MigrationInterface {
 

@@ -11,7 +11,7 @@ import { PermissionGuard } from '../../auth/guards/permission.guard';
 import { ResourcePermission } from '../decorators/permission.decorator';
 import { PublicRoute } from '../decorators/public-route-decorator';
 import { PaginationOptionsDto } from '../dto';
-import { EntityIdStringDto, PermissionIdStringDto } from '../dto/entity-dto';
+import { EntityIdStringDto, PermissionIdStringDto } from '../dto/entity.dto';
 import { ResourcePermissions } from '../interfaces';
 import { Plan } from './plan.entity';
 import { PlanService } from './plan.service';

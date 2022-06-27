@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../base/service';
-import { CreateSpecializationDto } from './dto/create-specialization-dto';
+import { CreateSpecializationDto } from './dto/create-specialization.dto';
 import { Specialization } from './specialization.entity';
 
 @Injectable()

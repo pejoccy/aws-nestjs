@@ -3,14 +3,15 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
+  TableUnique,
 } from 'typeorm';
 
-export class CreateAccountCardTable1654876580831 implements MigrationInterface {
+export class CreateFolderTable1655991190318 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'account_card',
+          name: 'folder',
           columns: [
             {
               name: 'id',
@@ -21,42 +22,29 @@ export class CreateAccountCardTable1654876580831 implements MigrationInterface {
             {
               name: 'name',
               type: 'varchar',
-              isNullable: true,
             },
             {
-              name: 'pan',
+              name: 'modality',
               type: 'varchar',
-            },
-            {
-              name: 'expiryMonth',
-              type: 'integer',
-            },
-            {
-              name: 'expiryYear',
-              type: 'integer',
-            },
-            {
-              name: 'currency',
-              type: 'varchar',
-            },
-            {
-              name: 'paymentToken',
-              type: 'varchar',
-              isNullable: true
-            },
-            {
-              name: 'encrypted',
-              type: 'varchar',
-              isNullable: true
-            },
-            {
-              name: 'status',
-              type: 'enum',
-              enum: ['active', 'disabled'],
-              default: `'${'active'}'`,
+              comment: 'e.g. ct-scan, x-ray, e.t.c.'
             },
             {
               name: 'accountId',
+              type: 'uuid',
+            },
+            {
+              name: 'sharing',
+              type: 'varchar',
+              default: `'private'`,
+              comment: 'e.g. private, public'
+            },
+            {
+              name: 'status',
+              type: 'boolean',
+              default: true,
+            },
+            {
+              name: 'createdBy',
               type: 'uuid',
             },
             {
@@ -78,16 +66,26 @@ export class CreateAccountCardTable1654876580831 implements MigrationInterface {
         })
       );
 
-      await queryRunner.createForeignKey('account_card', new TableForeignKey({
-        name: 'fk_account_card_accountId_account_id',
-        columnNames: ['accountId'],
-        referencedTableName: 'account',
-        referencedColumnNames: ['id'],
-      }));
+      await queryRunner.createUniqueConstraint(
+        'folder',
+        new TableUnique({
+          name: 'uniq_folder_accountId_name',
+          columnNames: ['accountId', 'name'],
+        })
+      );
+
+      await queryRunner.createForeignKeys('folder', [
+        new TableForeignKey({
+          name: 'fk_folder_accountId_account_id',
+          columnNames: ['accountId'],
+          referencedTableName: 'account',
+          referencedColumnNames: ['id'],
+        }),
+      ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('account_card');
+      await queryRunner.dropTable('folder');
     }
 
 }

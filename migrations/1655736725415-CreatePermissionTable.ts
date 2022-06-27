@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
 
 export class CreatePermissionTable1655736725415 implements MigrationInterface {
 

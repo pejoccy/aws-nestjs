@@ -6,11 +6,12 @@ import {
   TableUnique,
 } from 'typeorm';
 
-export class CreateSubscriptionTable1655740990301 implements MigrationInterface {
+export class CreateFileTable1655991206981 implements MigrationInterface {
+
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'subscription',
+          name: 'file',
           columns: [
             {
               name: 'id',
@@ -19,42 +20,42 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
               default: 'uuid_generate_v4()',
             },
             {
-              name: 'planId',
-              type: 'uuid',
+              name: 'name',
+              type: 'varchar',
+            },
+            {
+              name: 'resourceId',
+              type: 'varchar',
+              isNullable: true,
+            },
+            {
+              name: 'resourceUri',
+              type: 'varchar',
+              isNullable: true,
             },
             {
               name: 'accountId',
               type: 'uuid',
             },
             {
-              name: 'paymentId',
+              name: 'folderId',
               type: 'uuid',
-              isNullable: true,
             },
             {
-              name: 'recurring',
-              type: 'boolean',
-              default: true,
+              name: 'sharing',
+              type: 'varchar',
+              default: `'private'`,
+              comment: 'e.g. private, public'
             },
             {
               name: 'status',
-              type: 'boolean',
-              default: true,
+              type: 'varchar',
+              default: `'pending'`,
+              comment: 'e.g. pending, uploading, uploaded, invalid',
             },
             {
-              name: 'isTrial',
-              type: 'boolean',
-              default: false,
-            },
-            {
-              name: 'billingStartDate',
-              type: 'timestamp',
-              default: 'now()',
-            },
-            {
-              name: 'nextBillingDate',
-              type: 'timestamp',
-              isNullable: true,
+              name: 'createdBy',
+              type: 'uuid',
             },
             {
               name: 'createdAt',
@@ -76,31 +77,31 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
       );
 
       await queryRunner.createUniqueConstraint(
-        'subscription',
+        'file',
         new TableUnique({
-          name: 'uniq_subscription_paymentId',
-          columnNames: ['paymentId'],
+          name: 'uniq_file_accountId_folderId_name',
+          columnNames: ['accountId', 'folderId', 'name'],
         })
       );
 
-      await queryRunner.createForeignKeys('subscription', [
+      await queryRunner.createForeignKeys('file', [
         new TableForeignKey({
-          name: 'fk_subscription_accountId_account_id',
+          name: 'fk_file_accountId_account_id',
           columnNames: ['accountId'],
           referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
         new TableForeignKey({
-          name: 'fk_subscription_planId_plan_id',
-          columnNames: ['planId'],
-          referencedTableName: 'plan',
+          name: 'fk_file_folderId_folder_id',
+          columnNames: ['folderId'],
+          referencedTableName: 'folder',
           referencedColumnNames: ['id'],
         }),
       ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('subscription');
+      await queryRunner.dropTable('file');
     }
 
 }

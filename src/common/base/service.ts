@@ -165,6 +165,7 @@ export class BaseService {
         ? searchOptions.where.map(composeWhereOptions)
         : composeWhereOptions(searchOptions.where || {});
     }
+    console.log(query.where, searchOptions.where);
 
     return queryBuilderOrRepository instanceof SelectQueryBuilder
       ? paginate<T, CustomMetaType>(queryBuilderOrRepository, options)

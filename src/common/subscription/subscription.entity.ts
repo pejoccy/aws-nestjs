@@ -39,7 +39,7 @@ export class Subscription {
 
   @OneToOne(() => Plan)
   @JoinColumn()
-  plan?: Plan;
+  plan: Plan;
 
   @OneToOne(() => Account)
   @JoinColumn()

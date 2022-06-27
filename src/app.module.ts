@@ -1,13 +1,15 @@
 import { Global, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountModule } from './account/account.module';
 import config from './app.config';
 import { AppController } from './app.controller';
 import { AppUtilities } from './app.utilities';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
+import { PermissionGuard } from './auth/guards/permission.guard';
 import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { CacheModule } from './common/cache/cache.module';
 import {
@@ -18,15 +20,17 @@ import {
 } from './common/notification/notification.module';
 import { PlanModule } from './common/plan/plan.module';
 import { SubscriptionModule } from './common/subscription/subscription.module';
-import { PermissionGuard } from './auth/guards/permission.guard';
+import { PacsModule } from './pacs/pacs.module';
 
 @Global()
 @Module({
   imports: [
     AuthModule,
+    AccountModule,
     CacheModule,
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     NotificationModule,
+    PacsModule,
     PassportModule.register({}),
     PlanModule,
     SubscriptionModule,
