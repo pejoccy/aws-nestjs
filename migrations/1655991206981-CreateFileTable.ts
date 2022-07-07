@@ -15,31 +15,55 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'int',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'name',
               type: 'varchar',
             },
             {
-              name: 'resourceId',
+              name: 'modalitySection',
+              type: 'varchar',
+              isNullable: true,
+              comment: 'e.g. brain for ct-scan, chest for x-ray, hand for skin e.t.c.'
+            },
+            {
+              name: 'hash',
               type: 'varchar',
               isNullable: true,
             },
             {
-              name: 'resourceUri',
+              name: 'url',
               type: 'varchar',
               isNullable: true,
             },
             {
-              name: 'accountId',
-              type: 'uuid',
+              name: 'previewUrl',
+              type: 'varchar',
+              isNullable: true,
             },
             {
-              name: 'folderId',
-              type: 'uuid',
+              name: 'ext',
+              type: 'varchar',
+              isNullable: true,
+            },
+            {
+              name: 'mime',
+              type: 'varchar',
+              isNullable: true,
+            },
+            {
+              name: 'size',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'provider',
+              type: 'varchar',
+              isNullable: true,
+              comment: 'e.g. aws, digital ocean',
             },
             {
               name: 'sharing',
@@ -48,14 +72,24 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
               comment: 'e.g. private, public'
             },
             {
+              name: 'patientId',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'sessionId',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'creatorId',
+              type: 'integer',
+            },
+            {
               name: 'status',
               type: 'varchar',
               default: `'pending'`,
               comment: 'e.g. pending, uploading, uploaded, invalid',
-            },
-            {
-              name: 'createdBy',
-              type: 'uuid',
             },
             {
               name: 'createdAt',
@@ -79,22 +113,22 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
       await queryRunner.createUniqueConstraint(
         'file',
         new TableUnique({
-          name: 'uniq_file_accountId_folderId_name',
-          columnNames: ['accountId', 'folderId', 'name'],
+          name: 'uniq_file_patientId_sessionId_name',
+          columnNames: ['patientId', 'sessionId', 'name'],
         })
       );
 
       await queryRunner.createForeignKeys('file', [
         new TableForeignKey({
-          name: 'fk_file_accountId_account_id',
-          columnNames: ['accountId'],
-          referencedTableName: 'account',
+          name: 'fk_file_patientId_patient_id',
+          columnNames: ['patientId'],
+          referencedTableName: 'patient',
           referencedColumnNames: ['id'],
         }),
         new TableForeignKey({
-          name: 'fk_file_folderId_folder_id',
-          columnNames: ['folderId'],
-          referencedTableName: 'folder',
+          name: 'fk_file_sessionId_session_id',
+          columnNames: ['sessionId'],
+          referencedTableName: 'session',
           referencedColumnNames: ['id'],
         }),
       ]);

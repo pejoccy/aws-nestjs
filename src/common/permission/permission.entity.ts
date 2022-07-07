@@ -8,8 +8,8 @@ import { Plan } from '../plan/plan.entity';
 
 @Entity()
 export class Permission {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   name: string;

@@ -35,5 +35,5 @@ export class InitAccountDto {
   @IsNotEmpty()
   @IsMobilePhone()
   @ValidateIf(obj => obj.userType === UserRoles.BUSINESS)
-  phoneNumber?: string;
+  mobilePhone?: string;
 }

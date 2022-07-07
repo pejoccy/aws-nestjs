@@ -111,3 +111,8 @@ export enum ResourcePermissions {
   READ_ONLY = 'read-only',
   READ_WRITE = 'read-write',
 }
+
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+}

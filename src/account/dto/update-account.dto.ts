@@ -11,4 +11,4 @@
 // import { UserRole } from '../../../interfaces';
 // import { CreateBusinessDto } from '../../business/dto/create-business-dto';
 
-export class UpdateUserDto {}
+export class UpdateAccountDto {}

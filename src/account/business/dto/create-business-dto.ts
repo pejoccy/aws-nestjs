@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
   IsEmail,
@@ -20,21 +20,20 @@ export class CreateBusinessDto {
   email: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsMobilePhone()
-  phoneNumber: string;
+  mobilePhone: string;
   
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
   contactAddress: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsUrl()
   website?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBase64()
   logo?: string;

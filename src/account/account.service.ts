@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../common/base/service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './account.entity';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AccountService extends BaseService {
     super();
   }
 
-  async updateUser(id: string, item: UpdateUserDto) {
+  async updateUser(id: string, item: UpdateAccountDto) {
     item = this.excludeExtraneousKeys(item);
     const { affected, raw } = await this.accountRepository
       .createQueryBuilder()
@@ -47,7 +47,7 @@ export class AccountService extends BaseService {
     return user;
   }
 
-  async deleteUser(id: string) {
+  async deleteAccount(id: string) {
     const result = await this.accountRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`user with ${id} not found`);

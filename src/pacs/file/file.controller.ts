@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { EntityIdStringDto } from 'src/common/dto/entity.dto';
+import { EntityIdDto } from 'src/common/dto/entity.dto';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { SearchFileDto } from './dto/search-file.dto';
@@ -30,7 +30,7 @@ export class FileController {
   @ApiParam({ name: 'id' })
   @Patch('/:id')
   async updateFile(
-    @Param() { id }: EntityIdStringDto,
+    @Param() { id }: EntityIdDto,
     @Body() item: any,
     @GetAccount() account: Account
   ): Promise<File> {

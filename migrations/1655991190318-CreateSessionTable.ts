@@ -6,31 +6,47 @@ import {
   TableUnique,
 } from 'typeorm';
 
-export class CreateFolderTable1655991190318 implements MigrationInterface {
+export class CreateSessionTable1655991190318 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'folder',
+          name: 'session',
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'name',
               type: 'varchar',
             },
             {
-              name: 'modality',
-              type: 'varchar',
-              comment: 'e.g. ct-scan, x-ray, e.t.c.'
+              name: 'studyDate',
+              type: 'timestamp',
+              isNullable: true,
             },
             {
-              name: 'accountId',
-              type: 'uuid',
+              name: 'studyInfo',
+              type: 'text',
+              isNullable: true,
+            },
+            {
+              name: 'modality',
+              type: 'varchar',
+              length: '50',
+              comment: 'e.g. ct-scan, x-ray, skin e.t.c.'
+            },
+            {
+              name: 'patientId',
+              type: 'integer',
+            },
+            {
+              name: 'businessId',
+              type: 'integer',
+              isNullable: true,
             },
             {
               name: 'sharing',
@@ -44,8 +60,14 @@ export class CreateFolderTable1655991190318 implements MigrationInterface {
               default: true,
             },
             {
-              name: 'createdBy',
-              type: 'uuid',
+              name: 'report',
+              type: 'jsonb',
+              isNullable: true,
+              comment: `'[{"caption": "Clinical information", "description": "Here goes the description.", "sortOrder": 1}]'`,
+            },
+            {
+              name: 'creatorId',
+              type: 'integer',
             },
             {
               name: 'createdAt',
@@ -66,18 +88,16 @@ export class CreateFolderTable1655991190318 implements MigrationInterface {
         })
       );
 
-      await queryRunner.createUniqueConstraint(
-        'folder',
-        new TableUnique({
-          name: 'uniq_folder_accountId_name',
-          columnNames: ['accountId', 'name'],
-        })
-      );
-
-      await queryRunner.createForeignKeys('folder', [
+      await queryRunner.createForeignKeys('session', [
         new TableForeignKey({
-          name: 'fk_folder_accountId_account_id',
-          columnNames: ['accountId'],
+          name: 'fk_session_patientId_patient_id',
+          columnNames: ['patientId'],
+          referencedTableName: 'patient',
+          referencedColumnNames: ['id'],
+        }),
+        new TableForeignKey({
+          name: 'fk_session_creatorId_account_id',
+          columnNames: ['creatorId'],
           referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
@@ -85,7 +105,7 @@ export class CreateFolderTable1655991190318 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('folder');
+      await queryRunner.dropTable('session');
     }
 
 }

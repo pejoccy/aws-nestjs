@@ -6,26 +6,26 @@ import {
   TableUnique,
 } from 'typeorm';
 
-export class CreateFolderCollaboratorTable1655995645341 implements MigrationInterface {
+export class CreateSessionCollaboratorTable1655995645341 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'folder_collaborator',
+          name: 'session_collaborator',
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'accountId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
-              name: 'folderId',
-              type: 'uuid',
+              name: 'sessionId',
+              type: 'integer',
             },
             {
               name: 'permission',
@@ -53,30 +53,30 @@ export class CreateFolderCollaboratorTable1655995645341 implements MigrationInte
       );
 
       await queryRunner.createUniqueConstraint(
-        'folder_collaborator',
+        'session_collaborator',
         new TableUnique({
-          name: 'uniq_folder_collaborator_folderId_accountId',
-          columnNames: ['folderId', 'accountId'],
+          name: 'uniq_session_collaborator_sessionId_accountId',
+          columnNames: ['sessionId', 'accountId'],
         })
       );
 
-      await queryRunner.createForeignKeys('folder_collaborator', [
+      await queryRunner.createForeignKeys('session_collaborator', [
         new TableForeignKey({
-          name: 'fk_folder_collaborator_accountId_account_id',
+          name: 'fk_session_collaborator_accountId_account_id',
           columnNames: ['accountId'],
           referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
         new TableForeignKey({
-          name: 'fk_folder_collaborator_folderId_folder_id',
-          columnNames: ['folderId'],
-          referencedTableName: 'folder',
+          name: 'fk_session_collaborator_sessionId_session_id',
+          columnNames: ['sessionId'],
+          referencedTableName: 'session',
           referencedColumnNames: ['id'],
         }),
       ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('folder_collaborator');
+      await queryRunner.dropTable('session_collaborator');
     }
 }

@@ -5,3 +5,8 @@ export enum FileStatus {
   UPLOADING = 'uploading',
   INVALID = 'invalid',
 }
+
+export enum FileStorageProviders {
+  LOCAL = 'local',
+  AWS = 'aws',
+}

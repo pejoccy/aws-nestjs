@@ -14,9 +14,27 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
+            },
+            {
+              name: 'firstName',
+              type: 'varchar',
+            },
+            {
+              name: 'lastName',
+              type: 'varchar',
+            },
+            {
+              name: 'mobilePhone',
+              type: 'varchar',
+            },
+            {
+              name: 'country',
+              type: 'varchar',
+              comment: 'Country iso-2 code, e.g. NG',
+              isNullable: true,
             },
             {
               name: 'category',
@@ -25,11 +43,12 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
             },
             {
               name: 'specializationId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'accountId',
-              type: 'uuid',
+              type: 'integer',
+              isNullable: true,
             },
             {
               name: 'status',

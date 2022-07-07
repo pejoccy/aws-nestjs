@@ -1,19 +1,19 @@
 import { Expose } from 'class-transformer';
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsInt, IsOptional } from 'class-validator';
 
-export class EntityIdStringDto {
+export class EntityIdDto {
   @Expose()
-  @IsUUID()
-  public id: string;
+  @IsInt()
+  public id: number;
 }
 
-export class EntityIdOptionalStringDto {
+export class EntityIdOptionalDto {
   @IsOptional()
-  @IsUUID()
-  public id?: string;
+  @IsInt()
+  public id?: number;
 }
 
-export class PermissionIdStringDto {
-  @IsUUID()
-  public permissionId: string;
+export class PermissionIdDto {
+  @IsInt()
+  public permissionId: number;
 }

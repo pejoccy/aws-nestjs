@@ -1,37 +1,29 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-  TableUnique,
-} from 'typeorm';
+import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm";
 
-export class CreateFileCollaboratorTable1655995655954 implements MigrationInterface {
+export class CreateFileNoteTable1655991206982 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'file_collaborator',
+          name: 'file_note',
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
-              name: 'accountId',
-              type: 'uuid',
+              name: 'body',
+              type: 'varchar',
             },
             {
               name: 'fileId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
-              name: 'permission',
-              type: 'varchar',
-              default: `'read-write'`,
-              comment: 'e.g. read-write, readonly',
+              name: 'creatorId',
+              type: 'integer',
             },
             {
               name: 'createdAt',
@@ -52,23 +44,15 @@ export class CreateFileCollaboratorTable1655995655954 implements MigrationInterf
         })
       );
 
-      await queryRunner.createUniqueConstraint(
-        'file_collaborator',
-        new TableUnique({
-          name: 'uniq_file_collaborator_fileId_accountId',
-          columnNames: ['fileId', 'accountId'],
-        })
-      );
-
-      await queryRunner.createForeignKeys('file_collaborator', [
+      await queryRunner.createForeignKeys('file_note', [
         new TableForeignKey({
-          name: 'fk_file_collaborator_accountId_account_id',
-          columnNames: ['accountId'],
+          name: 'fk_file_note_creatorId_account_id',
+          columnNames: ['creatorId'],
           referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
         new TableForeignKey({
-          name: 'fk_file_collaborator_folderId_folder_id',
+          name: 'fk_file_note_fileId_file_id',
           columnNames: ['fileId'],
           referencedTableName: 'file',
           referencedColumnNames: ['id'],
@@ -77,7 +61,7 @@ export class CreateFileCollaboratorTable1655995655954 implements MigrationInterf
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('file_collaborator');
+      await queryRunner.dropTable('file_note');
     }
 
 }

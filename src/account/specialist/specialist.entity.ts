@@ -10,17 +10,33 @@ import {
   Specialization,
 } from '../../common/specialization/specialization.entity';
 import { Account } from '../account.entity';
+import { Business } from '../business/business.entity';
   
 @Entity()
 export class Specialist {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ type: 'uuid' })
-  accountId: string;
+  @Column({ unique: true })
+  email: string;
 
-  @Column({ type: 'uuid' })
-  specializationId: string;
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  mobilePhone: string;
+
+  @Column({ nullable: true })
+  businessId?: number;
+
+  @Column()
+  accountId: number;
+
+  @Column()
+  specializationId: number;
 
   @Column({ enum: SpecialistCategories })
   category: SpecialistCategories;
@@ -33,4 +49,7 @@ export class Specialist {
   @JoinColumn()
   specialization: Specialization;
 
+  @OneToOne(() => Business)
+  @JoinColumn()
+  business?: Business;
 }

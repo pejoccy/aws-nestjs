@@ -3,16 +3,16 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
-import { SearchFolderDto } from './dto/search-folder.dto';
-import { Folder } from './folder.entity';
-import { FolderService } from './folder.service';
+import { SearchSessionDto } from './dto/search-session.dto';
+import { Session } from './session.entity';
+import { SessionService } from './session.service';
 
 @ApiBearerAuth()
 @ApiTags('Pacs')
-@Controller('pacs/folders')
-export class FolderController {
+@Controller('pacs/sessions')
+export class SessionController {
   constructor(
-    private folderService: FolderService
+    private sessionService: SessionService
   ) {}
 
   @ApiQuery({ name: 'searchText', required: false })
@@ -20,9 +20,9 @@ export class FolderController {
   @ApiQuery({ name: 'limit', required: false })
   @Get()
   async searchFolders(
-    @Query() query: SearchFolderDto,
+    @Query() query: SearchSessionDto,
     @GetAccount() account: Account
-  ): Promise<Pagination<Folder>> {
-    return this.folderService.getFolders(query, account);
+  ): Promise<Pagination<Session>> {
+    return this.sessionService.getSessions(query, account);
   }
 }

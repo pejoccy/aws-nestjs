@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { FileModule } from './file/file.module';
-import { FolderModule } from './folder/folder.module';
+import { SessionModule } from './session/session.module';
 import { PacsController } from './pacs.controller';
 import { PacsService } from './pacs.service';
 import { FileQueueConsumer } from './queues/consumer';
@@ -22,7 +22,7 @@ import { S3Service } from './s3.service';
       }),
     }),
     FileModule,
-    FolderModule,
+    SessionModule,
     MulterModule.register({}),
   ],
   providers: [

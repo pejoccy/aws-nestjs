@@ -3,24 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { BaseService } from '../../common/base/service';
-import { SearchFolderDto } from './dto/search-folder.dto';
-import { Folder } from './folder.entity';
+import { SearchSessionDto } from './dto/search-session.dto';
+import { Session } from './session.entity';
 
 @Injectable()
-export class FolderService extends BaseService {
+export class SessionService extends BaseService {
   constructor(
-    @InjectRepository(Folder)
-    private folderRepository: Repository<Folder>
+    @InjectRepository(Session)
+    private sessionRepository: Repository<Session>
   ) {
     super();
   }
 
-  async getFolders(
-    { limit, page, searchText }: SearchFolderDto,
+  async getSessions(
+    { limit, page, searchText }: SearchSessionDto,
     account: Account
   ) {
     return this.search(
-      this.folderRepository,
+      this.sessionRepository,
       ['name'],
       searchText,
       { limit, page },

@@ -2,6 +2,7 @@ import {
   MigrationInterface,
   QueryRunner,
   Table,
+  TableColumn,
   TableForeignKey,
   TableUnique,
 } from 'typeorm';
@@ -14,21 +15,21 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'planId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'accountId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'paymentId',
-              type: 'uuid',
+              type: 'integer',
               isNullable: true,
             },
             {
@@ -97,9 +98,44 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
           referencedColumnNames: ['id'],
         }),
       ]);
+
+      // modify account entity
+      await queryRunner.addColumn(
+        'account',
+        new TableColumn({
+          name: 'subscriptionId',
+          type: 'integer',
+          isNullable: true,
+        })
+      );
+  
+      await queryRunner.createUniqueConstraint(
+        'account',
+        new TableUnique({
+          name: 'unq_account_subscriptionId',
+          columnNames: ['subscriptionId'],
+        })
+      );
+
+      await queryRunner.createForeignKey('account', new TableForeignKey({
+        name: 'fk_account_subscriptionId_subscription_id',
+        columnNames: ['subscriptionId'],
+        referencedTableName: 'subscription',
+        referencedColumnNames: ['id'],
+      }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+      await queryRunner.dropUniqueConstraint(
+        'account',
+        'unq_account_subscriptionId'
+      );
+      await queryRunner.dropForeignKey(
+        'account',
+        'fk_account_subscriptionId_subscription_id'
+      );
+      await queryRunner.dropColumn('account', 'subscriptionId');
+
       await queryRunner.dropTable('subscription');
     }
 

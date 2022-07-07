@@ -9,9 +9,9 @@ export class CreatePermissionTable1655736725415 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'slug',

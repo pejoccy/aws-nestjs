@@ -10,20 +10,20 @@ import { Plan } from '../plan/plan.entity';
 
 @Entity()
 export class Subscription {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ default: false })
   isTrial: boolean;
 
-  @Column({ type: 'uuid' })
-  planId: string;
+  @Column()
+  planId: number;
 
-  @Column({ type: 'uuid' })
-  paymentId: string;
+  @Column({ nullable: true })
+  paymentId: number;
 
-  @Column({ type: 'uuid' })
-  accountId: string;
+  @Column()
+  accountId: number;
 
   @Column({ default: true })
   recurring: boolean;

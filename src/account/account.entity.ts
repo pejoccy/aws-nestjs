@@ -1,4 +1,3 @@
-import { FileToCollaborator } from 'src/pacs/file/file-collaborator.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -12,31 +11,25 @@ import {
 import { UserRoles } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
-import { Business } from './business/business.entity';
+import {
+  SessionToCollaborator,
+} from '../pacs/session/session-collaborator.entity';
+import { Session } from '../pacs/session/session.entity';
 import { Specialist } from './specialist/specialist.entity';
 
 @Entity()
 export class Account {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
-
-  @Column()
-  phoneNumber: string;
-
-  @Column({ default: false })
-  isVerified: boolean;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
   email: string;
 
   @Column({ nullable: true, select: true })
   password?: string;
+
+  @Column({ default: false })
+  isVerified: boolean;
 
   @Column({ nullable: true, select: true })
   lastLoggedInAt?: Date;
@@ -47,15 +40,15 @@ export class Account {
   @Column({ nullable: true, enum: UserRoles })
   role?: UserRoles;
 
-  @Column({ type: 'uuid', nullable: true })
-  businessId?: string;
+  @Column({ nullable: true, select: true })
+  profilePhotoId?: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  subscriptionId?: string;
-
-  @OneToOne(() => Business)
+  @OneToOne(() => File)
   @JoinColumn()
-  business?: Business;
+  profilePhoto?: File;
+
+  @Column({ nullable: true })
+  subscriptionId?: number;
 
   @OneToOne(() => Subscription, subscription => subscription.account)
   @JoinColumn()
@@ -65,12 +58,12 @@ export class Account {
   specialist?: Specialist;
 
   @OneToMany(
-    () => FileToCollaborator,
+    () => SessionToCollaborator,
     fileToCollaborator => fileToCollaborator.collaborator
   )
-  public fileToCollaborators!: Promise<FileToCollaborator[]>;
+  public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
 
-  @ManyToMany(() => File, file => file.collaborators)
-  @JoinTable({ name: 'file_collaborator' })
-  collaboratedFiles: File[];
+  @ManyToMany(() => Session, session => session.collaborators)
+  @JoinTable({ name: 'session_collaborator' })
+  collaboratedSessions: Session[];
 }

@@ -12,7 +12,8 @@ import { Account } from '../account/account.entity';
 import { AccountService } from '../account/account.service';
 import { BusinessService } from '../account/business/business.service';
 import { CreateAccountDto } from '../account/dto/create-account.dto';
-import { Specialist } from '../account/specialist/specialist.entity';
+import { PatientService } from '../account/patient/patient.service';
+import { SpecialistService } from '../account/specialist/specialist.service';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
 import { 
@@ -24,9 +25,8 @@ import {
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
 import {
-  SpecializationService,
-} from '../common/specialization/specialization.service';
-import { SubscriptionService } from '../common/subscription/subscription.service';
+  SubscriptionService,
+} from '../common/subscription/subscription.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -38,8 +38,6 @@ export class AuthService extends BaseService {
   constructor(
     @InjectRepository(Account)
     private accountRepository: Repository<Account>,
-    @InjectRepository(Specialist)
-    private specialistRepository: Repository<Specialist>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private subscriptionService: SubscriptionService,
@@ -48,7 +46,8 @@ export class AuthService extends BaseService {
     private mailService: MailerService,
     private accountService: AccountService,
     private businessService: BusinessService,
-    private specializationService: SpecializationService
+    private specialistService: SpecialistService,
+    private patientService: PatientService
   ) {
     super();
   }
@@ -87,18 +86,15 @@ export class AuthService extends BaseService {
         'subscription.plan.permissions',
       ],
     });
-    const passwordMatches = !!account && (await this.validatePassword(password, account));
+    const passwordMatches = !!account && (
+      await this.validatePassword(password, account)
+    );
     if (!account || !passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (!account.isVerified) {
       throw new UnauthorizedException('Account not verified!');
-    }
-    else if (!account.subscription) {
-      account.subscription = await this
-        .subscriptionService
-        .setupDefaultSubscription(account);
     }
     const jwtExpiration = this.configService.get('jwt.signOptions.expiresIn');
     const expiresIn = new Date().getTime() + jwtExpiration;
@@ -114,11 +110,11 @@ export class AuthService extends BaseService {
         id: account.id,
         role: account.role,
         email: account.email,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        phoneNumber: account.phoneNumber,
+        // firstName: account.firstName,
+        // lastName: account.lastName,
+        // mobilePhone: account.mobilePhone,
         isVerified: account.isVerified,
-        business: account.business || undefined,
+        // business: account.business || undefined,
         specialist: account.specialist || undefined,
         // subscription: account.subscription,
       },
@@ -164,8 +160,8 @@ export class AuthService extends BaseService {
     token,
     business,
     specialist,
+    patient,
     userType,
-    ...userDto
   }: CreateAccountDto & { userType: UserRoles }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
@@ -177,48 +173,49 @@ export class AuthService extends BaseService {
     }
 
     try {
-      let businessId = undefined;
       const password = await this.hashPassword(initData.data?.password);
-      if (userType === UserRoles.BUSINESS && !!business) {
-        ({ id: businessId } = await this.businessService.create(business));
-      }
-      const {
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        userType: userRole,
-      } = initData.data || {};
+      const { email, userType: userRole, ...userDto } = initData.data || {};
 
       const account = await this.accountRepository.save({
-        firstName,
-        lastName,
         email,
-        phoneNumber,
-        ...userDto,
         password,
         role: userRole,
-        businessId,
         isVerified: true,
       });
       // setup default subscription
       await this.subscriptionService.setupDefaultSubscription(account);
+
+      if (userType === UserRoles.BUSINESS && !!business) {
+        business = await this.businessService.setup(
+          business,
+          {
+            ...userDto,
+            email,
+            accountId: account.id,
+          }
+        );
+      }
+      else if (userType === UserRoles.SPECIALIST && !!specialist) {
+        specialist = await this.specialistService.create({
+          ...specialist,
+          email,
+          accountId: account.id,
+        });
+      }
+      else if (userType === UserRoles.PATIENT && !!patient) {
+        patient = await this.patientService.create({
+          ...patient,
+          email,
+          accountId: account.id,
+        });
+      }
+      else {
+        throw new NotAcceptableException('Invalid user type and data!');
+      }
+
       // clean up
       delete account.password;
       this.cacheService.remove(token);
-
-      if (userType === UserRoles.SPECIALIST && !!specialist) {
-        let specializationId = specialist.specializationId;
-        if (!specializationId) {
-          ({ id: specializationId } = await this.specializationService
-            .setupSpecialization({ title: specialist.otherSpecialization }));
-        }
-        account.specialist = await this.specialistRepository.save({
-          specializationId,
-          accountId: account.id,
-          category: specialist.category,
-        });
-      }
 
       return account;
     } catch (error) {

@@ -29,13 +29,13 @@ export class FileService extends BaseService {
   }
 
   async update(
-    id: string,
+    id: number,
     item: any,
     account: Account
   ) {
     item = this.excludeExtraneousKeys(item);
     const { affected, raw: file } = await this.fileRepository.update(
-      { id, createdBy: account.id },
+      { id, creatorId: account.id },
       item
     );
     if (!affected) {
