@@ -44,6 +44,10 @@ export class CreateSpecialistDto {
   @IsInt()
   public specializationId: number;
 
+  @ApiProperty()
+  @IsInt()
+  public countryId: number;
+
   @ApiHideProperty()
   @IsInt()
   @IsOptional()

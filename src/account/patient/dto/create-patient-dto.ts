@@ -28,6 +28,10 @@ export class CreatePatientDto {
   @IsMobilePhone()
   public mobilePhone: string;
 
+  @ApiProperty()
+  @IsInt()
+  public countryId: number;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()

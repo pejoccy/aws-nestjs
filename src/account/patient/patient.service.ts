@@ -1,15 +1,18 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BaseService } from '../../common/base/service';
 import { CreatePatientDto } from './dto/create-patient-dto';
 import { Patient } from './patient.entity';
 
 @Injectable()
-export class PatientService {
+export class PatientService extends BaseService {
   constructor(
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>
-  ) {}
+  ) {
+    super();
+  }
 
   async create(item: CreatePatientDto) {
     let patient = await this

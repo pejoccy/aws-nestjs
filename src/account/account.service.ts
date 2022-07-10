@@ -18,7 +18,7 @@ export class AccountService extends BaseService {
     super();
   }
 
-  async updateUser(id: string, item: UpdateAccountDto) {
+  async updateAccount(id: string, item: UpdateAccountDto) {
     item = this.excludeExtraneousKeys(item);
     const { affected, raw } = await this.accountRepository
       .createQueryBuilder()

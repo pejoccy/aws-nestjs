@@ -8,7 +8,7 @@ import { AccountService } from './account.service';
 @UseGuards(PermissionGuard)
 export class AccountController {
   constructor(
-    private accountService: AccountService
+    protected accountService: AccountService
   ) {}
 
 }

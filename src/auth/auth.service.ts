@@ -183,7 +183,6 @@ export class AuthService extends BaseService {
       });
       // setup default subscription
       await this.subscriptionService.setupDefaultSubscription(account);
-console.log({ email })
       if (userType === UserRoles.BUSINESS && !!business) {
         business = await this.businessService.setup(
           business,

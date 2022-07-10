@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 import { PublicRoute } from '../decorators/public-route-decorator';
-import { PaginationOptionsDto } from '../dto';
 import { Country } from './country.entity';
 import { CountryService } from './country.service';
 import { SearchCountryDto } from './dto/search-country.dto';
