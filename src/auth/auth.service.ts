@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { AccountService } from '../account/account.service';
 import { BusinessService } from '../account/business/business.service';
-import { CreateAccountDto } from '../account/dto/create-account.dto';
+import { ICreateAccount } from '../account/dto/create-account.dto';
 import { PatientService } from '../account/patient/patient.service';
 import { SpecialistService } from '../account/specialist/specialist.service';
 import { AppUtilities } from '../app.utilities';
@@ -78,7 +78,9 @@ export class AuthService extends BaseService {
     const account = await this.accountRepository.findOne({
       where: { email },
       relations: [
-        'business',
+        'businessContact',
+        'businessContact.business',
+        'patient',
         'specialist',
         'specialist.specialization',
         'subscription',
@@ -109,14 +111,11 @@ export class AuthService extends BaseService {
       user: {
         id: account.id,
         role: account.role,
-        email: account.email,
-        // firstName: account.firstName,
-        // lastName: account.lastName,
-        // mobilePhone: account.mobilePhone,
+        ...account.patient,
+        ...account.specialist,
+        ...account.businessContact,
         isVerified: account.isVerified,
-        // business: account.business || undefined,
-        specialist: account.specialist || undefined,
-        // subscription: account.subscription,
+        subscription: account.subscription,
       },
     };
   }
@@ -162,7 +161,7 @@ export class AuthService extends BaseService {
     specialist,
     patient,
     userType,
-  }: CreateAccountDto & { userType: UserRoles }) {
+  }: ICreateAccount & { userType: UserRoles }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
     if (
@@ -184,7 +183,7 @@ export class AuthService extends BaseService {
       });
       // setup default subscription
       await this.subscriptionService.setupDefaultSubscription(account);
-
+console.log({ email })
       if (userType === UserRoles.BUSINESS && !!business) {
         business = await this.businessService.setup(
           business,

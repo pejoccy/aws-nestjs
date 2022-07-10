@@ -26,7 +26,7 @@ export class SpecialistService {
       .specialistRepository
       .createQueryBuilder('specialist')
       .where(
-        "LOWER(specialist.email) = LOWER(:name)",
+        "LOWER(specialist.email) = LOWER(:email)",
         { email: item.email }
       )
       .getOne();
@@ -42,9 +42,8 @@ export class SpecialistService {
     }
     
     return this.specialistRepository.save({
+      ...item,
       specialization,
-      accountId: item.accountId,
-      category: item.category,
     });
   }
 }

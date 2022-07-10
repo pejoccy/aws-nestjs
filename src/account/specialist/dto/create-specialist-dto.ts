@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
   IsEmail,
@@ -44,7 +44,8 @@ export class CreateSpecialistDto {
   @IsInt()
   public specializationId: number;
 
-  @ApiPropertyOptional()
+  @ApiHideProperty()
   @IsInt()
+  @IsOptional()
   public accountId?: number;
 }

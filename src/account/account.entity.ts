@@ -15,6 +15,9 @@ import {
   SessionToCollaborator,
 } from '../pacs/session/session-collaborator.entity';
 import { Session } from '../pacs/session/session.entity';
+import { BusinessContact } from './business-contact/business-contact.entity';
+import { Business } from './business/business.entity';
+import { Patient } from './patient/patient.entity';
 import { Specialist } from './specialist/specialist.entity';
 
 @Entity()
@@ -49,6 +52,16 @@ export class Account {
 
   @Column({ nullable: true })
   subscriptionId?: number;
+
+  @OneToOne(() => BusinessContact, contact => contact.account)
+  businessContact: BusinessContact;
+
+  @ManyToMany(() => Business, business => business.accounts)
+  @JoinTable({ name: 'business_contact' })
+  business: Business[];
+
+  @OneToOne(() => Patient, patient => patient.account)
+  patient: Patient;
 
   @OneToOne(() => Subscription, subscription => subscription.account)
   @JoinColumn()

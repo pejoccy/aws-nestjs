@@ -1,4 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+  TableUnique,
+} from 'typeorm';
 
 export class CreateBusinessTable1654771570421 implements MigrationInterface {
 
@@ -35,9 +41,8 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               comment: 'e.g. hospital, clinic, laboratory, radiology/diagnostics center'
             },
             {
-              name: 'country',
-              type: 'varchar',
-              comment: 'Country iso-2 code, e.g. NG'
+              name: 'countryId',
+              type: 'integer',
             },
             {
               name: 'website',
@@ -73,6 +78,16 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
         new TableUnique({
           name: 'uniq_business_name',
           columnNames: ['name'],
+        })
+      );
+
+      await queryRunner.createForeignKey(
+        'business',
+        new TableForeignKey({
+          name: 'fk_business_countyId_country_id',
+          columnNames: ['countryId'],
+          referencedTableName: 'country',
+          referencedColumnNames: ['id'],
         })
       );
     }

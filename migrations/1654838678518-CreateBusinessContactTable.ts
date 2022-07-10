@@ -1,6 +1,6 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableUnique } from 'typeorm';
 
-export class CreateBusinessContactTable1654771570427 implements MigrationInterface {
+export class CreateBusinessContactTable1654838678518 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
@@ -30,14 +30,23 @@ export class CreateBusinessContactTable1654771570427 implements MigrationInterfa
               type: 'varchar',
             },
             {
-              name: 'country',
-              type: 'varchar',
-              comment: 'Country iso-2 code, e.g. NG'
-            },
-            {
               name: 'contactAddress',
               type: 'varchar',
               isNullable: true,
+            },
+            {
+              name: 'countryId',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'accountId',
+              type: 'integer',
+              isNullable: true,
+            },
+            {
+              name: 'businessId',
+              type: 'integer',
             },
             {
               name: 'createdAt',
@@ -65,6 +74,27 @@ export class CreateBusinessContactTable1654771570427 implements MigrationInterfa
           columnNames: ['email'],
         })
       );
+
+      await queryRunner.createForeignKeys('business_contact', [
+        new TableForeignKey({
+          name: 'fk_business_contact_accountId_account_id',
+          columnNames: ['accountId'],
+          referencedTableName: 'account',
+          referencedColumnNames: ['id'],
+        }),
+        new TableForeignKey({
+          name: 'fk_business_contact_businessId_business_id',
+          columnNames: ['businessId'],
+          referencedTableName: 'business',
+          referencedColumnNames: ['id'],
+        }),
+        new TableForeignKey({
+          name: 'fk_business_contact_countryId_country_id',
+          columnNames: ['countryId'],
+          referencedTableName: 'country',
+          referencedColumnNames: ['id'],
+        }),
+      ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

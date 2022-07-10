@@ -3,6 +3,7 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
+  TableUnique,
 } from 'typeorm';
 
 export class CreateSpecialistTable1654876580876 implements MigrationInterface {
@@ -19,6 +20,10 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
               isGenerated: true,
             },
             {
+              name: 'email',
+              type: 'varchar',
+            },
+            {
               name: 'firstName',
               type: 'varchar',
             },
@@ -31,9 +36,8 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
               type: 'varchar',
             },
             {
-              name: 'country',
-              type: 'varchar',
-              comment: 'Country iso-2 code, e.g. NG',
+              name: 'countryId',
+              type: 'integer',
               isNullable: true,
             },
             {
@@ -87,6 +91,23 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
           referencedTableName: 'specialization',
           referencedColumnNames: ['id'],
         }),
+        new TableForeignKey({
+          name: 'fk_specialist_countryId_country_id',
+          columnNames: ['countryId'],
+          referencedTableName: 'country',
+          referencedColumnNames: ['id'],
+        }),
+      ]);
+
+      await queryRunner.createUniqueConstraints('specialist', [
+        new TableUnique({
+          name: 'uniq_specialist_email',
+          columnNames: ['email'],
+        }),
+        new TableUnique({
+          name: 'uniq_specialist_mobilePhone',
+          columnNames: ['mobilePhone'],
+        })
       ]);
     }
 

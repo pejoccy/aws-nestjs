@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './auth/guards/jwt.guard';
 import { PermissionGuard } from './auth/guards/permission.guard';
 import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { CacheModule } from './common/cache/cache.module';
+import { CountryModule } from './common/country/country.module';
 import {
   NotificationController,
 } from './common/notification/notification.controller';
@@ -29,6 +30,7 @@ import { PacsModule } from './pacs/pacs.module';
     AccountModule,
     CacheModule,
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
+    CountryModule,
     NotificationModule,
     PacsModule,
     PassportModule.register({}),

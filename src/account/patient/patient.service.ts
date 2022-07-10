@@ -16,8 +16,8 @@ export class PatientService {
       .patientRepository
       .createQueryBuilder('patient')
       .where(
-        "LOWER(patient.email) = LOWER(:name) OR patient.mobilePhone = :phone",
-        { email: item.email, phone: item.mobilePhone }
+        "LOWER(patient.email) = LOWER(:email) OR patient.mobilePhone = :phone",
+        { email: item.email, phone: item.mobilePhone.replace('[^0-9]', '') }
       )
       .getOne();
     if (patient) {

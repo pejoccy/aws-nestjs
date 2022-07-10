@@ -2,9 +2,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   OneToOne,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Country } from '../../common/country/country.entity';
 import { Account } from '../account.entity';
 import { Business } from '../business/business.entity';
 
@@ -13,30 +15,38 @@ export class BusinessContact {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  name: string;
+  @Column()
+  firstName: string;
 
   @Column()
+  lastName: string;
+
+  @Column({ unique: true })
   email: string;
 
   @Column()
   contactAddress: string;
 
-  @Column()
-  mobilePhone: string;  
+  @Column({ nullable: true })
+  countryId?: number;
 
   @Column()
-  website: string;
+  mobilePhone: string;
 
   @Column()
-  accountId: number;
+  accountId?: number;
 
   @Column()
   businessId: number;
 
-  @OneToMany(() => Business, business => business.contacts)
+  @ManyToOne(() => Business, business => business.contacts)
   business: Business;
 
   @OneToOne(() => Account)
-  account: Account;
+  @JoinColumn()
+  account?: Account;
+
+  @ManyToOne(() => Country)
+  @JoinColumn()
+  country?: Country;
 }

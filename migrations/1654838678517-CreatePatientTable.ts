@@ -36,8 +36,15 @@ export class CreatePatientTable1654838678517 implements MigrationInterface {
               type: 'varchar',
             },
             {
-              name: 'dateOfBirth',
+              name: 'gender',
               type: 'varchar',
+              length: '10',
+              isNullable: true,
+              comment: 'e.g. male, female',
+            },
+            {
+              name: 'dateOfBirth',
+              type: 'date',
               isNullable: true,
             },
             {
@@ -46,9 +53,8 @@ export class CreatePatientTable1654838678517 implements MigrationInterface {
               isNullable: true,
             },
             {
-              name: 'country',
-              type: 'varchar',
-              comment: 'Country iso-2 code, e.g. NG',
+              name: 'countryId',
+              type: 'integer',
               isNullable: true,
             },
             {

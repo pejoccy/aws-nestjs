@@ -10,7 +10,6 @@ import {
   Specialization,
 } from '../../common/specialization/specialization.entity';
 import { Account } from '../account.entity';
-import { Business } from '../business/business.entity';
   
 @Entity()
 export class Specialist {
@@ -29,9 +28,6 @@ export class Specialist {
   @Column()
   mobilePhone: string;
 
-  @Column({ nullable: true })
-  businessId?: number;
-
   @Column()
   accountId: number;
 
@@ -48,8 +44,4 @@ export class Specialist {
   @OneToOne(() => Specialization)
   @JoinColumn()
   specialization: Specialization;
-
-  @OneToOne(() => Business)
-  @JoinColumn()
-  business?: Business;
 }

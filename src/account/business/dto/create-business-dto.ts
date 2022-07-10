@@ -2,12 +2,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
   IsEmail,
+  IsEnum,
   IsMobilePhone,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
 } from 'class-validator';
+import { BusinessCategories } from '../../../common/interfaces';
 
 export class CreateBusinessDto {
   @ApiProperty()
@@ -22,6 +25,14 @@ export class CreateBusinessDto {
   @ApiProperty()
   @IsMobilePhone()
   mobilePhone: string;
+
+  @ApiProperty({ enum: BusinessCategories })
+  @IsEnum(BusinessCategories)
+  category: BusinessCategories;
+  
+  @ApiProperty()
+  @IsNumber()
+  countryId: number;
   
   @ApiProperty()
   @IsNotEmpty()

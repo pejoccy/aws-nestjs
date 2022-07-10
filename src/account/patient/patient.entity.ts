@@ -4,7 +4,9 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Country } from '../../common/country/country.entity';
 import { Gender } from '../../common/interfaces';
 import { Account } from '../account.entity';
   
@@ -26,7 +28,7 @@ export class Patient {
   email: string;
 
   @Column()
-  country?: string;
+  countryId?: string;
 
   @Column()
   dateOfBirth?: Date;
@@ -40,4 +42,8 @@ export class Patient {
   @OneToOne(() => Account)
   @JoinColumn()
   account?: Account;
+
+  @ManyToOne(() => Country)
+  @JoinColumn()
+  country?: Country;
 }
