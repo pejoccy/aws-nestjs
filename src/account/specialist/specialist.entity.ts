@@ -31,6 +31,9 @@ export class Specialist {
   @Column()
   accountId: number;
 
+  @Column({ nullable: true })
+  countryId?: number;
+
   @Column()
   specializationId: number;
 

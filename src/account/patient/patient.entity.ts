@@ -28,7 +28,7 @@ export class Patient {
   email: string;
 
   @Column()
-  countryId?: string;
+  countryId?: number;
 
   @Column()
   dateOfBirth?: Date;
