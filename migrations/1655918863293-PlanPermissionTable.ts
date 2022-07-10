@@ -19,17 +19,17 @@ export class PlanPermissionTable1655918863293 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'planId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'permissionId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'createdAt',
@@ -79,7 +79,7 @@ export class PlanPermissionTable1655918863293 implements MigrationInterface {
         .into(Permission)
         .values(permissionSeedData)
         .execute();
-        
+
       const { identifiers: plans } = await queryRunner.manager
         .createQueryBuilder()
         .insert()

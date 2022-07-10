@@ -2,7 +2,6 @@ import {
   MigrationInterface,
   QueryRunner,
   Table,
-  TableForeignKey,
   TableUnique,
 } from 'typeorm'
 
@@ -15,9 +14,9 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'email',
@@ -29,26 +28,9 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
               isNullable: true,
             },
             {
-              name: 'firstName',
-              type: 'varchar',
-            },
-            {
-              name: 'lastName',
-              type: 'varchar',
-            },
-            {
-              name: 'phoneNumber',
-              type: 'varchar',
-            },
-            {
-              name: 'profilePhoto',
-              type: 'varchar',
+              name: 'profilePhotoId',
+              type: 'integer',
               isNullable: true,
-            },
-            {
-              name: 'isPrimaryUser',
-              type: 'boolean',
-              default: false,
             },
             {
               name: 'lastLoggedInAt',
@@ -77,11 +59,6 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
               enum: ['patient', 'specialist', 'business'],
             },
             {
-              name: 'businessId',
-              type: 'uuid',
-              isNullable: true,
-            },
-            {
               name: 'createdAt',
               type: 'timestamp',
               default: 'now()',
@@ -108,13 +85,6 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
           columnNames: ['email'],
         })
       );
-
-      await queryRunner.createForeignKey('account', new TableForeignKey({
-        name: 'fk_account_businessId_business_id',
-        columnNames: ['businessId'],
-        referencedTableName: 'business',
-        referencedColumnNames: ['id'],
-      }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

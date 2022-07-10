@@ -23,7 +23,7 @@ export class PlanService extends BaseService {
     );
   }
 
-  async addPermission(planId: string, permissionId: string) {
+  async addPermission(planId: number, permissionId: number) {
     try {
       await this.planRepository
         .createQueryBuilder()
@@ -40,7 +40,7 @@ export class PlanService extends BaseService {
     }
   }
 
-  async removePermission(planId: string, permissionId: string) {
+  async removePermission(planId: number, permissionId: number) {
     try {
       await this.planRepository
         .createQueryBuilder()

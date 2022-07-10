@@ -7,9 +7,10 @@ import {
   IsString,
 } from 'class-validator';
 import { CreateBusinessDto } from '../business/dto/create-business-dto';
+import { CreatePatientDto } from '../patient/dto/create-patient-dto';
 import { CreateSpecialistDto } from '../specialist/dto/create-specialist-dto';
 
-export class CreateAccountDto {
+export class ICreateAccount {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -20,19 +21,6 @@ export class CreateAccountDto {
   @IsString()
   token: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-
-  @IsMobilePhone()
-  @IsOptional()
-  phoneNumber?: string;
-
   @ApiProperty({ required: false })
   @IsOptional()
   @Type(() => CreateBusinessDto)
@@ -41,5 +29,10 @@ export class CreateAccountDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @Type(() => CreateSpecialistDto)
-  specialist?: CreateSpecialistDto;
+  specialist?: Omit<CreateSpecialistDto, 'email'>;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => CreatePatientDto)
+  patient?: Omit<CreatePatientDto, 'email'>;
 }

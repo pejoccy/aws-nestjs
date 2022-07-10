@@ -3,6 +3,7 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
+  TableUnique,
 } from 'typeorm';
 
 export class CreateSpecialistTable1654876580876 implements MigrationInterface {
@@ -14,9 +15,30 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
+            },
+            {
+              name: 'email',
+              type: 'varchar',
+            },
+            {
+              name: 'firstName',
+              type: 'varchar',
+            },
+            {
+              name: 'lastName',
+              type: 'varchar',
+            },
+            {
+              name: 'mobilePhone',
+              type: 'varchar',
+            },
+            {
+              name: 'countryId',
+              type: 'integer',
+              isNullable: true,
             },
             {
               name: 'category',
@@ -25,11 +47,12 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
             },
             {
               name: 'specializationId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'accountId',
-              type: 'uuid',
+              type: 'integer',
+              isNullable: true,
             },
             {
               name: 'status',
@@ -68,6 +91,23 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
           referencedTableName: 'specialization',
           referencedColumnNames: ['id'],
         }),
+        new TableForeignKey({
+          name: 'fk_specialist_countryId_country_id',
+          columnNames: ['countryId'],
+          referencedTableName: 'country',
+          referencedColumnNames: ['id'],
+        }),
+      ]);
+
+      await queryRunner.createUniqueConstraints('specialist', [
+        new TableUnique({
+          name: 'uniq_specialist_email',
+          columnNames: ['email'],
+        }),
+        new TableUnique({
+          name: 'uniq_specialist_mobilePhone',
+          columnNames: ['mobilePhone'],
+        })
       ]);
     }
 

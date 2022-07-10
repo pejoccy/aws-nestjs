@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import {
-  CreateBusinessDto,
-} from './create-business-dto';
+import { CreateBusinessDto } from './create-business-dto';
 
 export class SetupBusinessDto extends CreateBusinessDto {
   @ApiProperty()

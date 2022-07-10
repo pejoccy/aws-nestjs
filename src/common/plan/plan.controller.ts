@@ -11,7 +11,7 @@ import { PermissionGuard } from '../../auth/guards/permission.guard';
 import { ResourcePermission } from '../decorators/permission.decorator';
 import { PublicRoute } from '../decorators/public-route-decorator';
 import { PaginationOptionsDto } from '../dto';
-import { EntityIdStringDto, PermissionIdStringDto } from '../dto/entity-dto';
+import { EntityIdDto, PermissionIdDto } from '../dto/entity.dto';
 import { ResourcePermissions } from '../interfaces';
 import { Plan } from './plan.entity';
 import { PlanService } from './plan.service';
@@ -38,8 +38,8 @@ export class PlanController {
   @Post('/:id/permissions/:permissionId')
   @ResourcePermission(ResourcePermissions.SCAN_AND_UPLOAD)
   async addPermission(
-    @Param() { permissionId }: PermissionIdStringDto,
-    @Param() { id }: EntityIdStringDto
+    @Param() { permissionId }: PermissionIdDto,
+    @Param() { id }: EntityIdDto
   ) {
     return this.planService.addPermission(id, permissionId);
   }
@@ -48,8 +48,8 @@ export class PlanController {
   @ApiParam({ name: 'permissionId' })
   @Delete('/:id/permissions/:permissionId')
   async removePermission(
-    @Param() { permissionId }: PermissionIdStringDto,
-    @Param() { id }: EntityIdStringDto
+    @Param() { permissionId }: PermissionIdDto,
+    @Param() { id }: EntityIdDto
   ) {
     return this.planService.removePermission(id, permissionId);
   }

@@ -3,12 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AccountModule } from '../account/account.module';
 import { BusinessModule } from '../account/business/business.module';
+import { PatientModule } from '../account/patient/patient.module';
 import { SpecialistModule } from '../account/specialist/specialist.module';
 import { MailerModule } from '../common/mailer/mailer.module';
-import { SubscriptionModule } from '../common/subscription/subscription.module';
 import {
   SpecializationModule,
 } from '../common/specialization/specialization.module';
+import { SubscriptionModule } from '../common/subscription/subscription.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
@@ -23,6 +24,7 @@ import { AuthService } from './auth.service';
     }),
     MailerModule,
     BusinessModule,
+    PatientModule,
     SpecialistModule,
     SpecializationModule,
     SubscriptionModule,

@@ -1,22 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
+  IsEmail,
+  IsInt,
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
 
-export class SetupPatientDto {
+export class CreatePatientDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  otp: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  token: string;
+  @IsEmail()
+  public email: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -29,11 +25,19 @@ export class SetupPatientDto {
   lastName: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsMobilePhone()
-  phoneNumber: string;
+  public mobilePhone: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
+  @IsInt()
+  public countryId: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  public accountId?: number;
+
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBase64()
   profilePhoto?: string;
