@@ -1,9 +1,9 @@
 import { Optional } from '@nestjs/common';
-import { IsBoolean, IsUUID } from 'class-validator';
+import { IsBoolean, IsInt, IsUUID } from 'class-validator';
 
 export class PlanSubscriptionDto {
-  @IsUUID()
-  planId: string;
+  @IsInt()
+  planId: number;
 
   @IsBoolean()
   @Optional()

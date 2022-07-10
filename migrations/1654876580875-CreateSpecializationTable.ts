@@ -9,22 +9,27 @@ export class CreateSpecializationTable1654876580875 implements MigrationInterfac
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
+            },
+            {
+              name: 'code',
+              type: 'varchar',
             },
             {
               name: 'title',
               type: 'varchar',
             },
             {
-              name: 'filter',
+              name: 'category',
               type: 'varchar',
+              comment: 'e.g. ',
             },
             {
               name: 'status',
               type: 'boolean',
-              default: false,
+              default: true,
             },
             {
               name: 'createdAt',
@@ -45,13 +50,16 @@ export class CreateSpecializationTable1654876580875 implements MigrationInterfac
         })
       );
 
-      await queryRunner.createUniqueConstraint(
-        'specialization',
+      await queryRunner.createUniqueConstraints('specialization', [
         new TableUnique({
-          name: 'uniq_specialization_filter',
-          columnNames: ['filter'],
-        })
-      );
+          name: 'uniq_specialization_code',
+          columnNames: ['code'],
+        }),
+        new TableUnique({
+          name: 'uniq_specialization_title',
+          columnNames: ['title'],
+        }),
+      ]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

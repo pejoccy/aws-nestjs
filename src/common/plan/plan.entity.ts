@@ -10,8 +10,8 @@ import { Permission } from '../permission/permission.entity';
 
 @Entity()
 export class Plan {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;

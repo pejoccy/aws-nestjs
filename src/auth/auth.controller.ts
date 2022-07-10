@@ -6,7 +6,7 @@ import {
 } from '@nestjs/swagger';
 import { RealIP } from 'nestjs-real-ip';
 import { SetupBusinessDto } from '../account/business/dto/setup-business.dto';
-import { SetupPatientDto } from '../account/dto/setup-patient.dto';
+import { SetupPatientDto } from '../account/patient/dto/setup-patient.dto';
 import {
   SetupSpecialistDto,
 } from '../account/specialist/dto/setup-specialist.dto';
@@ -20,8 +20,8 @@ import { InitAccountDto } from './dto/init-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
 
-@Controller('auth')
 @ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService
@@ -53,8 +53,13 @@ export class AuthController {
   @ApiResponseMeta({ message: 'Patient account created successfully!' })
   @Post('/setup-patient')
   @PublicRoute()
-  async completePatientAccountSetup(@Body() item: SetupPatientDto) {
-    return this.authService.signUp({ ...item, userType: UserRoles.PATIENT });
+  async completePatientAccountSetup(@Body() { otp, token, ...rest }: SetupPatientDto) {
+    return this.authService.signUp({
+      otp,
+      token,
+      patient: rest,
+      userType: UserRoles.PATIENT,
+    });
   }
 
   @ApiResponseMeta({ message: 'Specialist account created successfully!' })
@@ -62,15 +67,15 @@ export class AuthController {
   @PublicRoute()
   async completeSpecialistAccountSetup(
     @Body() {
-      category,
-      specializationId,
-      otherSpecialization,
+      otp,
+      token,
       ...item
     }: SetupSpecialistDto
   ) {
     return this.authService.signUp({
-      ...item,
-      specialist: { category, specializationId, otherSpecialization },
+      otp,
+      token,
+      specialist: item,
       userType: UserRoles.SPECIALIST,
     });
   }

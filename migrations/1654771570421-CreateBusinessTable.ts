@@ -1,4 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+  TableUnique,
+} from 'typeorm';
 
 export class CreateBusinessTable1654771570421 implements MigrationInterface {
 
@@ -9,9 +15,9 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'name',
@@ -22,7 +28,7 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               type: 'varchar',
             },
             {
-              name: 'phoneNumber',
+              name: 'mobilePhone',
               type: 'varchar',
             },
             {
@@ -30,13 +36,22 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
               type: 'varchar',
             },
             {
+              name: 'category',
+              type: 'varchar',
+              comment: 'e.g. hospital, clinic, laboratory, radiology/diagnostics center'
+            },
+            {
+              name: 'countryId',
+              type: 'integer',
+            },
+            {
               name: 'website',
               type: 'varchar',
               isNullable: true,
             },
             {
-              name: 'logo',
-              type: 'varchar',
+              name: 'logoId',
+              type: 'integer',
               isNullable: true,
             },
             {
@@ -63,6 +78,16 @@ export class CreateBusinessTable1654771570421 implements MigrationInterface {
         new TableUnique({
           name: 'uniq_business_name',
           columnNames: ['name'],
+        })
+      );
+
+      await queryRunner.createForeignKey(
+        'business',
+        new TableForeignKey({
+          name: 'fk_business_countyId_country_id',
+          columnNames: ['countryId'],
+          referencedTableName: 'country',
+          referencedColumnNames: ['id'],
         })
       );
     }

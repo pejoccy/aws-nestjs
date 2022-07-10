@@ -13,14 +13,26 @@ import { Account } from '../account.entity';
   
 @Entity()
 export class Specialist {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ type: 'uuid' })
-  accountId: string;
+  @Column({ unique: true })
+  email: string;
 
-  @Column({ type: 'uuid' })
-  specializationId: string;
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  mobilePhone: string;
+
+  @Column()
+  accountId: number;
+
+  @Column()
+  specializationId: number;
 
   @Column({ enum: SpecialistCategories })
   category: SpecialistCategories;
@@ -32,5 +44,4 @@ export class Specialist {
   @OneToOne(() => Specialization)
   @JoinColumn()
   specialization: Specialization;
-
 }

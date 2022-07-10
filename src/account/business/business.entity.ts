@@ -1,10 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Country } from '../../common/country/country.entity';
+import { BusinessCategories } from '../../common/interfaces';
 import { Account } from '../account.entity';
+import { BusinessContact } from '../business-contact/business-contact.entity';
 
 @Entity()
 export class Business {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
   name: string;
@@ -12,19 +24,32 @@ export class Business {
   @Column()
   email: string;
 
+  @Column({ enum: BusinessCategories })
+  category: BusinessCategories;
+
   @Column()
   contactAddress: string;
 
   @Column()
-  phoneNumber: string;  
+  countryId: number;
+
+  @Column()
+  mobilePhone: string;  
 
   @Column()
   website: string;
 
   @Column()
-  logo: string;
+  logoId: number;
 
-  @OneToMany(() => Account, account => account.business)
+  @OneToMany(() => BusinessContact, contact => contact.business)
+  contacts: BusinessContact[];
+
+  @ManyToMany(() => Account, account => account.business)
+  @JoinTable({ name: 'business_contact' })
   accounts: Account[];
 
+  @ManyToOne(() => Country)
+  @JoinColumn()
+  country?: Country;
 }

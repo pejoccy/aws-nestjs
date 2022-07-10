@@ -1,4 +1,9 @@
-import {MigrationInterface, QueryRunner, Table, TableForeignKey, TableUnique} from "typeorm";
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateAccountCardTable1654876580831 implements MigrationInterface {
 
@@ -9,9 +14,9 @@ export class CreateAccountCardTable1654876580831 implements MigrationInterface {
           columns: [
             {
               name: 'id',
-              type: 'uuid',
+              type: 'integer',
               isPrimary: true,
-              default: 'uuid_generate_v4()',
+              isGenerated: true,
             },
             {
               name: 'name',
@@ -52,7 +57,7 @@ export class CreateAccountCardTable1654876580831 implements MigrationInterface {
             },
             {
               name: 'accountId',
-              type: 'uuid',
+              type: 'integer',
             },
             {
               name: 'createdAt',
