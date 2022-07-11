@@ -1,4 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from '../auth/guards/permission.guard';
+import { AccountService } from './account.service';
 
-@Controller('accounts')
-export class AccountController {}
+@ApiTags('Dashboard')
+@Controller()
+@UseGuards(PermissionGuard)
+export class AccountController {
+  constructor(
+    protected accountService: AccountService
+  ) {}
+
+}

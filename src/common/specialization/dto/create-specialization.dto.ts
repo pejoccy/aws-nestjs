@@ -5,5 +5,10 @@ export class CreateSpecializationDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  code: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   title: string;
 }

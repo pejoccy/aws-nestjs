@@ -6,15 +6,15 @@ import {
 
 @Entity()
 export class Specialization {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  code: string;
 
   @Column()
   title: string;
 
-  @Column({ select: false })
-  filter: string;
-
-  @Column({ default: false, select: false })
+  @Column({ default: true, select: false })
   status: boolean;
 }

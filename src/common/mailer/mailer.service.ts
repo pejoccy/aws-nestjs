@@ -41,13 +41,10 @@ export class MailerService {
   }
 
   async sendForgotPasswordEmail(
-    { email , firstName }: Account,
+    { email }: Account,
     otp: string
   ) {
-    const html = await this.getFileTemplate('password-reset', {
-      otp,
-      firstName
-    });
+    const html = await this.getFileTemplate('password-reset', { otp });
     
     return this.send({
       to: email,

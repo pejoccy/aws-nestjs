@@ -83,3 +83,16 @@ export enum TimeUnits {
   MONTH = 'month',
   YEAR = 'year',
 }
+
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+}
+
+export enum BusinessCategories {
+  HOSPITAL = 'hospital',
+  CLINIC = 'clinic',
+  LABORATORY = 'laboratory',
+  RADIOLOGY = 'radiology',
+  DIAGNOSTICS = 'diagnostics',
+}

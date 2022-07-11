@@ -10,7 +10,7 @@ import { PlanSubscriptionDto } from './dto/subscribe.dto';
 import { SubscriptionService } from './subscription.service';
 
 @ApiBearerAuth()
-@ApiTags('Account Subscription')
+@ApiTags('Subscription')
 @Controller('subscriptions')
 @UseGuards(RolesGuard, PermissionGuard)
 export class SubscriptionController {
