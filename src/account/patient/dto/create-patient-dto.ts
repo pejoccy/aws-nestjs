@@ -25,7 +25,9 @@ export class CreatePatientDto {
   @IsString()
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'This is the patient\'s date of birth. e.g. 2001-10-01',
+  })
   @IsISO8601()
   public dateOfBirth: string;
 
@@ -33,7 +35,9 @@ export class CreatePatientDto {
   @IsMobilePhone()
   public mobilePhone: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'This is the country id from GET /api/v1/countries',
+  })
   @IsInt()
   public countryId: number;
 
