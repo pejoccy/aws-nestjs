@@ -23,8 +23,10 @@ const config: PostgresConnectionOptions = {
   migrations: ['./migrations/*.ts'],
   ssl: true,
   extra: {
-    ssl: true
+  ssl: {
+    rejectUnauthorized: false,
   },
+},
   cli: {
     migrationsDir: './migrations',
   },
