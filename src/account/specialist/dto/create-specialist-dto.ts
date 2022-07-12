@@ -40,7 +40,9 @@ export class CreateSpecialistDto {
   @IsEnum(SpecialistCategories)
   public category: SpecialistCategories;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'This is the country id from GET /api/v1/specializations',
+  })
   @IsInt()
   public specializationId: number;
 
