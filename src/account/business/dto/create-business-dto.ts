@@ -30,7 +30,9 @@ export class CreateBusinessDto {
   @IsEnum(BusinessCategories)
   category: BusinessCategories;
   
-  @ApiProperty()
+  @ApiProperty({
+    description: 'This is the country id from GET /api/v1/countries',
+  })
   @IsNumber()
   countryId: number;
   
