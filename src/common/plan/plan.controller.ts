@@ -1,11 +1,13 @@
-import { Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
-  // ApiBasicAuth,
-  ApiBearerAuth,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PermissionGuard } from '../../auth/guards/permission.guard';
 import { ResourcePermission } from '../decorators/permission.decorator';
@@ -16,7 +18,6 @@ import { ResourcePermissions } from '../interfaces';
 import { Plan } from './plan.entity';
 import { PlanService } from './plan.service';
 
-@ApiBearerAuth()
 @ApiTags('Plan')
 @Controller('plans')
 @UseGuards(PermissionGuard)
@@ -33,6 +34,7 @@ export class PlanController {
     return this.planService.getPlans(query);
   }
 
+  @ApiBearerAuth()
   @ApiParam({ name: 'id' })
   @ApiParam({ name: 'permissionId' })
   @Post('/:id/permissions/:permissionId')
@@ -44,6 +46,7 @@ export class PlanController {
     return this.planService.addPermission(id, permissionId);
   }
 
+  @ApiBearerAuth()
   @ApiParam({ name: 'id' })
   @ApiParam({ name: 'permissionId' })
   @Delete('/:id/permissions/:permissionId')
