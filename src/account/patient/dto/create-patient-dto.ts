@@ -3,6 +3,7 @@ import {
   IsBase64,
   IsEmail,
   IsInt,
+  IsISO8601,
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
@@ -24,11 +25,20 @@ export class CreatePatientDto {
   @IsString()
   lastName: string;
 
+  @ApiProperty({
+    description: 'This is the patient\'s date of birth.',
+    example: '2001-10-31',
+  })
+  @IsISO8601()
+  public dateOfBirth: string;
+
   @ApiProperty()
   @IsMobilePhone()
   public mobilePhone: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'This is the country id from GET /api/v1/countries',
+  })
   @IsInt()
   public countryId: number;
 
