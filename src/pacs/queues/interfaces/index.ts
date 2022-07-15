@@ -5,5 +5,6 @@ export enum JOBS {
 }
 
 export interface UploadFileJobAttribs {
-  folderId: number;
+  sessionId: number;
+  fileIds?: number[];
 }

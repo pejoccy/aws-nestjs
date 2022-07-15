@@ -63,7 +63,7 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
               name: 'provider',
               type: 'varchar',
               isNullable: true,
-              comment: 'e.g. aws, digital ocean',
+              comment: 'e.g. local, aws, digital ocean',
             },
             {
               name: 'sharing',
@@ -129,6 +129,12 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
           name: 'fk_file_sessionId_session_id',
           columnNames: ['sessionId'],
           referencedTableName: 'session',
+          referencedColumnNames: ['id'],
+        }),
+        new TableForeignKey({
+          name: 'fk_file_creatorId_account_id',
+          columnNames: ['creatorId'],
+          referencedTableName: 'account',
           referencedColumnNames: ['id'],
         }),
       ]);

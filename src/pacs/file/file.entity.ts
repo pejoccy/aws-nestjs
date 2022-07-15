@@ -5,14 +5,11 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
 } from 'typeorm';
 import { Account } from '../../account/account.entity';
-import { ShareOptions } from '../../common/interfaces';
+import { Patient } from '../../account/patient/patient.entity';
+import { FileModality, ShareOptions } from '../../common/interfaces';
 import { Session } from '../session/session.entity';
-import { SessionToCollaborator } from '../session/session-collaborator.entity';
 import { FileStorageProviders, FileStatus } from './interface';
 
 @Entity()
@@ -45,10 +42,10 @@ export class File {
   url?: string;
 
   @Column()
-  accountId: number;
+  patientId: number;
 
   @Column()
-  folderId: number;
+  sessionId: number;
 
   @Column()
   creatorId: number;
@@ -56,15 +53,21 @@ export class File {
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
 
+  @Column({ enum: FileModality })
+  modality: FileModality;
+
+  @Column()
+  modalitySection?: string;
+
   @Column({ enum: FileStatus })
   status: FileStatus;
 
   @ManyToOne(() => Session, folder => folder.files)
   session: Session;
 
-  @OneToOne(() => Account)
+  @OneToOne(() => Patient)
   @JoinColumn()
-  account: Account;
+  patient: Patient;
 
   @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })

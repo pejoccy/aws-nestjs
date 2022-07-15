@@ -24,7 +24,10 @@ export class FileService extends BaseService {
       ['name'],
       searchText,
       { limit, page },
-      { relations: ['collaborators'], where: { accountId: account.id } }
+      {
+        relations: ['session', 'session.collaborators'],
+        where: { accountId: account.id },
+      }
     );
   }
 
