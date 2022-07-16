@@ -21,6 +21,7 @@ import {
 } from './common/notification/notification.module';
 import { PlanModule } from './common/plan/plan.module';
 import { SubscriptionModule } from './common/subscription/subscription.module';
+import { PacsModule } from './pacs/pacs.module';
 
 @Global()
 @Module({
@@ -31,6 +32,7 @@ import { SubscriptionModule } from './common/subscription/subscription.module';
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     CountryModule,
     NotificationModule,
+    PacsModule,
     PassportModule.register({}),
     PlanModule,
     SubscriptionModule,

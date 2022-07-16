@@ -1,8 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Repository } from 'typeorm';
+import { CreatePatientDto } from './dto/create-patient-dto';
 import { SearchPatientDto } from './dto/search-patient.dto';
 import { Patient } from './patient.entity';
 import { PatientService } from './patient.service';
@@ -30,5 +32,11 @@ export class PatientController {
       searchText,
       { limit, page }
     );
+  }
+
+  @ApiResponseMeta({ message: 'Patient created successfully!' })
+  @Post()
+  async setupPatient(@Body() item: CreatePatientDto) {
+    return this.patientService.create(item);
   }
 }

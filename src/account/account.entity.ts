@@ -10,6 +10,11 @@ import {
 } from 'typeorm';
 import { UserRoles } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
+import { File } from '../pacs/file/file.entity';
+import {
+  SessionToCollaborator,
+} from '../pacs/session/session-collaborator.entity';
+import { Session } from '../pacs/session/session.entity';
 import { BusinessContact } from './business-contact/business-contact.entity';
 import { Business } from './business/business.entity';
 import { Patient } from './patient/patient.entity';
@@ -39,7 +44,11 @@ export class Account {
   role?: UserRoles;
 
   @Column({ nullable: true, select: true })
-  profilePhotoId?: number;
+  profilePhotoId?: string;
+
+  @OneToOne(() => File)
+  @JoinColumn()
+  profilePhoto?: File;
 
   @Column({ nullable: true })
   subscriptionId?: number;
@@ -60,4 +69,14 @@ export class Account {
   
   @OneToOne(() => Specialist, specialist => specialist.account)
   specialist?: Specialist;
+
+  @OneToMany(
+    () => SessionToCollaborator,
+    fileToCollaborator => fileToCollaborator.collaborator
+  )
+  public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
+
+  @ManyToMany(() => Session, session => session.collaborators)
+  @JoinTable({ name: 'session_collaborator' })
+  collaboratedSessions: Session[];
 }
