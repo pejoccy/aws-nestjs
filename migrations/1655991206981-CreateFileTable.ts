@@ -24,6 +24,12 @@ export class CreateFileTable1655991206981 implements MigrationInterface {
               type: 'varchar',
             },
             {
+              name: 'modality',
+              type: 'varchar',
+              isNullable: true,
+              comment: 'e.g. ct-scan, x-ray, skin e.t.c.'
+            },
+            {
               name: 'modalitySection',
               type: 'varchar',
               isNullable: true,

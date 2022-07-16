@@ -27,4 +27,20 @@ export class SessionService extends BaseService {
       { relations: ['files'], where: { accountId: account.id } }
     );
   }
+  
+  async inviteCollaborator(item: any) {
+
+  }
+  
+  async acceptSessionCollaboration(item: any) {
+
+  }
+
+  async addNote(item: any) {
+    
+  }
+
+  async updateNote(id: number, item: any) {
+
+  }
 }

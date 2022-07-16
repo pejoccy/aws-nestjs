@@ -42,6 +42,7 @@ export class CreateSessionTable1655991190318 implements MigrationInterface {
             {
               name: 'patientId',
               type: 'integer',
+              isNullable: true,
             },
             {
               name: 'businessId',

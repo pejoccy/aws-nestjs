@@ -9,6 +9,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Account } from '../../account/account.entity';
+import { Patient } from '../../account/patient/patient.entity';
 import { FileModality, ShareOptions } from '../../common/interfaces';
 import { File } from '../file/file.entity';
 import { SessionToCollaborator } from './session-collaborator.entity';
@@ -21,14 +22,20 @@ export class Session {
   @Column()
   name: string;
 
+  @Column()
+  studyDate?: string;
+
+  @Column()
+  studyInfo?: string;
+
   @Column({ enum: FileModality })
   modality: FileModality;
 
   @Column()
-  accountId: number;
+  creatorId: number;
 
   @Column()
-  creatorId: number;
+  patientId?: number;
 
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
@@ -37,12 +44,16 @@ export class Session {
   files: File[];
 
   @OneToOne(() => Account)
-  @JoinColumn()
-  account: Account;
-
-  @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })
   createdBy: Account;
+
+  @OneToOne(() => Patient)
+  @JoinColumn()
+  patient?: Patient;
+
+  @ManyToMany(() => Account, account => account.collaboratedSessions)
+  @JoinTable({ name: 'session_collaborator' })
+  collaborators: Account[];
 
   /*
     defined this prop to include permission field when FileToCollaborator entity is fetched
@@ -52,8 +63,4 @@ export class Session {
     sessionToCollaborator => sessionToCollaborator.session
   )
   public sessionToCollaborators!: SessionToCollaborator[];
-
-  @ManyToMany(() => Account, account => account.collaboratedSessions)
-  @JoinTable({ name: 'session_collaborator' })
-  collaborators: Account[];
 }

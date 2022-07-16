@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsISO8601, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { FileModality } from '../../common/interfaces';
 
 export class UploadFolderDto {
@@ -23,6 +23,16 @@ export class UploadFolderDto {
   @IsOptional()
   @IsString()
   modalitySection?: string;
+
+  @ApiPropertyOptional({ example: '2022-10-28' })
+  @IsOptional()
+  @IsISO8601()
+  studyDate?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  studyInfo?: string;
 
   @ApiProperty({
     type: Array,

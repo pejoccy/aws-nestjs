@@ -33,16 +33,15 @@ export class PacsService extends BaseService {
     uploadedFile: Express.Multer.File,
     account: Account
   ) {
-    let session: Session;
-    if (item.patientId) {
-      const sessionName = moment().format('YYYYMMDDHHmmss');
-      session = await this.sessionRepository.save({
-        name: sessionName,
-        modality: item.modality,
-        account,
-        createdBy: account,
-      });
-    }
+    const sessionName = moment().format('YYYYMMDDHHmmss');
+    const session = await this.sessionRepository.save({
+      name: sessionName,
+      modality: item.modality,
+      studyDate: item.studyDate,
+      studyInfo: item.studyInfo,
+      account,
+      createdBy: account,
+    });
     // create file,
     const file = await this.fileRepository.save({
       account,
@@ -78,15 +77,15 @@ export class PacsService extends BaseService {
     files: Express.Multer.File[],
     account: Account
   ) {
-    let session: Session;
-    if (item.patientId) {
-      session = await this.sessionRepository.save({
-        name: item.name,
-        modality: item.modality,
-        account,
-        createdBy: account,
-      });
-    }
+    const session = await this.sessionRepository.save({
+      name: item.name,
+      modality: item.modality,
+      studyDate: item.studyDate,
+      studyInfo: item.studyInfo,
+      account,
+      createdBy: account,
+    });
+    
     const { raw } = await this.fileRepository
       .createQueryBuilder()
       .insert()

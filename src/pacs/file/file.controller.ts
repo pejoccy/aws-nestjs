@@ -20,7 +20,7 @@ export class FileController {
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()
-  async searchPlans(
+  async searchFiles(
     @Query() query: SearchFileDto,
     @GetAccount() account: Account
   ): Promise<Pagination<File>> {
