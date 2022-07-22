@@ -46,6 +46,6 @@ export class UploadFileDto {
     format: 'binary',
     name: 'file',
   })
-  // @IsNotEmpty()
-  file: Express.Multer.File;
+  @IsOptional()
+  file?: Express.Multer.File;
 }

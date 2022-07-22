@@ -43,7 +43,7 @@ export class PacsController {
     @GetAccount() account: Account,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.pacsService.upload(item, file, account);
+    return this.pacsService.upload({ ...item, file }, account);
   }
 
   @ApiConsumes('multipart/form-data')
@@ -61,6 +61,6 @@ export class PacsController {
     @GetAccount() account: Account,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.pacsService.uploadBulk(item, files, account);
+    return this.pacsService.uploadBulk({ ...item, files }, account);
   }
 }

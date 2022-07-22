@@ -39,6 +39,6 @@ export class UploadFolderDto {
     format: 'binary',
     name: 'files',
   })
-  @IsNotEmpty()
+  @IsOptional()
   files: Express.Multer.File[];
 }
