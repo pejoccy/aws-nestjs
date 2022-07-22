@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import fs from 'fs';
 import mime from 'mime-types';
@@ -30,9 +30,11 @@ export class PacsService extends BaseService {
 
   async upload(
     item: UploadFileDto,
-    uploadedFile: Express.Multer.File,
     account: Account
   ) {
+    if (!item.file) {
+      throw new BadRequestException('File is missing/invalid!');
+    }
     const sessionName = moment().format('YYYYMMDDHHmmss');
     const session = await this.sessionRepository.save({
       name: sessionName,
@@ -48,14 +50,14 @@ export class PacsService extends BaseService {
       business: account.businessContact?.businessId,
       sessionId: session?.id,
       name: item.name,
-      previewUrl: uploadedFile.path,
+      previewUrl: item.file.path,
       createdBy: account,
       session,
-      mime: uploadedFile.mimetype,
-      size: uploadedFile.size,
+      mime: item.file.mimetype,
+      size: item.file.size,
       modality: item.modality,
       modalitySection: item.modalitySection,
-      ext: mime.extension(uploadedFile.mimetype) || undefined,
+      ext: mime.extension(item.file.mimetype) || undefined,
       provider: FileStorageProviders.LOCAL,
     });
 
@@ -74,7 +76,6 @@ export class PacsService extends BaseService {
 
   async uploadBulk(
     item: UploadFolderDto,
-    files: Express.Multer.File[],
     account: Account
   ) {
     const session = await this.sessionRepository.save({
@@ -85,11 +86,13 @@ export class PacsService extends BaseService {
       account,
       createdBy: account,
     });
-    
+    if (item.files.length <= 1) {
+      throw new BadRequestException('No file(s) attached!');
+    }
     const { raw } = await this.fileRepository
       .createQueryBuilder()
       .insert()
-      .values(files.map(
+      .values(item.files.map(
         file => ({
           account,
           session,
