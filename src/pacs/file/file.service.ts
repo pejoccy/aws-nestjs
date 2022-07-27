@@ -26,7 +26,7 @@ export class FileService extends BaseService {
       { limit, page },
       {
         relations: ['session', 'session.collaborators'],
-        where: [{ accountId: account.id, patientId: account.id }],
+        where: [{ creatorId: account.id, patientId: account.id }],
       }
     );
   }
