@@ -63,6 +63,8 @@ export class PacsService extends BaseService {
     res.set({
       'Content-Type': file.mime,
       'Content-Disposition': `filename="${file.name}"`,
+      'Cache-Control': `max-age=${3600 * 6};`,
+      'Expires': moment().add(6, 'hours').toString(),
     });
 
     const s3File = await this.s3Service.getPrivateFile(file.hash);
