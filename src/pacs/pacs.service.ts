@@ -1,11 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  StreamableFile,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import fs from 'fs';
+import { Response } from 'express';
+import { readFileSync, unlink } from 'fs';
 import mime from 'mime-types';
 import moment from 'moment';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
+import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
+import { ShareOptions } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { File } from './file/file.entity';
@@ -23,9 +32,42 @@ export class PacsService extends BaseService {
     @InjectRepository(File)
     private fileRepository: Repository<File>,
     private fileQueue: FileQueueProducer,
-    private s3Service: S3Service
+    private s3Service: S3Service,
+    private appUtilities: AppUtilities
   ) {
     super();
+  }
+  
+  async getFileDataContent(id: number, account: Account, res: Response) {
+    const file = await this.fileRepository.findOne({
+      where: {
+        id,
+        provider: Not(FileStorageProviders.LOCAL),
+        hash: Not(IsNull())
+      },
+      relations: ['session', 'session.collaborators'],
+    });
+    if (!file) {
+      throw new NotFoundException();
+    }
+
+    if (
+      file.sharing !== ShareOptions.PUBLIC &&
+      file.patientId !== account.id &&
+      file.creatorId !== account.id &&
+      !(await this.isCollaborator(file, account))
+    ) {
+      throw new ForbiddenException();
+    }
+
+    res.set({
+      'Content-Type': file.mime,
+      'Content-Disposition': `filename="${file.name}"`,
+    });
+
+    const s3File = await this.s3Service.getPrivateFile(file.hash);
+    
+    return new StreamableFile(s3File);
   }
 
   async upload(
@@ -121,7 +163,6 @@ export class PacsService extends BaseService {
   }
 
   async processFileUploadJob({ sessionId, fileIds }: UploadFileJobAttribs) {
-    console.log(sessionId, fileIds)
     let files: File[];
     if (sessionId) {
       const session = await this.sessionRepository.findOne({
@@ -142,23 +183,18 @@ export class PacsService extends BaseService {
     }
     // update files
     files.forEach(async file => {
-      const buffer = Buffer.from(file.previewUrl, 'base64');
+      const buffer = readFileSync(file.previewUrl);
       try {
         await this.fileRepository.update(file.id, {
           status: FileStatus.UPLOADING,
         });
-        const uploadedFile = await this.s3Service.uploadPrivateFile(
-          buffer,
-          file.name,
-          String(file.creatorId)
-        );
+        const uploadedFile = await this.s3Service.uploadPrivateFile(buffer);
         try {
-          //update file status
           await this.fileRepository.update(file.id, {
             hash: uploadedFile.Key,
             previewUrl: uploadedFile.Location,
             status: FileStatus.UPLOADED,
-            url: '',
+            url: this.appUtilities.getApiUrl(`pacs/t/${file.id}`),
             provider: FileStorageProviders.AWS,
           });
         } catch (error) {
@@ -170,8 +206,14 @@ export class PacsService extends BaseService {
         this.fileRepository.update(file.id, { status: FileStatus.INVALID });
         throw error;
       } finally {
-        fs.unlink(file.previewUrl, error => error && console.error(error));
+        unlink(file.previewUrl, error => error && console.error(error));
       }
     });
+  }
+
+  private async isCollaborator(file: File, account: Account): Promise<boolean> {
+    return (file.session?.collaborators || []).some(
+      collaborator => account.id === collaborator.id
+    );
   }
 }

@@ -16,6 +16,6 @@ export const GetAccount = createParamDecorator<AccountAuthOptions>(
       throw new UnauthorizedException('Authorization token missing!');
     }
 
-    return req.user.data;
+    return req.user?.data;
   }
 );
