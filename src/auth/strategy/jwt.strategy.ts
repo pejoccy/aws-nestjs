@@ -18,7 +18,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       secretOrKey: configService.get('jwt.secret'),
       passReqToCallback: true,
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromUrlQueryParameter('token'),
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
     });
   }
 
@@ -37,6 +40,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   private async refreshAuthToken(request: Request, jwtPayload: JwtPayload) {
     let [, token] = String(request.headers['authorization']).split(/\s+/);
+    if (!token) {
+      token = request['query']?.token;
+    }
     const [, , cacheKey] = String(token).split('.');
     if (!cacheKey) {
       return undefined;

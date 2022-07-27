@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { BaseService } from '../../common/base/service';
 import { SearchFileDto } from './dto/search-file.dto';
@@ -26,7 +26,7 @@ export class FileService extends BaseService {
       { limit, page },
       {
         relations: ['session', 'session.collaborators'],
-        where: { accountId: account.id },
+        where: [{ accountId: account.id, patientId: account.id }],
       }
     );
   }

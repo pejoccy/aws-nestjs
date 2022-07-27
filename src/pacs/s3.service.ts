@@ -1,24 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { config, S3 } from 'aws-sdk';
+import { AppUtilities } from '../app.utilities';
 
 @Injectable()
 export class S3Service {
-  constructor(configService: ConfigService) {
+  private s3Sdk: S3;
+
+  constructor(
+    configService: ConfigService,
+    private appUtilities: AppUtilities
+  ) {
     config.update(configService.get('storage.s3'));
+    this.s3Sdk = new S3();
   }
 
   async uploadPrivateFile(
     dataBuffer: Buffer,
-    filename: string,
-    path?: string,
+    fileHash?: string
   ) {
-    const s3 = new S3();
-    const uploadResult = await s3
+    
+    const uploadResult = await this.s3Sdk
       .upload({
         Bucket: process.env.AWS_S3_BUCKET,
         Body: dataBuffer,
-        Key: `${path ? `${path}-` : ''}${filename}`
+        Key: fileHash || this.appUtilities.generateUniqueKey(),
       })
       .promise();
     
@@ -27,27 +33,21 @@ export class S3Service {
 
   //Access files in AWS
   public async getPrivateFile(key: string) {
-    const s3 = new S3();
-
-    const stream = await s3
+    const stream = await this.s3Sdk
       .getObject({
         Bucket: process.env.AWS_S3_BUCKET,
         Key: key,
       })
       .createReadStream();
     if (stream) {
-      return {
-        stream,
-      };
+      return stream;
     }
     throw new NotFoundException();
   }
 
   //Access files in AWS
   public async getPrivateFileBuffer(key: string) {
-    const s3 = new S3();
-
-    const stream = await s3
+    const stream = await this.s3Sdk
       .getObject({
         Bucket: process.env.AWS_S3_BUCKET,
         Key: key,
@@ -62,13 +62,12 @@ export class S3Service {
   }
 
   public async getPrivateFileBase64(objectKey) {
-    const s3 = new S3();
     try {
       const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: objectKey,
       };
-      const data = await s3.getObject(params).promise();
+      const data = await this.s3Sdk.getObject(params).promise();
       // Check for image payload and formats appropriately
       return { body: data.Body.toString('base64'), type: data.ContentType };
     } catch (e) {
@@ -77,33 +76,24 @@ export class S3Service {
   }
 
   public async getPrivateFile2(objectKey) {
-    const s3 = new S3();
-    try {
-      const params = {
-        Bucket: process.env.AWS_S3_BUCKET,
-        Key: objectKey,
-      };
-      const data = await s3.getObject(params).promise();
-      // Check for image payload and formats appropriately
-      return data.Body.toString('base64');
-    } catch (e) {
-      throw new Error(`Could not retrieve file from S3: ${e.message}`);
-    }
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: objectKey,
+    };
+    return await this.s3Sdk.getObject(params).promise();
   }
 
   //Access files in AWS
   public async deletePrivateFile(key: string) {
-    const s3 = new S3();
-
     const params = {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
     };
     try {
-      await s3.headObject(params).promise();
+      await this.s3Sdk.headObject(params).promise();
       console.log('File Found in S3');
       try {
-        await s3.deleteObject(params).promise();
+        await this.s3Sdk.deleteObject(params).promise();
         console.log('file deleted Successfully');
       } catch (err) {
         console.log('ERROR in file Deleting : ' + JSON.stringify(err));
@@ -113,10 +103,9 @@ export class S3Service {
       throw new NotFoundException();
     }
   }
-  public async generatePresignedUrl(key: string) {
-    const s3 = new S3();
 
-    return s3.getSignedUrlPromise('getObject', {
+  public async generatePresignedUrl(key: string) {
+    return this.s3Sdk.getSignedUrlPromise('getObject', {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
     });

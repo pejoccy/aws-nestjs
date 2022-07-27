@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Res,
   UploadedFile,
   UploadedFiles,
   UseGuards,
@@ -9,11 +12,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import multer from 'multer';
 import { Account } from '../account/account.entity';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { GetAccount } from '../common/decorators/get-user-decorator';
 import { ResourcePermission } from '../common/decorators/permission.decorator';
+import { EntityIdDto } from '../common/dto/entity.dto';
 import { ResourcePermissions, imageFileFilter } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
@@ -27,6 +32,15 @@ export class PacsController {
   constructor(
     private pacsService: PacsService
   ) {}
+
+  @Get('/t/:id')
+  async getFileData(
+    @GetAccount() account: Account,
+    @Param() { id }: EntityIdDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    return this.pacsService.getFileDataContent(id, account, res);
+  }
 
   @ApiConsumes('multipart/form-data')
   @Post('/uploads')
