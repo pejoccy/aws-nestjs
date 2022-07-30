@@ -1,5 +1,5 @@
-import { permissionSeedData } from 'seeders/permissions';
-import { planSeedData } from 'seeders/plans';
+import { permissionSeedData } from 'src/common/database/seeders/permissions';
+import { planSeedData } from 'src/common/database/seeders/plans';
 import {
   MigrationInterface,
   QueryRunner,
@@ -7,8 +7,8 @@ import {
   TableForeignKey,
   TableUnique,
 } from 'typeorm';
-import { Permission } from '../src/common/permission/permission.entity';
-import { Plan } from '../src/common/plan/plan.entity';
+import { Permission } from '../../permission/permission.entity';
+import { Plan } from '../../plan/plan.entity';
 
 export class PlanPermissionTable1655918863293 implements MigrationInterface {
 

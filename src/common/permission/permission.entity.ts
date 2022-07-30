@@ -4,6 +4,7 @@ import {
   Column,
   ManyToMany,
 } from 'typeorm';
+import { ResourcePermissions } from '../interfaces';
 import { Plan } from '../plan/plan.entity';
 
 @Entity()
@@ -15,7 +16,7 @@ export class Permission {
   name: string;
 
   @Column()
-  slug: string;
+  slug: ResourcePermissions;
   
   @Column({ default: true })
   status: boolean;

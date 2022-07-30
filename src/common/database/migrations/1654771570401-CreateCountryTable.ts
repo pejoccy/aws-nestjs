@@ -5,7 +5,7 @@ import {
   TableIndex,
 } from 'typeorm';
 import { countriesData } from '../seeders/countries';
-import { Country } from '../src/common/country/country.entity';
+import { Country } from '../../country/country.entity';
 
 export class CreateCountryTable1654771570401 implements MigrationInterface {
 

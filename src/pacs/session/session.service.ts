@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { BaseService } from '../../common/base/service';
+import { EntityIdDto } from '../../common/dto/entity.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { Session } from './session.entity';
 
@@ -24,8 +25,22 @@ export class SessionService extends BaseService {
       ['name'],
       searchText,
       { limit, page },
-      { relations: ['files'], where: { accountId: account.id } }
+      { relations: ['files'], where: { creatorId: account.id } }
     );
+  }
+
+  async getSession(
+   id: number,
+    account: Account
+  ) {
+    const session = await this.sessionRepository.findOne({
+      where: { id, creatorId: account.id },
+    });
+    if (!session) {
+      throw new NotFoundException('Session not found!');
+    }
+
+    return session;
   }
   
   async inviteCollaborator(item: any) {
