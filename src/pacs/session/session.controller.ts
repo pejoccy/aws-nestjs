@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
@@ -26,6 +34,14 @@ export class SessionController {
     @GetAccount() account: Account
   ): Promise<Pagination<Session>> {
     return this.sessionService.getSessions(query, account);
+  }
+
+  @Get('/info/:id')
+  async getSession(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ): Promise<Session> {
+    return this.sessionService.getSession(id, account);
   }
 
   @ApiResponseMeta({ message: 'Invitation sent successfully!' })
