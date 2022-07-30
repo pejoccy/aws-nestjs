@@ -35,6 +35,7 @@ export class SessionService extends BaseService {
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id, creatorId: account.id },
+      relations: ['files']
     });
     if (!session) {
       throw new NotFoundException('Session not found!');
