@@ -18,6 +18,7 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { PaginationOptionsDto } from '../dto';
+import { Account } from 'src/account/account.entity';
 
 export enum OrderType {
   asc = 'ASC',
@@ -49,6 +50,13 @@ export interface TransformTemplate {
 }
 
 export class BaseService {
+
+  protected isCollaborator(collaborators: Account[], account: Account): boolean {
+    return (collaborators || []).some(
+      collaborator => account.id === collaborator.id
+    );
+  }
+
   public async startTransaction(): Promise<QueryRunner> {
     const queryRunner = getConnection().createQueryRunner();
     await queryRunner.startTransaction();
@@ -187,6 +195,8 @@ export class BaseService {
     if (term) {
       term = String(term).replace(/\s/g, '%');
       where = fields.map((field) => ({ [field]: term, ...whereElse }));
+    } else if (whereElse) {
+      where = whereElse;
     }
 
     return this.paginate(repository, pagination, { where, ...findOptions });

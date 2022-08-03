@@ -11,10 +11,7 @@ import { SendMailOptions } from './interfaces';
 export class MailerService {
   private emailSender: string;
 
-  constructor(
-    // private mailerService: NestJsMailerService,
-    configService: ConfigService
-  ) {
+  constructor(private configService: ConfigService) {
     sgMail.setApiKey(configService.get('sendGrid.apiKey'));
     const sender = configService.get('sendGrid.from');
     this.emailSender = `${sender.name} <${sender.address}>`;
@@ -49,6 +46,24 @@ export class MailerService {
     return this.send({
       to: email,
       subject: 'Reset Account Password',
+      html,
+    }).catch(console.dir);
+  }
+
+  async sendInviteCollaboratorEmail(
+    email: string,
+    inviteHash: string
+  ) {
+    const acceptInvitationURL = this.configService.get(
+      'client.emailUrls.sessionCollaboratorInvite'
+    );
+    const html = await this.getFileTemplate('invite-collaborator', {
+      acceptInvitationURL: `${acceptInvitationURL}?hash=${inviteHash}`,
+    });
+    
+    return this.send({
+      to: email,
+      subject: 'Invitation to Collaborate on Orysx',
       html,
     }).catch(console.dir);
   }

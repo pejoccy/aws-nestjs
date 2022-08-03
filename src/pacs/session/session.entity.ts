@@ -43,6 +43,9 @@ export class Session {
   @OneToMany(() => File, file => file.session)
   files: File[];
 
+  @OneToMany(() => File, file => file.session)
+  notes: File[];
+
   @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })
   createdBy: Account;
@@ -52,7 +55,6 @@ export class Session {
   patient?: Patient;
 
   @ManyToMany(() => Account, account => account.collaboratedSessions)
-  @JoinTable({ name: 'session_collaborator' })
   collaborators: Account[];
 
   /*

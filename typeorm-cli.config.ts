@@ -21,12 +21,12 @@ const config: PostgresConnectionOptions = {
   logging: false,
   logger: 'advanced-console',
   migrations: ['./migrations/*.ts'],
-  ssl: true,
-  extra: {
-  ssl: {
-    rejectUnauthorized: false,
-  },
-},
+  // ssl: true,
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: false,
+  //   },
+  // },
   cli: {
     migrationsDir: './migrations',
   },

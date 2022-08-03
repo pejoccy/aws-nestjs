@@ -55,7 +55,7 @@ export class PacsService extends BaseService {
       file.sharing !== ShareOptions.PUBLIC &&
       file.patientId !== account.id &&
       file.creatorId !== account.id &&
-      !(await this.isCollaborator(file, account))
+      !this.isCollaborator(file.session?.collaborators, account)
     ) {
       throw new ForbiddenException();
     }
@@ -211,11 +211,5 @@ export class PacsService extends BaseService {
         unlink(file.previewUrl, error => error && console.error(error));
       }
     });
-  }
-
-  private async isCollaborator(file: File, account: Account): Promise<boolean> {
-    return (file.session?.collaborators || []).some(
-      collaborator => account.id === collaborator.id
-    );
   }
 }
