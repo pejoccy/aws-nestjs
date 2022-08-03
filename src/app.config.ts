@@ -17,6 +17,11 @@ const config = {
     environment: env('NODE_ENV'),
     port: Number(env('APP_PORT', 3001)),
   },
+  client: {
+    emailUrls: {
+      sessionCollaboratorInvite: env('CLIENT_COLLABORATE_URL'),
+    }
+  },
   db: {
     pgsql: {
       type: 'postgres',

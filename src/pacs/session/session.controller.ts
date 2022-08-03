@@ -13,6 +13,9 @@ import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../common/dto/entity.dto';
+import { AcceptCollaboratorDto } from './dto/accept-collaborator.dto';
+import { CreateSessionNoteDto } from './dto/create-session-note.dto';
+import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { Session } from './session.entity';
 import { SessionService } from './session.service';
@@ -45,38 +48,40 @@ export class SessionController {
   }
 
   @ApiResponseMeta({ message: 'Invitation sent successfully!' })
-  @Post('/collaborators')
-  async inviteCollaborator(@Body() item: any) {
-    return this.sessionService.inviteCollaborator(item);
+  @Post('/:id/collaborators')
+  async inviteCollaborator(
+    @Param() { id }: EntityIdDto,
+    @Body() item: InviteCollaboratorDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.inviteCollaborator(id, item, account);
   }
 
   @ApiResponseMeta({ message: 'Invitation accepted successfully!' })
-  @Patch('/collaborators')
-  async acceptSessionCollaboration(@Body() item: any) {
-    return this.sessionService.acceptSessionCollaboration(item);
+  @Post('/collaborators/invitations/:invitationId')
+  async acceptSessionCollaboration(
+    @Param() { invitationId }: AcceptCollaboratorDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.acceptSessionCollaboration(
+      invitationId,
+      account
+    );
   }
 
   @ApiResponseMeta({ message: 'Note saved successfully!' })
-  @Post('/notes')
-  async addNote(@Body() item: any) {
-    return this.sessionService.addNote(item);
+  @Post('/:id/notes')
+  async addNote(
+    @Param() { id }: EntityIdDto,
+    @Body() item: CreateSessionNoteDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.addNote(id, item, account);
   }
 
   @ApiResponseMeta({ message: 'Note updated successfully!' })
-  @Patch('/notes/:id')
-  async updateNote(@Body() item: any, @Param() { id }: EntityIdDto) {
-    return this.sessionService.updateNote(id, item);
-  }
-
-  @ApiResponseMeta({ message: 'Note saved successfully!' })
-  @Post('/files/:id/notes')
-  async addFileNote(@Body() item: any) {
-    return this.sessionService.addNote(item);
-  }
-
-  @ApiResponseMeta({ message: 'Note updated successfully!' })
-  @Patch('/files/:id/notes/:id')
-  async updateFileNote(@Body() item: any, @Param() { id }: EntityIdDto) {
+  @Patch('/:id/notes/:noteId')
+  async updateNote(@Body() item: CreateSessionNoteDto, @Param() { id }: EntityIdDto) {
     return this.sessionService.updateNote(id, item);
   }
 }
