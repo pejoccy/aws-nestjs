@@ -7,18 +7,20 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../common/dto/entity.dto';
 import { AcceptCollaboratorDto } from './dto/accept-collaborator.dto';
-import { CreateSessionNoteDto } from './dto/create-session-note.dto';
+import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { Session } from './session.entity';
 import { SessionService } from './session.service';
+import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
+import { UpdateSessionNoteParamsDto } from './session-note/dto/update-session-note-params.dto';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -80,8 +82,12 @@ export class SessionController {
   }
 
   @ApiResponseMeta({ message: 'Note updated successfully!' })
-  @Patch('/:id/notes/:noteId')
-  async updateNote(@Body() item: CreateSessionNoteDto, @Param() { id }: EntityIdDto) {
-    return this.sessionService.updateNote(id, item);
+  @Patch('/notes/:id')
+  async updateNote(
+    @Body() item: UpdateSessionNoteDto,
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    this.sessionService.updateNote(id, item, account);
   }
 }
