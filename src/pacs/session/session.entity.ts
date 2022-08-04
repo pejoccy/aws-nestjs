@@ -6,16 +6,17 @@ import {
   OneToMany,
   JoinColumn,
   ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Patient } from '../../account/patient/patient.entity';
+import { BaseEntity } from '../../common/base/_entity';
 import { FileModality, ShareOptions } from '../../common/interfaces';
 import { File } from '../file/file.entity';
 import { SessionToCollaborator } from './session-collaborator.entity';
+import { SessionNote } from './session-note/session-note.entity';
 
 @Entity()
-export class Session {
+export class Session extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -43,8 +44,8 @@ export class Session {
   @OneToMany(() => File, file => file.session)
   files: File[];
 
-  @OneToMany(() => File, file => file.session)
-  notes: File[];
+  @OneToMany(() => SessionNote, note => note.session)
+  notes: SessionNote[];
 
   @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })

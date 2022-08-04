@@ -11,7 +11,7 @@ import { AppUtilities } from '../../app.utilities';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
 import { MailerService } from '../../common/mailer/mailer.service';
-import { CreateSessionNoteDto } from './dto/create-session-note.dto';
+import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { SessionNote } from './session-note/session-note.entity';
@@ -40,7 +40,10 @@ export class SessionService extends BaseService {
       ['name'],
       searchText,
       { limit, page },
-      { relations: ['files'], where: { creatorId: account.id } }
+      {
+        relations: ['files', 'collaborators'],
+        where: { creatorId: account.id },
+      }
     );
   }
 
@@ -50,7 +53,16 @@ export class SessionService extends BaseService {
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id, creatorId: account.id },
-      relations: ['files']
+      relations: [
+        'files',
+        'notes',
+        'notes.createdBy',
+        'notes.createdBy.specialist',
+        'notes.createdBy.patient',
+        'collaborators',
+        'collaborators.specialist',
+        'collaborators.specialist.specialization',
+      ]
     });
     if (!session) {
       throw new NotFoundException('Session not found!');
@@ -127,7 +139,26 @@ export class SessionService extends BaseService {
     });
   }
 
-  async updateNote(id: number, item: any) {
+  async updateNote(
+    noteId: number,
+    item: CreateSessionNoteDto,
+    account: Account
+  ) {
+    const sessionNote = await this.sessionNoteRepository.findOne({
+      where: { id: noteId },
+      relations: ['session', 'session.collaborators']
+    });
+    if (!sessionNote || (
+      !this.isCollaborator(sessionNote?.session.collaborators, account) &&
+      sessionNote.session.creatorId !== account.id &&
+      sessionNote.session.patientId !== account.id
+    )) {
+      throw new NotAcceptableException('Unauthorized/Invalid session!');
+    }
 
+    return this.sessionNoteRepository.update(
+      { id: noteId },
+      { body: item.body }
+    );
   }
 }
