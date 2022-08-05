@@ -94,9 +94,13 @@ export class SessionService extends BaseService {
       { ...item, invitedBy: account.id, sessionId },
       2 * 60 * 60 // 2 hrs
     );
-    console.log(inviteHash);
+    console.log({ inviteHash, sessionId });
     // send email
-    this.mailService.sendInviteCollaboratorEmail(item.email, inviteHash);
+    this.mailService.sendInviteCollaboratorEmail(
+      item.email,
+      inviteHash,
+      sessionId
+    );
   }
   
   async acceptSessionCollaboration(inviteHash: string, account: Account) {

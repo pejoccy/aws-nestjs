@@ -52,13 +52,15 @@ export class MailerService {
 
   async sendInviteCollaboratorEmail(
     email: string,
-    inviteHash: string
+    inviteHash: string,
+    sessionId: number
   ) {
     const acceptInvitationURL = this.configService.get(
       'client.emailUrls.sessionCollaboratorInvite'
     );
+    // ?inviteCode=&sessionId=
     const html = await this.getFileTemplate('invite-collaborator', {
-      acceptInvitationURL: `${acceptInvitationURL}?hash=${inviteHash}`,
+      acceptInvitationURL: `${acceptInvitationURL}?inviteCode=${inviteHash}&sessionId=${sessionId}`,
     });
     
     return this.send({
