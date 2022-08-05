@@ -121,6 +121,17 @@ export class SessionService extends BaseService {
 
     await this.cacheService.remove(inviteHash);
   }
+  
+  async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
+    const data = await this.cacheService.get(inviteHash);
+    if (!data) {
+      throw new UnauthorizedException('Invalid/Expired invite token!');
+    } else if (account.email !== data.email || !account.specialist) {
+      throw new UnauthorizedException(
+        'Unauthorized account to accept this invitation!'
+      );
+    }
+  }
 
   async addNote(
     sessionId: number,
