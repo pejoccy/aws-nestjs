@@ -104,14 +104,7 @@ export class SessionService extends BaseService {
   }
   
   async acceptSessionCollaboration(inviteHash: string, account: Account) {
-    const data = await this.cacheService.get(inviteHash);
-    if (!data) {
-      throw new UnauthorizedException('Invalid/Expired invitation!');
-    } else if (account.email !== data.email || !account.specialist) {
-      throw new UnauthorizedException(
-        'Unauthorized account to accept invitation!'
-      );
-    }
+    const data = await this.verifyCollaborationInviteToken(inviteHash, account);
 
     await this.sessionRepository
       .createQueryBuilder()
@@ -120,6 +113,19 @@ export class SessionService extends BaseService {
       .addAndRemove(account.id, account.id);
 
     await this.cacheService.remove(inviteHash);
+  }
+  
+  async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
+    const data = await this.cacheService.get(inviteHash);
+    if (!data) {
+      throw new UnauthorizedException('Invalid/Expired invite token!');
+    } else if (account.email !== data.email || !account.specialist) {
+      throw new UnauthorizedException(
+        'Unauthorized account to accept this invitation!'
+      );
+    }
+
+    return data;
   }
 
   async addNote(

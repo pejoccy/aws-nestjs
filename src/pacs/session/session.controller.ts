@@ -59,6 +59,18 @@ export class SessionController {
     return this.sessionService.inviteCollaborator(id, item, account);
   }
 
+  @ApiResponseMeta({ message: 'Token verified successfully!' })
+  @Get('/collaborators/invitations/:invitationId')
+  async verifyCollaborationInviteToken(
+    @Param() { invitationId }: AcceptCollaboratorDto,
+    @GetAccount() account: Account
+  ) {
+    await this.sessionService.verifyCollaborationInviteToken(
+      invitationId,
+      account
+    );
+  }
+
   @ApiResponseMeta({ message: 'Invitation accepted successfully!' })
   @Post('/collaborators/invitations/:invitationId')
   async acceptSessionCollaboration(
