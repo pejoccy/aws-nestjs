@@ -35,35 +35,38 @@ export class SessionService extends BaseService {
     { limit, page, searchText }: SearchSessionDto,
     account: Account
   ) {
-    return this.search(
-      this.sessionRepository,
-      ['name'],
-      searchText,
-      { limit, page },
-      {
-        relations: ['files', 'collaborators'],
-        where: { creatorId: account.id },
-      }
-    );
+    const qb = this.sessionRepository
+      .createQueryBuilder('session')
+      .leftJoinAndSelect('session.collaborators', 'collaborators')
+      .leftJoinAndSelect('session.files', 'files')
+      .leftJoinAndSelect('session.notes', 'notes')
+      .leftJoinAndSelect('session.createdBy', 'createdBy')
+      .where(
+        `(session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${searchText && " session.name ILIKE :name " || ':name = :name'}`,
+      )
+      .setParameters({
+        accountId: account.id,
+        name: `%${searchText}%`,
+      });
+    
+    return this.paginate(qb, { limit, page });
   }
 
-  async getSession(
-   id: number,
-    account: Account
-  ) {
-    const session = await this.sessionRepository.findOne({
-      where: { id, creatorId: account.id },
-      relations: [
-        'files',
-        'notes',
-        'notes.createdBy',
-        'notes.createdBy.specialist',
-        'notes.createdBy.patient',
-        'collaborators',
-        'collaborators.specialist',
-        'collaborators.specialist.specialization',
-      ]
-    });
+  async getSession(id: number, account: Account) {
+    const session = await this.sessionRepository
+      .createQueryBuilder('session')
+      .leftJoinAndSelect('session.collaborators', 'collaborators')
+      .leftJoinAndSelect('session.files', 'files')
+      .leftJoinAndSelect('session.notes', 'notes')
+      .leftJoinAndSelect('session.createdBy', 'createdBy')
+      .where(
+        `(session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND session.id = :sessionId`,
+      )
+      .setParameters({
+        accountId: account.id,
+        sessionId: id,
+      })
+      .getOne();
     if (!session) {
       throw new NotFoundException('Session not found!');
     }
