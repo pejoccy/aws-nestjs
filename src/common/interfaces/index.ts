@@ -105,6 +105,7 @@ export enum FileModality {
   X_RAY = 'x-ray',
   MRI = 'mri',
   CT_SCAN = 'ct-scan',
+  SKIN = 'skin',
 }
 
 export enum ResourcePermissions {

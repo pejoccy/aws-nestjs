@@ -130,7 +130,7 @@ export class PacsService extends BaseService {
       account,
       createdBy: account,
     });
-    if (item.files.length <= 1) {
+    if (item.files.length <= 0) {
       throw new BadRequestException('No file(s) attached!');
     }
     const { raw } = await this.fileRepository

@@ -73,7 +73,7 @@ export class SessionService extends BaseService {
     if (!session || (
         !this.isCollaborator(session.collaborators, account) &&
         session.creatorId !== account.id &&
-        session.patientId !== account.id
+        session.patient?.accountId !== account.id
     )) {
       throw new NotFoundException('Session not found!');
     }
@@ -88,12 +88,12 @@ export class SessionService extends BaseService {
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
-      relations: ['collaborators'],
+      relations: ['collaborators', 'patient'],
     });
     if (!session || (
       !this.isCollaborator(session.collaborators, account) &&
       session.creatorId !== account.id &&
-      session.patientId !== account.id
+      session.patient?.accountId !== account.id
     )) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
@@ -144,12 +144,12 @@ export class SessionService extends BaseService {
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
-      relations: ['collaborators']
+      relations: ['collaborators', 'patient']
     });
     if (!session || (
       !this.isCollaborator(session.collaborators, account) &&
       session.creatorId !== account.id &&
-      session.patientId !== account.id
+      session.patient?.accountId !== account.id
     )) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
@@ -168,13 +168,9 @@ export class SessionService extends BaseService {
   ) {
     const sessionNote = await this.sessionNoteRepository.findOne({
       where: { id: noteId },
-      relations: ['session', 'session.collaborators']
+      relations: ['session']
     });
-    if (!sessionNote || (
-      !this.isCollaborator(sessionNote?.session.collaborators, account) &&
-      sessionNote.session.creatorId !== account.id &&
-      sessionNote.session.patientId !== account.id
-    )) {
+    if (!sessionNote || sessionNote.session.creatorId !== account.id) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
 
