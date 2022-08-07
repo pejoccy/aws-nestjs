@@ -13,7 +13,7 @@ import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
 import {
   SessionToCollaborator,
-} from '../pacs/session/session-collaborator.entity';
+} from '../pacs/session/session-collaborator/session-collaborator.entity';
 import { Session } from '../pacs/session/session.entity';
 import { BusinessContact } from './business-contact/business-contact.entity';
 import { Business } from './business/business.entity';

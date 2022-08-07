@@ -42,7 +42,7 @@ export class SessionService extends BaseService {
       .leftJoinAndSelect('session.notes', 'notes')
       .leftJoinAndSelect('session.createdBy', 'createdBy')
       .where(
-        `(session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${searchText && " session.name ILIKE :name " || ':name = :name'}`,
+        `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${searchText && " session.name ILIKE :name " || ':name = :name'}`,
       )
       .setParameters({
         accountId: account.id,
@@ -53,21 +53,28 @@ export class SessionService extends BaseService {
   }
 
   async getSession(id: number, account: Account) {
-    const session = await this.sessionRepository
-      .createQueryBuilder('session')
-      .leftJoinAndSelect('session.collaborators', 'collaborators')
-      .leftJoinAndSelect('session.files', 'files')
-      .leftJoinAndSelect('session.notes', 'notes')
-      .leftJoinAndSelect('session.createdBy', 'createdBy')
-      .where(
-        `(session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND session.id = :sessionId`,
-      )
-      .setParameters({
-        accountId: account.id,
-        sessionId: id,
-      })
-      .getOne();
-    if (!session) {
+    const session = await this.sessionRepository.findOne({
+      where: { id },
+      relations: [
+        'patient',
+        'collaborators',
+        'collaborators.specialist',
+        'files',
+        'files.createdBy',
+        'createdBy',
+        'createdBy.patient',
+        'createdBy.specialist',
+        'notes',
+        'notes.createdBy',
+        'notes.createdBy.patient',
+        'notes.createdBy.specialist',
+      ],
+    });
+    if (!session || (
+        !this.isCollaborator(session.collaborators, account) &&
+        session.creatorId !== account.id &&
+        session.patientId !== account.id
+    )) {
       throw new NotFoundException('Session not found!');
     }
 
@@ -87,11 +94,10 @@ export class SessionService extends BaseService {
       !this.isCollaborator(session.collaborators, account) &&
       session.creatorId !== account.id &&
       session.patientId !== account.id
-      )
-    ) {
+    )) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
-    const inviteHash = this.appUtilities.generateShortCode()
+    const inviteHash = this.appUtilities.generateShortCode();
     await this.cacheService.set(
       inviteHash,
       { ...item, invitedBy: account.id, sessionId },
