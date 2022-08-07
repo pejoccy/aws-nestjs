@@ -142,7 +142,10 @@ export class SessionService extends BaseService {
     item: CreateSessionNoteDto,
     account: Account
   ) {
-    const session = await this.sessionRepository.findOne(sessionId);
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+      relations: ['collaborators']
+    });
     if (!session || (
       !this.isCollaborator(session.collaborators, account) &&
       session.creatorId !== account.id &&
