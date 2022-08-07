@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Account } from '../../account/account.entity';
-import { ResourcePermissions } from '../../common/interfaces';
-import { Session } from './session.entity';
+import { Account } from '../../../account/account.entity';
+import { ResourcePermissions } from '../../../common/interfaces';
+import { Session } from '../session.entity';
 
 @Entity()
 export class SessionToCollaborator {
