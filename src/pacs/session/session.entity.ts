@@ -41,6 +41,9 @@ export class Session extends BaseEntity {
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
 
+  @Column({ type: 'jsonb' })
+  report?: Record<string, any>;
+
   @OneToMany(() => File, file => file.session)
   files: File[];
 
