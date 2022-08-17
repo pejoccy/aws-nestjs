@@ -14,6 +14,7 @@ import { MailerService } from '../../common/mailer/mailer.service';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
+import { UpdateSessionReportDto } from './dto/update-session-report.dto';
 import { SessionNote } from './session-note/session-note.entity';
 import { Session } from './session.entity';
 
@@ -177,6 +178,29 @@ export class SessionService extends BaseService {
     return this.sessionNoteRepository.update(
       { id: noteId },
       { body: item.body }
+    );
+  }
+
+  async setSessionReport(
+    sessionId: number,
+    item: UpdateSessionReportDto,
+    account: Account
+  ) {
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+      relations: ['collaborators', 'patient']
+    });
+    if (!session || (
+      !this.isCollaborator(session.collaborators, account) &&
+      session.creatorId !== account.id &&
+      session.patient?.accountId !== account.id
+    )) {
+      throw new NotAcceptableException('Unauthorized/Invalid session!');
+    }
+
+    return this.sessionRepository.update(
+      { id: sessionId },
+      { report: () => `${JSON.stringify(item)}` }
     );
   }
 }

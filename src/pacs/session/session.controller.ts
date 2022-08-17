@@ -5,9 +5,10 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Account } from '../../account/account.entity';
@@ -20,7 +21,7 @@ import { SearchSessionDto } from './dto/search-session.dto';
 import { Session } from './session.entity';
 import { SessionService } from './session.service';
 import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
-import { UpdateSessionNoteParamsDto } from './session-note/dto/update-session-note-params.dto';
+import { UpdateSessionReportDto } from './dto/update-session-report.dto';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -101,5 +102,15 @@ export class SessionController {
     @GetAccount() account: Account
   ) {
     this.sessionService.updateNote(id, item, account);
+  }
+
+  @ApiResponseMeta({ message: 'Report updated successfully!' })
+  @Put('/:id/report')
+  async updateReport(
+    @Body() item: UpdateSessionReportDto,
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    await this.sessionService.setSessionReport(id, item, account);
   }
 }

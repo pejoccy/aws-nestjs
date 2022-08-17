@@ -53,7 +53,6 @@ export class PacsService extends BaseService {
 
     if (
       file.sharing !== ShareOptions.PUBLIC &&
-      file.patientId !== account.id &&
       file.creatorId !== account.id &&
       !this.isCollaborator(file.session?.collaborators, account)
     ) {
