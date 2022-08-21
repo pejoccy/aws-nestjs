@@ -42,6 +42,7 @@ export class SessionService extends BaseService {
       .leftJoinAndSelect('session.files', 'files')
       .leftJoinAndSelect('session.notes', 'notes')
       .leftJoinAndSelect('session.createdBy', 'createdBy')
+      .leftJoinAndSelect('session.reportTemplate', 'reportTemplate')
       .where(
         `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${searchText && " session.name ILIKE :name " || ':name = :name'}`,
       )
@@ -69,6 +70,7 @@ export class SessionService extends BaseService {
         'notes.createdBy',
         'notes.createdBy.patient',
         'notes.createdBy.specialist',
+        'reportTemplate',
       ],
     });
     if (!session || (
@@ -200,7 +202,7 @@ export class SessionService extends BaseService {
 
     return this.sessionRepository.update(
       { id: sessionId },
-      { report: () => `${JSON.stringify(item)}` }
+      { report: () => `'${JSON.stringify(item)}'` }
     );
   }
 }

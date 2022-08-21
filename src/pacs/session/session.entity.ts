@@ -14,6 +14,7 @@ import { FileModality, ShareOptions } from '../../common/interfaces';
 import { File } from '../file/file.entity';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionNote } from './session-note/session-note.entity';
+import { ReportTemplate } from '../report-template/report-template.entity';
 
 @Entity()
 export class Session extends BaseEntity {
@@ -31,6 +32,9 @@ export class Session extends BaseEntity {
 
   @Column({ enum: FileModality })
   modality: FileModality;
+
+  @Column()
+  reportTemplateId?: number;
 
   @Column()
   creatorId: number;
@@ -53,6 +57,10 @@ export class Session extends BaseEntity {
   @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })
   createdBy: Account;
+
+  @OneToOne(() => ReportTemplate)
+  @JoinColumn()
+  reportTemplate?: ReportTemplate;
 
   @OneToOne(() => Patient)
   @JoinColumn()
