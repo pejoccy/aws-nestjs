@@ -23,6 +23,7 @@ import { Session } from './session/session.entity';
 import { UploadFileJobAttribs } from './queues/interfaces';
 import { FileQueueProducer } from './queues/producer';
 import { S3Service } from './s3.service';
+import { ReportTemplate } from './report-template/report-template.entity';
 
 @Injectable()
 export class PacsService extends BaseService {
@@ -31,6 +32,8 @@ export class PacsService extends BaseService {
     private sessionRepository: Repository<Session>,
     @InjectRepository(File)
     private fileRepository: Repository<File>,
+    @InjectRepository(ReportTemplate)
+    private reportTemplateRepository: Repository<ReportTemplate>,
     private fileQueue: FileQueueProducer,
     private s3Service: S3Service,
     private appUtilities: AppUtilities
@@ -79,6 +82,9 @@ export class PacsService extends BaseService {
       throw new BadRequestException('File is missing/invalid!');
     }
     const sessionName = moment().format('YYYYMMDDHHmmss');
+    const template = await this.reportTemplateRepository.findOne({
+      modality: item.modality,
+    });
     const session = await this.sessionRepository.save({
       name: sessionName,
       modality: item.modality,
@@ -86,6 +92,7 @@ export class PacsService extends BaseService {
       studyInfo: item.studyInfo,
       account,
       createdBy: account,
+      reportTemplateId: template.id,
     });
     // create file,
     const file = await this.fileRepository.save({
@@ -121,6 +128,9 @@ export class PacsService extends BaseService {
     item: UploadFolderDto,
     account: Account
   ) {
+    const template = await this.reportTemplateRepository.findOne({
+      modality: item.modality,
+    });
     const session = await this.sessionRepository.save({
       name: item.name,
       modality: item.modality,
@@ -128,6 +138,7 @@ export class PacsService extends BaseService {
       studyInfo: item.studyInfo,
       account,
       createdBy: account,
+      reportTemplateId: template.id,
     });
     if (item.files.length <= 0) {
       throw new BadRequestException('No file(s) attached!');

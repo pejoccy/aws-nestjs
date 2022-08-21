@@ -20,7 +20,7 @@ const config: PostgresConnectionOptions = {
   migrationsRun: true,
   logging: false,
   logger: 'advanced-console',
-  migrations: ['./migrations/*.ts'],
+  migrations: ['./src/common/database/migrations/*.ts'],
   // ssl: true,
   // extra: {
   //   ssl: {

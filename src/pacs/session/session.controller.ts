@@ -107,7 +107,7 @@ export class SessionController {
   @ApiResponseMeta({ message: 'Report updated successfully!' })
   @Put('/:id/report')
   async updateReport(
-    @Body() item: UpdateSessionReportDto,
+    @Body() item: any,
     @Param() { id }: EntityIdDto,
     @GetAccount() account: Account
   ) {
