@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -22,6 +23,7 @@ import { Session } from './session.entity';
 import { SessionService } from './session.service';
 import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
 import { UpdateSessionReportDto } from './dto/update-session-report.dto';
+import { GetSessionReportDto } from './session-report/dto/get-session-report.dto';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -104,13 +106,30 @@ export class SessionController {
     this.sessionService.updateNote(id, item, account);
   }
 
+  @Get('/:id/reports')
+  async getReports(
+    @Param() { id }: EntityIdDto,
+    @Query() query: SearchSessionDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.getSessionReports(id, query, account);
+  }
+
+  @Get('/:sessionId/reports/:id')
+  async getReport(
+    @Param() { id, sessionId }: GetSessionReportDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.getSessionReport(id, sessionId, account);
+  }
+
   @ApiResponseMeta({ message: 'Report updated successfully!' })
-  @Put('/:id/report')
+  @Put('/:id/reports')
   async updateReport(
     @Body() item: any,
     @Param() { id }: EntityIdDto,
     @GetAccount() account: Account
   ) {
-    await this.sessionService.setSessionReport(id, item, account);
+    await this.sessionService.updateSessionReport(id, item, account);
   }
 }

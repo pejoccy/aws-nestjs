@@ -7,15 +7,16 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
+import { Specialist } from '../../account/specialist/specialist.entity';
 import { AppUtilities } from '../../app.utilities';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
 import { MailerService } from '../../common/mailer/mailer.service';
-import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
-import { UpdateSessionReportDto } from './dto/update-session-report.dto';
+import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { SessionNote } from './session-note/session-note.entity';
+import { SessionReport } from './session-report/session-report.entity';
 import { Session } from './session.entity';
 
 @Injectable()
@@ -25,6 +26,10 @@ export class SessionService extends BaseService {
     private sessionRepository: Repository<Session>,
     @InjectRepository(SessionNote)
     private sessionNoteRepository: Repository<SessionNote>,
+    @InjectRepository(SessionReport)
+    private sessionReportRepository: Repository<SessionReport>,
+    @InjectRepository(Specialist)
+    private specialistRepository: Repository<Specialist>,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
     private cacheService: CacheService
@@ -183,11 +188,61 @@ export class SessionService extends BaseService {
     );
   }
 
-  async setSessionReport(
-    sessionId: number,
-    item: UpdateSessionReportDto,
+  async getSessionReports(
+    id: number,
+    { limit, page, searchText }: SearchSessionDto,
     account: Account
   ) {
+    const session = await this.sessionRepository.findOne({
+      where: { id },
+      relations: ['collaborators', 'patient'],
+    });
+    if (!session || (
+        !this.isCollaborator(session.collaborators, account) &&
+        session.creatorId !== account.id &&
+        session.patient?.accountId !== account.id
+    )) {
+      throw new NotFoundException('Session report not found!');
+    }
+
+    return this.paginate(
+      this.sessionReportRepository,
+      { limit, page },
+      {
+        where: { sessionId: id },
+        relations: ['session', 'session.reportTemplate', 'specialist'],
+      },
+    );
+  }
+
+  async getSessionReport(id: number, sessionId: number, account: Account) {
+    const report = await this.sessionReportRepository.findOne({
+      where: { id, sessionId },
+      relations: [
+        'session',
+        'session.collaborators',
+        'session.patient',
+        'session.reportTemplate',
+        'specialist',
+      ],
+    });
+    if (!report || (
+        !this.isCollaborator(report.session.collaborators, account) &&
+        report.session.creatorId !== account.id &&
+        report.session.patient?.accountId !== account.id
+    )) {
+      throw new NotFoundException('Session report not found!');
+    }
+
+    return report;
+  }
+
+  async updateSessionReport(
+    sessionId: number,
+    report: any,
+    account: Account
+  ) {
+    // find 
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['collaborators', 'patient']
@@ -200,9 +255,24 @@ export class SessionService extends BaseService {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
 
-    return this.sessionRepository.update(
-      { id: sessionId },
-      { report: () => `'${JSON.stringify(item)}'` }
-    );
+    const specialist = await this.specialistRepository.findOne({
+      accountId: account.id,
+    });
+    if (!specialist) {
+      throw new NotAcceptableException(
+        'Only a specialist is allowed to add a session report'
+      );
+    }
+
+    return this.sessionReportRepository
+      .createQueryBuilder()
+      .insert()
+      .values({
+        sessionId,
+        specialistId: specialist.id,
+        report,
+      })
+      .orUpdate(['report'], ['specialistId', 'sessionId'])
+      .execute();
   }
 }

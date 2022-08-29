@@ -15,6 +15,7 @@ import { File } from '../file/file.entity';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionNote } from './session-note/session-note.entity';
 import { ReportTemplate } from '../report-template/report-template.entity';
+import { SessionReport } from './session-report/session-report.entity';
 
 @Entity()
 export class Session extends BaseEntity {
@@ -45,14 +46,14 @@ export class Session extends BaseEntity {
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
 
-  @Column({ type: 'jsonb' })
-  report?: Record<string, any>;
-
   @OneToMany(() => File, file => file.session)
   files: File[];
 
   @OneToMany(() => SessionNote, note => note.session)
   notes: SessionNote[];
+
+  @OneToMany(() => SessionReport, report => report.session)
+  reports: SessionReport[];
 
   @OneToOne(() => Account)
   @JoinColumn({ name: 'creatorId' })

@@ -168,12 +168,10 @@ export class BaseService {
         );
       }
 
-      // console.log(searchOptions, columnsData)
       query.where = Array.isArray(searchOptions.where)
         ? searchOptions.where.map(composeWhereOptions)
         : composeWhereOptions(searchOptions.where || {});
     }
-    console.log(query.where, searchOptions.where);
 
     return queryBuilderOrRepository instanceof SelectQueryBuilder
       ? paginate<T, CustomMetaType>(queryBuilderOrRepository, options)
