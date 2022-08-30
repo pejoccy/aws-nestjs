@@ -12,7 +12,7 @@ export const reportTemplateSeedData = [
         required: true,
       },
       {
-        name: 'clinical-information',
+        name: 'clinical_information',
         label: 'Clinical Information',
         type: 'text',
         required: true,
@@ -36,7 +36,7 @@ export const reportTemplateSeedData = [
         required: true,
       },
       {
-        name: 'clinical-information',
+        name: 'clinical_information',
         label: 'Clinical Information',
         type: 'text',
         required: true,
@@ -60,7 +60,7 @@ export const reportTemplateSeedData = [
         required: true,
       },
       {
-        name: 'clinical-information',
+        name: 'clinical_information',
         label: 'Clinical Information',
         type: 'text',
         required: true,
@@ -84,7 +84,7 @@ export const reportTemplateSeedData = [
         required: true,
       },
       {
-        name: 'clinical-information',
+        name: 'clinical_information',
         label: 'Clinical Information',
         type: 'text',
         required: true,

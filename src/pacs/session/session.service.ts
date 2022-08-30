@@ -237,7 +237,7 @@ export class SessionService extends BaseService {
     return report;
   }
 
-  async updateSessionReport(
+  async addSessionReport(
     sessionId: number,
     report: any,
     account: Account
@@ -272,7 +272,7 @@ export class SessionService extends BaseService {
         specialistId: specialist.id,
         report,
       })
-      .orUpdate(['report'], ['specialistId', 'sessionId'])
+      // .orUpdate(['report'], ['specialistId', 'sessionId'])
       .execute();
   }
 }

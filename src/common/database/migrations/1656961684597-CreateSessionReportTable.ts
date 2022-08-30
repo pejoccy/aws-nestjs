@@ -50,13 +50,13 @@ export class CreateSessionReportTable1656861684597 implements MigrationInterface
         })
       );
 
-      await queryRunner.createUniqueConstraint(
-        'session_report',
-        new TableUnique({
-          name: 'uniq_session_report_sessionId_specialistId',
-          columnNames: ['sessionId', 'specialistId'],
-        })
-      );
+      // await queryRunner.createUniqueConstraint(
+      //   'session_report',
+      //   new TableUnique({
+      //     name: 'uniq_session_report_sessionId_specialistId',
+      //     columnNames: ['sessionId', 'specialistId'],
+      //   })
+      // );
 
       await queryRunner.createForeignKeys('session_report', [
         new TableForeignKey({
