@@ -22,7 +22,7 @@ import { SearchSessionDto } from './dto/search-session.dto';
 import { Session } from './session.entity';
 import { SessionService } from './session.service';
 import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
-import { UpdateSessionReportDto } from './dto/update-session-report.dto';
+import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { GetSessionReportDto } from './session-report/dto/get-session-report.dto';
 
 @ApiBearerAuth()
@@ -123,13 +123,13 @@ export class SessionController {
     return this.sessionService.getSessionReport(id, sessionId, account);
   }
 
-  @ApiResponseMeta({ message: 'Report updated successfully!' })
-  @Put('/:id/reports')
-  async updateReport(
-    @Body() item: any,
+  @ApiResponseMeta({ message: 'Report added successfully!' })
+  @Post('/:id/reports')
+  async addSessionReport(
+    @Body() item: AddSessionReportDto,
     @Param() { id }: EntityIdDto,
     @GetAccount() account: Account
   ) {
-    await this.sessionService.updateSessionReport(id, item, account);
+    await this.sessionService.addSessionReport(id, item, account);
   }
 }
