@@ -8,7 +8,7 @@ import {
   OneToMany,
   JoinTable,
 } from 'typeorm';
-import { UserRoles } from '../common/interfaces';
+import { CommsProviders, UserRoles } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
 import {
@@ -50,8 +50,14 @@ export class Account {
   @JoinColumn()
   profilePhoto?: File;
 
-  @Column({ nullable: true })
+  @Column()
   subscriptionId?: number;
+
+  @Column()
+  commsId?: string;
+
+  @Column({ enum: CommsProviders })
+  commsProviderId?: CommsProviders;
 
   @OneToOne(() => BusinessContact, contact => contact.account)
   businessContact: BusinessContact;

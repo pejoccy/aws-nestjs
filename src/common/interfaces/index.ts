@@ -125,3 +125,7 @@ export enum BusinessCategories {
   RADIOLOGY = 'radiology',
   DIAGNOSTICS = 'diagnostics',
 }
+
+export enum CommsProviders {
+  AWS_CHIME = 'aws_chime',
+}

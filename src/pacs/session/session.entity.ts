@@ -10,7 +10,7 @@ import {
 import { Account } from '../../account/account.entity';
 import { Patient } from '../../account/patient/patient.entity';
 import { BaseEntity } from '../../common/base/_entity';
-import { FileModality, ShareOptions } from '../../common/interfaces';
+import { CommsProviders, FileModality, ShareOptions } from '../../common/interfaces';
 import { File } from '../file/file.entity';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionNote } from './session-note/session-note.entity';
@@ -42,6 +42,12 @@ export class Session extends BaseEntity {
 
   @Column()
   patientId?: number;
+
+  @Column()
+  commsMeetId?: string;
+
+  @Column({ enum: CommsProviders })
+  commsMeetProvider?: CommsProviders;
 
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;

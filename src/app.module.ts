@@ -21,6 +21,7 @@ import {
 } from './common/notification/notification.module';
 import { PlanModule } from './common/plan/plan.module';
 import { SubscriptionModule } from './common/subscription/subscription.module';
+import { CommsModule } from './comms/comms.module';
 import { PacsModule } from './pacs/pacs.module';
 
 @Global()
@@ -29,6 +30,7 @@ import { PacsModule } from './pacs/pacs.module';
     AuthModule,
     AccountModule,
     CacheModule,
+    CommsModule,
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     CountryModule,
     NotificationModule,

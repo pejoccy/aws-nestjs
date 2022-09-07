@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationCursorOptionsDto } from 'src/common/dto';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Specialist } from '../../account/specialist/specialist.entity';
@@ -274,5 +275,33 @@ export class SessionService extends BaseService {
       })
       // .orUpdate(['report'], ['specialistId', 'sessionId'])
       .execute();
+  }
+
+  async getSessionChatRoom(sessionId: number, account: Account) {
+    
+  }
+
+  async getSessionChatMessages(
+    sessionId: number,
+    pagination: PaginationCursorOptionsDto,
+    account: Account
+  ) {
+
+  }
+
+  async sendSessionChatMessage(sessionId: number, account: Account) {
+
+  }
+
+  async getSessionMeetingInfo(sessionId: number, account: Account) {
+
+  }
+
+  async joinSessionMeeting(sessionId: number, account: Account) {
+
+  }
+
+  async leaveSessionMeeting(sessionId: number, account: Account) {
+
   }
 }

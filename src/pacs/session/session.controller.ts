@@ -24,6 +24,7 @@ import { SessionService } from './session.service';
 import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
 import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { GetSessionReportDto } from './session-report/dto/get-session-report.dto';
+import { PaginationCursorOptionsDto } from 'src/common/dto';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -132,4 +133,54 @@ export class SessionController {
   ) {
     await this.sessionService.addSessionReport(id, item, account);
   }
+
+  @Get('/:id/chat')
+  async getChatRoom(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.getSessionChatRoom(id, account);
+  }
+
+  @Get('/:id/chat/messages')
+  async getChats(
+    @Param() { id }: EntityIdDto,
+    @Query() query: PaginationCursorOptionsDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.getSessionChatMessages(id, query, account);
+  }
+
+  @Post('/:id/chat/messages')
+  async sendChat(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.sendSessionChatMessage(id, account);
+  }
+
+  @Get('/:id/meet')
+  async getMeetingInfo(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.getSessionMeetingInfo(id, account);
+  }
+
+  @Post('/:id/meet/join')
+  async joinMeeting(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.joinSessionMeeting(id, account);
+  }
+
+  @Post('/:id/meet/leave')
+  async leaveMeeting(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account
+  ) {
+    return this.sessionService.leaveSessionMeeting(id, account);
+  }
+
 }

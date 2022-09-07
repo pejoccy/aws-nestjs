@@ -17,6 +17,15 @@ const config = {
     environment: env('NODE_ENV'),
     port: Number(env('APP_PORT', 3001)),
   },
+  awsChime: {
+    config: {
+      accessKeyId: env('AWS_CHIME_ACCESS_KEY_ID'),
+      secretAccessKey: env('AWS_CHIME_SECRET_ACCESS_KEY'),
+    },
+    region: env('AWS_CHIME_REGION'),
+    appInstanceArn: env('AWS_CHIME_APP_ARN'),
+    appInstanceAdminArn: env('AWS_CHIME_ADMIN_ARN'),
+  },
   client: {
     emailUrls: {
       sessionCollaboratorInvite: env('CLIENT_COLLABORATE_URL'),
