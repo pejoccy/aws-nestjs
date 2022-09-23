@@ -12,7 +12,7 @@ import {
 } from '../account/specialist/dto/setup-specialist.dto';
 import { PublicRoute } from '../common/decorators/public-route-decorator';
 import { ApiResponseMeta } from '../common/decorators/response.decorator';
-import { UserRoles } from '../common/interfaces';
+import { AccountTypes } from '../common/interfaces';
 import { AuthService } from './auth.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -58,7 +58,7 @@ export class AuthController {
       otp,
       token,
       patient: rest,
-      userType: UserRoles.PATIENT,
+      userType: AccountTypes.PATIENT,
     });
   }
 
@@ -76,7 +76,7 @@ export class AuthController {
       otp,
       token,
       specialist: item,
-      userType: UserRoles.SPECIALIST,
+      userType: AccountTypes.SPECIALIST,
     });
   }
 
@@ -90,7 +90,7 @@ export class AuthController {
       otp,
       token,
       business,
-      userType: UserRoles.BUSINESS
+      userType: AccountTypes.BUSINESS
     });
   }
 

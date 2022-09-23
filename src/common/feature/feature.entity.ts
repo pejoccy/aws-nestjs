@@ -1,22 +1,25 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  Entity,
   ManyToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ResourcePermissions } from '../interfaces';
+import { FeatureSlugs, FeatureUnits } from '../interfaces';
 import { Plan } from '../plan/plan.entity';
 
 @Entity()
-export class Permission {
+export class Feature {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  description: string;
 
-  @Column()
-  slug: ResourcePermissions;
+  @Column({ enum: FeatureSlugs })
+  slug: FeatureSlugs;
+
+  @Column({ enum: FeatureUnits })
+  unit: FeatureUnits;
   
   @Column({ default: true })
   status: boolean;

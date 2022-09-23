@@ -17,9 +17,9 @@ import multer from 'multer';
 import { Account } from '../account/account.entity';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { GetAccount } from '../common/decorators/get-user-decorator';
-import { ResourcePermission } from '../common/decorators/permission.decorator';
+import { FeatureLimitCheck } from '../common/decorators/feature-limit-check.decorator';
 import { EntityIdDto } from '../common/dto/entity.dto';
-import { ResourcePermissions, imageFileFilter } from '../common/interfaces';
+import { FeatureSlugs, imageFileFilter } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { PacsService } from './pacs.service';
@@ -44,7 +44,7 @@ export class PacsController {
 
   @ApiConsumes('multipart/form-data')
   @Post('/uploads')
-  @ResourcePermission(ResourcePermissions.SCAN_AND_UPLOAD)
+  @FeatureLimitCheck(FeatureSlugs.SESSION)
   @UseInterceptors(FileInterceptor('file', {
     storage: multer.diskStorage({}),
     fileFilter: imageFileFilter,
@@ -62,7 +62,7 @@ export class PacsController {
 
   @ApiConsumes('multipart/form-data')
   @Post('/bulk-uploads')
-  @ResourcePermission(ResourcePermissions.BULK_SCAN_AND_UPLOAD)
+  @FeatureLimitCheck(FeatureSlugs.SESSION_FILES)
   @UseInterceptors(FilesInterceptor('files', 20, {
     storage: multer.diskStorage({}),
     fileFilter: imageFileFilter,

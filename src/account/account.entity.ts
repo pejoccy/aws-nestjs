@@ -8,7 +8,7 @@ import {
   OneToMany,
   JoinTable,
 } from 'typeorm';
-import { CommsProviders, UserRoles } from '../common/interfaces';
+import { CommsProviders, AccountTypes } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
 import {
@@ -40,8 +40,8 @@ export class Account {
   @Column({ nullable: true, select: true })
   lastLoginIp?: string;
 
-  @Column({ nullable: true, enum: UserRoles })
-  role?: UserRoles;
+  @Column({ nullable: true, enum: AccountTypes })
+  role?: AccountTypes;
 
   @Column({ nullable: true, select: true })
   profilePhotoId?: string;

@@ -34,6 +34,9 @@ export class Subscription {
   @Column()
   nextBillingDate: Date;
 
+  @Column({ default: false })
+  isActive: boolean;
+
   @Column({ default: true })
   status: boolean;
 

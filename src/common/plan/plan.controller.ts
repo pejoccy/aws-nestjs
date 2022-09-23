@@ -10,11 +10,11 @@ import {
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PermissionGuard } from '../../auth/guards/permission.guard';
-import { ResourcePermission } from '../decorators/permission.decorator';
+import { FeatureLimitCheck } from '../decorators/feature-limit-check.decorator';
 import { PublicRoute } from '../decorators/public-route-decorator';
 import { PaginationOptionsDto } from '../dto';
 import { EntityIdDto, PermissionIdDto } from '../dto/entity.dto';
-import { ResourcePermissions } from '../interfaces';
+import { FeatureSlugs } from '../interfaces';
 import { Plan } from './plan.entity';
 import { PlanService } from './plan.service';
 
@@ -38,7 +38,7 @@ export class PlanController {
   @ApiParam({ name: 'id' })
   @ApiParam({ name: 'permissionId' })
   @Post('/:id/permissions/:permissionId')
-  @ResourcePermission(ResourcePermissions.SCAN_AND_UPLOAD)
+  @FeatureLimitCheck(FeatureSlugs.SESSION)
   async addPermission(
     @Param() { permissionId }: PermissionIdDto,
     @Param() { id }: EntityIdDto

@@ -5,11 +5,11 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { TimeUnits } from '../interfaces';
-import { Feature } from '../feature/feature.entity';
+import { TimeUnits } from '../../interfaces';
+import { Feature } from '../../feature/feature.entity';
 
 @Entity()
-export class Plan {
+export class PlanFeature {
   @PrimaryGeneratedColumn()
   id: number;
 

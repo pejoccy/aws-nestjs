@@ -46,7 +46,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
         ClientRequestToken: v4(),
         MediaRegion: aws.region,
         ExternalMeetingId: ref,
-      }
+      };
   
       return this.chimeMeeting.createMeeting(params).promise();
     }
@@ -56,7 +56,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
         MediaRegion: aws.region,
         ExternalMeetingId: ref,
         Attendees: attendees.map(attendee => ({ ExternalUserId: attendee })),
-    }
+    };
     
     return this.chimeMeeting.createMeetingWithAttendees(params).promise();
   }

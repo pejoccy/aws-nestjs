@@ -25,7 +25,7 @@ export type CachedAuthData<T = any> = {
   data?: T;
 }
 
-export enum UserRoles {
+export enum AccountTypes {
   PATIENT = 'patient',
   SPECIALIST = 'specialist',
   BUSINESS = 'business',
@@ -80,14 +80,25 @@ export enum SpecialistCategories {
   POSTGRADUATE = 'postgraduate',
 }
 
-export enum ResourcePermissions {
-  SCAN_AND_UPLOAD = 'scan-and-upload',
-  BULK_SCAN_AND_UPLOAD = 'bulk-scan-and-upload',
-  VIDEO_AUDIO_CALL_AND_RECORDING = 'video-audio-call-and-recording',
-  ADD_MULTIPLE_PAYMENT_CARDS = 'add-multiple-payment-cards',
-  SHARE_AND_GRANT_ACCESS = 'share-and-grant-access',
-  VIEW_DETAILED_REPORT = 'view-detailed-report',
-  DOWNLOAD_EXPORT = 'download-and-export',
+export enum FeatureSlugs {
+  SESSION = 'session',
+  SESSION_FILES = 'session_files',
+  SPECIALIST_INVITES = 'specialist_invites',
+  NON_SPECIALIST_INVITES = 'non_specialist_invites',
+  ALLOTED_FILE_STORAGE = 'alloted_file_storage',
+  SESSION_RETENTION_PERIOD = 'session_retention_period',
+  CHAT = 'chat',
+  VIDEO = 'video',
+  VIEW_PEER_REVIEWS = 'view_peer_reviews',
+  OTHER_PEER_REVIEW = 'other_peer_review',
+  AI_DIAGNOSTICS = 'ai_diagnostics',
+  ANALYTICS = 'analytics',
+}
+
+export enum FeatureUnits {
+  AGGREGATE = 'aggregate',
+  DURATION = 'duration',
+  VALUE = 'value',
 }
 
 export enum TimeUnits {

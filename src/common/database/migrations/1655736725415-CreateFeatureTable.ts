@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
 
-export class CreatePermissionTable1655736725415 implements MigrationInterface {
+export class CreateFeatureTable1655736725415 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: 'permission',
+          name: 'feature',
           columns: [
             {
               name: 'id',
@@ -14,11 +14,15 @@ export class CreatePermissionTable1655736725415 implements MigrationInterface {
               isGenerated: true,
             },
             {
+              name: 'description',
+              type: 'varchar',
+            },
+            {
               name: 'slug',
               type: 'varchar',
             },
             {
-              name: 'name',
+              name: 'unit',
               type: 'varchar',
             },
             {
@@ -46,16 +50,16 @@ export class CreatePermissionTable1655736725415 implements MigrationInterface {
       );
 
       await queryRunner.createUniqueConstraint(
-        'permission',
+        'feature',
         new TableUnique({
-          name: 'uniq_permission_slug',
+          name: 'uniq_feature_slug',
           columnNames: ['slug'],
         })
       );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('permission');
+      await queryRunner.dropTable('feature');
     }
 
 }

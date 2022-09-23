@@ -1,5 +1,10 @@
 import { PaginationCursorOptionsDto } from '../../common/dto';
 
+export enum ActivityType {
+  JOINED = 'joined',
+  LEFT = 'left',
+}
+
 export interface ChatServer {
   userArn: string;
   getChats(pagination: PaginationCursorOptionsDto): Promise<any>;

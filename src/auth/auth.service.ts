@@ -20,7 +20,7 @@ import {
   AuthTokenTypes,
   CachedAuthData,
   PG_DB_ERROR_CODES,
-  UserRoles,
+  AccountTypes,
 } from '../common/interfaces';
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
@@ -136,7 +136,7 @@ export class AuthService extends BaseService {
     const token = this.appUtilities.generateShortCode();
     const otp = this.appUtilities.generateOtp();
     let accountInitData: InitAccountDto = { email, password, userType };
-    if (userType === UserRoles.BUSINESS) {
+    if (userType === AccountTypes.BUSINESS) {
       accountInitData = { ...accountInitData, ...userDto };
     }
     await this.cacheService.set(
@@ -161,7 +161,7 @@ export class AuthService extends BaseService {
     specialist,
     patient,
     userType,
-  }: ICreateAccount & { userType: UserRoles }) {
+  }: ICreateAccount & { userType: AccountTypes }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
     if (
@@ -183,7 +183,7 @@ export class AuthService extends BaseService {
       });
       // setup default subscription
       await this.subscriptionService.setupDefaultSubscription(account);
-      if (userType === UserRoles.BUSINESS && !!business) {
+      if (userType === AccountTypes.BUSINESS && !!business) {
         business = await this.businessService.setup(
           business,
           {
@@ -193,14 +193,14 @@ export class AuthService extends BaseService {
           }
         );
       }
-      else if (userType === UserRoles.SPECIALIST && !!specialist) {
+      else if (userType === AccountTypes.SPECIALIST && !!specialist) {
         specialist = await this.specialistService.create({
           ...specialist,
           email,
           accountId: account.id,
         });
       }
-      else if (userType === UserRoles.PATIENT && !!patient) {
+      else if (userType === AccountTypes.PATIENT && !!patient) {
         patient = await this.patientService.create({
           ...patient,
           email,

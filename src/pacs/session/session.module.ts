@@ -6,17 +6,19 @@ import { SessionReport } from './session-report/session-report.entity';
 import { Session } from './session.entity';
 import { SessionController } from './session.controller';
 import { SessionService } from './session.service';
+import { CommsModule } from 'src/comms/comms.module';
 
 @Module({
   providers: [SessionService],
   controllers: [SessionController],
-  exports: [TypeOrmModule],
   imports: [
+    CommsModule,
     TypeOrmModule.forFeature([
       Session,
       SessionNote,
       SessionReport,
       Specialist
   ])],
+  exports: [TypeOrmModule],
 })
 export class SessionModule {}

@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MeetModule } from './meet/meet.module';
-import { ChatModule } from './chat/chat.module';
+import { ChatService } from './chat/chat.service';
+import { MeetService } from './meet/meet.service';
+import { ChimeCommsProvider } from './providers/chime';
+import { TimerService } from './timer/timer.service';
 
 @Module({
-  imports: [ChatModule, MeetModule],
-  providers: [],
+  imports: [],
+  providers: [
+    ChatService,
+    ChimeCommsProvider,
+    MeetService,
+    TimerService,
+  ],
   exports: []
 })
 export class CommsModule {}
