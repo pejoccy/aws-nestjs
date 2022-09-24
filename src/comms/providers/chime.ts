@@ -71,7 +71,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
 
   async getAttendees(
     meetingId: string,
-    pagination: PaginationCursorOptionsDto
+    pagination?: PaginationCursorOptionsDto
   ): Promise<any> {
     const params: Chime.ListAttendeesRequest = {
       MeetingId: meetingId,
@@ -82,7 +82,16 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     return this.chimeMeeting.listAttendees(params).promise();
   }
 
-  async addAttendees?(meetingId: string, attendees: string[]): Promise<any> {
+  async addAttendee(meetingId: string, attendee: string): Promise<any> {
+    const params: Chime.CreateAttendeeRequest = {
+      MeetingId: meetingId,
+      ExternalUserId: attendee,
+    };
+
+    return this.chimeMeeting.createAttendee(params).promise();
+  }
+
+  async addAttendees(meetingId: string, attendees: string[]): Promise<any> {
     const params: Chime.BatchCreateAttendeeRequest = {
       MeetingId: meetingId,
       Attendees: attendees.map(attendee => ({ ExternalUserId: attendee })),
@@ -100,28 +109,42 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     return this.chimeMeeting.deleteAttendee(params).promise();
   }
 
-  get userArn() { return this._userArn }
+  get userArn() {
+    return this._userArn;
+  }
+  
+  setUserArn(userArn: string) {
+    this._userArn = userArn;
+    return this;
+  }
 
-  async startChat(inviteesArn: string[], name: string): Promise<any> {
+  async startChat(
+    userArn: string,
+    inviteesArn: string[],
+    name: string
+  ): Promise<any> {
     const aws = this.config.get('awsChime');
 
     const params: ChimeSDKMessaging.CreateChannelRequest = {
       AppInstanceArn: aws.appInstanceArn,
       ChimeBearer: aws.appInstanceAdminArn,
       Name: name,
-      MemberArns: [this.userArn, ...inviteesArn],
+      MemberArns: [userArn, ...inviteesArn],
       ClientRequestToken: v4(),
     }
 
     return this.chimeMessaging.createChannel(params).promise();
   }
 
-  async getChats(pagination: PaginationCursorOptionsDto): Promise<any> {
+  async getChats(
+    userArn: string,
+    pagination: PaginationCursorOptionsDto
+  ): Promise<any> {
     const aws = this.config.get('awsChime');
 
     const channelParams: ChimeSDKMessaging.ListChannelMembershipsForAppInstanceUserRequest  = {
       ChimeBearer: aws.appInstanceAdminArn,
-      AppInstanceUserArn: this.userArn,
+      AppInstanceUserArn: userArn,
       MaxResults: pagination.limit,
       NextToken: pagination.nextToken,
     };
@@ -132,13 +155,29 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
       .promise();
   }
 
+  async findChat(id: string): Promise<any> {
+    const aws = this.config.get('awsChime');
+
+    const channelParams: ChimeSDKMessaging.SearchChannelsRequest  = {
+      ChimeBearer: aws.appInstanceAdminArn,
+      Fields: [{
+        Key: 'MEMBERS',
+        Values: [id],
+        Operator: 'EQUALS',
+      }],
+    };
+
+    return this.chimeMessaging.searchChannels(channelParams).promise();
+  }
+
   async getMessages(
+    userArn: string,
     chatArn: string,
     pagination: PaginationCursorOptionsDto
   ): Promise<any> {
     const params: ChimeSDKMessaging.ListChannelMessagesRequest = {
       ChannelArn: chatArn,
-      ChimeBearer: this.userArn,
+      ChimeBearer: userArn,
       MaxResults: pagination.limit,
       NextToken: pagination.nextToken,
       NotAfter: pagination.notAfter,
@@ -147,9 +186,13 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     return this.chimeMessaging.listChannelMessages(params).promise();
   }
 
-  async sendMessage(chatArn: string, msg: string): Promise<any> {
+  async sendMessage(
+    userArn: string,
+    chatArn: string,
+    msg: string
+  ): Promise<any> {
     const params: ChimeSDKMessaging.SendChannelMessageRequest = {
-      ChimeBearer: this.userArn,
+      ChimeBearer: userArn,
       ChannelArn: chatArn,
       Content: msg,
       ClientRequestToken: v4(),
@@ -189,7 +232,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   
     let canonical_querystring =
       "X-Amz-Algorithm=" +
-      "AWS4-HMAC-SHA256" +
+      algorithm +
       "&" +
       "X-Amz-Credential=" +
       encodeURIComponent(`${aws.config.accessKeyId}/${credential_scope}`) +

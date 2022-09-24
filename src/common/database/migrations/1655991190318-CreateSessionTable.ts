@@ -3,8 +3,8 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
-  TableUnique,
 } from 'typeorm';
+import { CommsProviders } from '../../interfaces';
 
 export class CreateSessionTable1655991190318 implements MigrationInterface {
 
@@ -61,10 +61,15 @@ export class CreateSessionTable1655991190318 implements MigrationInterface {
               default: true,
             },
             {
-              name: 'report',
+              name: 'comms',
               type: 'jsonb',
               isNullable: true,
-              comment: `'[{"caption": "Clinical information", "description": "Here goes the description.", "sortOrder": 1}]'`,
+              comment: `${JSON.stringify({
+                [CommsProviders.AWS_CHIME]: {
+                  chatChannelArn: 'messaging-id',
+                  meetChannelArn: 'meet-id',
+                },
+              })}`,
             },
             {
               name: 'creatorId',

@@ -17,6 +17,13 @@ import { SessionNote } from './session-note/session-note.entity';
 import { ReportTemplate } from '../report-template/report-template.entity';
 import { SessionReport } from './session-report/session-report.entity';
 
+export interface SessionComms {
+  [CommsProviders.AWS_CHIME]: {
+    chatChannelArn: string;
+    meetChannelArn: string;
+  },
+}
+
 @Entity()
 export class Session extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -44,10 +51,7 @@ export class Session extends BaseEntity {
   patientId?: number;
 
   @Column()
-  commsMeetId?: string;
-
-  @Column({ enum: CommsProviders })
-  commsMeetProvider?: CommsProviders;
+  comms?: SessionComms;
 
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;

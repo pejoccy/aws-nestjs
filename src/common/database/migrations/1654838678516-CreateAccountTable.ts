@@ -4,6 +4,7 @@ import {
   Table,
   TableUnique,
 } from 'typeorm'
+import { CommsProviders } from '../../interfaces';
 
 export class CreateAccountTable1654838678516 implements MigrationInterface {
 
@@ -57,6 +58,16 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
               name: 'role',
               type: 'enum',
               enum: ['patient', 'specialist', 'business'],
+            },
+            {
+              name: 'comms',
+              type: 'jsonb',
+              isNullable: true,
+              comment: `${JSON.stringify({
+                [CommsProviders.AWS_CHIME]: {
+                  identity: 'userArn',
+                },
+              })}`,
             },
             {
               name: 'createdAt',

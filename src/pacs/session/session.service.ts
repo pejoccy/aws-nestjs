@@ -2,6 +2,7 @@ import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +14,8 @@ import { AppUtilities } from '../../app.utilities';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
 import { MailerService } from '../../common/mailer/mailer.service';
+import { ChatService } from '../../comms/chat/chat.service';
+import { MeetService } from '../../comms/meet/meet.service';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
@@ -33,7 +36,9 @@ export class SessionService extends BaseService {
     private specialistRepository: Repository<Specialist>,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private chatService: ChatService,
+    private meetService: MeetService
   ) {
     super();
   }
@@ -278,7 +283,15 @@ export class SessionService extends BaseService {
   }
 
   async getSessionChatRoom(sessionId: number, account: Account) {
-    
+    const session = await this.validateSessionComm(sessionId);
+    const wsLink = await this.chatService.getWebSocketLink(
+      account.comms.aws_chime.identity
+    );
+
+    return {
+      wsLink,
+      chatRoom: session.comms.aws_chime.chatChannelArn,
+    };
   }
 
   async getSessionChatMessages(
@@ -286,22 +299,68 @@ export class SessionService extends BaseService {
     pagination: PaginationCursorOptionsDto,
     account: Account
   ) {
-
+    const session = await this.validateSessionComm(sessionId);
+    
+    return this.chatService
+      .setUserArn(account.comms.aws_chime.identity)
+      .getMessages(
+        session.comms.aws_chime.chatChannelArn,
+        pagination
+      );
   }
 
-  async sendSessionChatMessage(sessionId: number, account: Account) {
-
-  }
-
-  async getSessionMeetingInfo(sessionId: number, account: Account) {
-
+  async sendSessionChatMessage(
+    sessionId: number,
+    message: string,
+    account: Account
+  ) {
+    const session = await this.validateSessionComm(sessionId);
+    
+    return this.chatService
+      .setUserArn(account.comms.aws_chime.identity)
+      .sendMessage(
+        session.comms.aws_chime.chatChannelArn,
+        message
+      );
   }
 
   async joinSessionMeeting(sessionId: number, account: Account) {
+    const session = await this.validateSessionComm(sessionId);
 
+    return this.meetService
+      .setUserArn(account.comms.aws_chime.identity)
+      .joinMeeting(session.comms.aws_chime.meetChannelArn);
   }
 
   async leaveSessionMeeting(sessionId: number, account: Account) {
+    // end meeting if no other attendees
+    // unset session.comms.aws.meetingId
+    const session = await this.validateSessionComm(sessionId);
 
+    await this.meetService
+      .setUserArn(account.comms.aws_chime.identity)
+      .leaveMeeting(session.comms.aws_chime.meetChannelArn);
+
+    const remainingAttendees = await this.meetService.getAttendees(
+      session.comms.aws_chime.meetChannelArn
+    );
+    if (!remainingAttendees.length) {
+      this.meetService.endMeeting(session.comms.aws_chime.meetChannelArn);
+    }
+  }
+
+  private async validateSessionComm(sessionId: number) {
+    const session = await this.sessionRepository.findOne(sessionId);
+    if (
+      !session ||
+      !session.comms.aws_chime?.chatChannelArn ||
+      !session.comms.aws_chime?.meetChannelArn
+    ) {
+      throw new ServiceUnavailableException(
+        'Session comms configuration not setup!'
+      );
+    }
+
+    return session;
   }
 }

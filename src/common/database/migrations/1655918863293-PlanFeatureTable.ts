@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { PlanFeature } from '../../plan/plan-feature/plan-feature.entity';
 import {
   MigrationInterface,
   QueryRunner,
@@ -59,6 +60,12 @@ export class PlanFeatureTable1655918863293 implements MigrationInterface {
             {
               name: 'limit',
               type: 'varchar',
+              isNullable: true,
+            },
+            {
+              name: 'status',
+              type: 'boolean',
+              default: true,
             },
             {
               name: 'createdAt',
@@ -82,8 +89,8 @@ export class PlanFeatureTable1655918863293 implements MigrationInterface {
       await queryRunner.createUniqueConstraint(
         'plan_feature',
         new TableUnique({
-          name: 'uniq_plan_feature_planId_featureId',
-          columnNames: ['planId', 'featureId'],
+          name: 'uniq_plan_feature_planId_featureId_accountType',
+          columnNames: ['planId', 'featureId', 'accountType'],
         })
       );
 
@@ -119,7 +126,7 @@ export class PlanFeatureTable1655918863293 implements MigrationInterface {
       await queryRunner.manager
         .createQueryBuilder()
         .insert()
-        .into('plan_feature', ['planId', 'featureId', 'accountType', 'limit'])
+        .into(PlanFeature)
         .values(planFeatureSeedData)
         .execute();
     }

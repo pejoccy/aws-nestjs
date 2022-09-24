@@ -25,6 +25,7 @@ import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto
 import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { GetSessionReportDto } from './session-report/dto/get-session-report.dto';
 import { PaginationCursorOptionsDto } from 'src/common/dto';
+import { SendSessionChatMessageDto } from './dto/send-session-chat-message.dto';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -154,17 +155,10 @@ export class SessionController {
   @Post('/:id/chat/messages')
   async sendChat(
     @Param() { id }: EntityIdDto,
+    @Body() dto: SendSessionChatMessageDto,
     @GetAccount() account: Account
   ) {
-    return this.sessionService.sendSessionChatMessage(id, account);
-  }
-
-  @Get('/:id/meet')
-  async getMeetingInfo(
-    @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
-  ) {
-    return this.sessionService.getSessionMeetingInfo(id, account);
+    return this.sessionService.sendSessionChatMessage(id, dto.message, account);
   }
 
   @Post('/:id/meet/join')

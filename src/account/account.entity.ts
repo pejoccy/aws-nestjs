@@ -20,6 +20,13 @@ import { Business } from './business/business.entity';
 import { Patient } from './patient/patient.entity';
 import { Specialist } from './specialist/specialist.entity';
 
+
+export interface AccountCommsOptions {
+  [CommsProviders.AWS_CHIME]: {
+   identity: string;
+  },
+}
+
 @Entity()
 export class Account {
   @PrimaryGeneratedColumn()
@@ -53,11 +60,8 @@ export class Account {
   @Column()
   subscriptionId?: number;
 
-  @Column()
-  commsId?: string;
-
-  @Column({ enum: CommsProviders })
-  commsProviderId?: CommsProviders;
+  @Column({ type: 'jsonb' })
+  comms: AccountCommsOptions;
 
   @OneToOne(() => BusinessContact, contact => contact.account)
   businessContact: BusinessContact;

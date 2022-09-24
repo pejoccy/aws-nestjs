@@ -1,49 +1,21 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
-import { TimeUnits } from '../../interfaces';
-import { Feature } from '../../feature/feature.entity';
-
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 @Entity()
 export class PlanFeature {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
-
-  @Column()
-  price: number;
+  planId: number;
   
   @Column()
-  currency: string;
+  featureId: string;
 
-  @Column({ nullable: true })
-  ranking?: number;
+  @Column()
+  accountType: string;
 
-  @Column({ default: false })
-  isDefault: boolean;
-
-  @Column({ default: TimeUnits.MONTH })
-  timeUnit: TimeUnits;
-
-  @Column({ default: 1 })
-  validity: number;
-
-  @Column({ nullable: true })
-  trialPeriod?: number;
-
-  @Column({ nullable: true })
-  trialTimeUnit?: TimeUnits;
+  @Column()
+  limit: string;
 
   @Column({ default: true })
   status: boolean;
-  
-  @ManyToMany(() => Feature, feature => feature.plans)
-  @JoinTable({ name: 'plan_feature' })
-  permissions?: Feature[];
 }

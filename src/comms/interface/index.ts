@@ -6,21 +6,24 @@ export enum ActivityType {
 }
 
 export interface ChatServer {
-  userArn: string;
-  getChats(pagination: PaginationCursorOptionsDto): Promise<any>;
-  startChat(inviteesArn: string[], name: string): Promise<any>;
+  getChats(
+    userArn: string,
+    pagination: PaginationCursorOptionsDto
+  ): Promise<any>;
+  startChat(userArn: string, inviteesArn: string[], name: string): Promise<any>;
   findChat?(name: string): Promise<any>;
   archiveChat?(chatArn: string): Promise<any>;
   deleteChat?(chatArn: string): Promise<any>;
 
   getMessages(
+    userArn: string,
     chatArn: string,
     pagination: PaginationCursorOptionsDto
   ): Promise<any>;
-  sendMessage(chatArn: string, msg: string): Promise<any>;
-  sendFile?(chatArn: string, file: any): Promise<any>;
-  updateMessage?(msgId: string, msg: string): Promise<any>;
-  deleteMessage?(msgId: string): Promise<any>;
+  sendMessage(userArn: string, chatArn: string, msg: string): Promise<any>;
+  sendFile?(userArn: string, chatArn: string, file: any): Promise<any>;
+  updateMessage?(userArn: string, msgId: string, msg: string): Promise<any>;
+  deleteMessage?(userArn: string, msgId: string): Promise<any>;
 }
 
 export interface MeetingServer {
