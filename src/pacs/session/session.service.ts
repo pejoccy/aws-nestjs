@@ -346,6 +346,8 @@ export class SessionService extends BaseService {
     );
     if (!remainingAttendees.length) {
       this.meetService.endMeeting(session.comms.aws_chime.meetChannelArn);
+      // @TODO update session.comms.*.meetingArn
+      // this.sessionRepository.update(sessionId, { comms:  })
     }
   }
 

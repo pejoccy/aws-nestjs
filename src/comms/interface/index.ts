@@ -5,6 +5,15 @@ export enum ActivityType {
   LEFT = 'left',
 }
 
+export abstract class CommsBase {
+  protected userArn: string;
+  
+  setUserArn(userArn: string) {
+    this.userArn = userArn;
+    return this;
+  }
+}
+
 export interface ChatServer {
   getChats(
     userArn: string,

@@ -1,28 +1,26 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { PaginationCursorOptionsDto } from '../../common/dto';
+import { CommsBase } from '../interface';
 import { ChimeCommsProvider } from '../providers/chime';
 
 const hostname = "node001.ue1.ws-messaging.chime.aws";
 
 @Injectable({ scope: Scope.REQUEST })
-export class ChatService {
-  constructor(private chatServer: ChimeCommsProvider) {}
-
-  setUserArn(userArn: string) {
-    this.chatServer.setUserArn(userArn);
-    return this;
+export class ChatService extends CommsBase {
+  constructor(private chatServer: ChimeCommsProvider) {
+    super();
   }
 
   async getMessages(chatArn: string, pagination: PaginationCursorOptionsDto) {
-    return this.chatServer.getMessages(chatArn, pagination);
+    return this.chatServer.getMessages(this.userArn, chatArn, pagination);
   }
 
   async sendMessage(chatArn: string, message: string) {
-    return this.chatServer.sendMessage(chatArn, message);
+    return this.chatServer.sendMessage(this.userArn, chatArn, message);
   }
 
   async getChats(pagination: PaginationCursorOptionsDto) {
-    return this.chatServer.getChats(pagination);
+    return this.chatServer.getChats(this.userArn, pagination);
   }
 
   async getChat(chatArn: string) {

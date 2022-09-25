@@ -1,15 +1,11 @@
 import { Injectable, Scope } from '@nestjs/common';
+import { CommsBase } from '../interface';
 import { ChimeCommsProvider } from '../providers/chime';
 
 @Injectable({ scope: Scope.REQUEST })
-export class MeetService {
-  private userArn: string;
-
-  constructor(private meetServer: ChimeCommsProvider) {}
-
-  setUserArn(userArn: string) {
-    this.userArn = userArn;
-    return this;
+export class MeetService extends CommsBase {
+  constructor(private meetServer: ChimeCommsProvider) {
+    super()
   }
 
   async getAttendees(meetingId: string) {
