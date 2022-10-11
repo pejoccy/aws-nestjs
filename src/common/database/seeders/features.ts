@@ -1,4 +1,4 @@
-import { FeatureSlugs, FeatureUnits } from "../../interfaces";
+import { FeatureSlugs, FeatureUnits } from '../../interfaces';
 
 export const featureSeedData = [
   {

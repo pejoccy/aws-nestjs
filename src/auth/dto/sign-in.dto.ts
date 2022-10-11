@@ -1,5 +1,11 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEmail, IsIP, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsIP,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class SignInDto {
   @IsEmail()

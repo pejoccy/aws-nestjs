@@ -29,15 +29,13 @@ import { PacsService } from './pacs.service';
 @Controller('pacs')
 @UseGuards(PermissionGuard)
 export class PacsController {
-  constructor(
-    private pacsService: PacsService
-  ) {}
+  constructor(private pacsService: PacsService) {}
 
   @Get('/t/:id')
   async getFileData(
     @GetAccount() account: Account,
     @Param() { id }: EntityIdDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ) {
     return this.pacsService.getFileDataContent(id, account, res);
   }
@@ -45,13 +43,15 @@ export class PacsController {
   @ApiConsumes('multipart/form-data')
   @Post('/uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: multer.diskStorage({}),
-    fileFilter: imageFileFilter,
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    }, 
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.diskStorage({}),
+      fileFilter: imageFileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
   async upload(
     @Body() item: UploadFileDto,
     @GetAccount() account: Account,
@@ -63,13 +63,15 @@ export class PacsController {
   @ApiConsumes('multipart/form-data')
   @Post('/bulk-uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION_FILES)
-  @UseInterceptors(FilesInterceptor('files', 20, {
-    storage: multer.diskStorage({}),
-    fileFilter: imageFileFilter,
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    }, 
-  }))
+  @UseInterceptors(
+    FilesInterceptor('files', 20, {
+      storage: multer.diskStorage({}),
+      fileFilter: imageFileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
   async uploadBulk(
     @Body() item: UploadFolderDto,
     @GetAccount() account: Account,

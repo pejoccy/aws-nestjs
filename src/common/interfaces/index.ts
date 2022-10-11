@@ -1,10 +1,14 @@
-import { NotAcceptableException } from "@nestjs/common";
+import { NotAcceptableException } from '@nestjs/common';
 
 export const imageFileFilter = (req, file, callback) => {
-  if (!String(file.originalname).toLowerCase().match(/\.(png|jpeg|jpg|bmp)$/)) {
+  if (
+    !String(file.originalname)
+      .toLowerCase()
+      .match(/\.(png|jpeg|jpg|bmp)$/)
+  ) {
     return callback(
       new NotAcceptableException('Only image files are allowed!'),
-      false
+      false,
     );
   }
   return callback(null, true);
@@ -23,13 +27,13 @@ export type CachedAuthData<T = any> = {
   otp: string;
   authType: AuthTokenTypes;
   data?: T;
-}
+};
 
 export enum AccountTypes {
   PATIENT = 'patient',
   SPECIALIST = 'specialist',
   BUSINESS = 'business',
-}  
+}
 
 // eslint-disable-next-line  @typescript-eslint/naming-convention
 export enum PG_DB_ERROR_CODES {

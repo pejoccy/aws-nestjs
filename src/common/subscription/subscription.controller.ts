@@ -17,7 +17,7 @@ export class SubscriptionController {
   @Post('/subscribe')
   async subscribe(
     @Body() item: PlanSubscriptionDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.subscriptionService.subscribe(item, account);
   }

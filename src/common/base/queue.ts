@@ -10,7 +10,7 @@ export abstract class BaseQueueProcessor {
     this.logger.log(
       `Processing job ${job.id} of type ${
         job.name
-      } with data \n ${JSON.stringify(job.data, null, 2)}...`
+      } with data \n ${JSON.stringify(job.data, null, 2)}...`,
     );
   }
 
@@ -20,8 +20,8 @@ export abstract class BaseQueueProcessor {
       `Completed job ${job.id} of type ${job.name} with result ${JSON.stringify(
         job.returnvalue,
         null,
-        2
-      )}`
+        2,
+      )}`,
     );
   }
 }

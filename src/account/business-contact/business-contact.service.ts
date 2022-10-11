@@ -8,21 +8,17 @@ import { CreateBusinessContactDto } from './dto/create-business-contact-dto';
 export class BusinessContactService {
   constructor(
     @InjectRepository(BusinessContact)
-    private businessContactRepository: Repository<BusinessContact>
+    private businessContactRepository: Repository<BusinessContact>,
   ) {}
 
   async create(item: CreateBusinessContactDto) {
-    const contact = await this
-      .businessContactRepository
+    const contact = await this.businessContactRepository
       .createQueryBuilder('contact')
-      .where(
-        "LOWER(contact.email) = LOWER(:email)",
-        { email: item.email }
-      )
+      .where('LOWER(contact.email) = LOWER(:email)', { email: item.email })
       .getOne();
     if (contact) {
       throw new NotAcceptableException(
-        'Business Contact email already exists!'
+        'Business Contact email already exists!',
       );
     }
 

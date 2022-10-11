@@ -13,7 +13,7 @@ import {
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private cacheService: CacheService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
     super({
       secretOrKey: configService.get('jwt.secret'),
@@ -27,10 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(
     request: Request,
-    jwtPayload: JwtPayload
+    jwtPayload: JwtPayload,
   ): Promise<CachedAuthData> {
     const data = await this.refreshAuthToken(request, jwtPayload);
-    ;
     if (!data) {
       throw new UnauthorizedException();
     }
@@ -57,11 +56,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       (cachedData, error) => {
         if (error) console.error(error);
 
-        return cachedData
+        return cachedData;
       },
-      { ttl: this.configService.get<number>('jwt.signOptions.expiresIn') }
-    );  
-    
+      { ttl: this.configService.get<number>('jwt.signOptions.expiresIn') },
+    );
+
     return cacheData;
   }
 }

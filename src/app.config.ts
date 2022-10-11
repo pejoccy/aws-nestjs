@@ -4,7 +4,6 @@ import { readFileSync } from 'fs';
 // dotenv.config();
 dotenv.config({ path: process.env.ENV_PATH });
 
-
 const env = (key: string, defaultVal: any = undefined) =>
   process.env[key] || defaultVal;
 
@@ -29,7 +28,7 @@ const config = {
   client: {
     emailUrls: {
       sessionCollaboratorInvite: env('CLIENT_COLLABORATE_URL'),
-    }
+    },
   },
   db: {
     pgsql: {
@@ -64,7 +63,7 @@ const config = {
     },
     refreshToken: {
       expiresIn: Number(env('REFRESH_EXPIRY_TIME_SEC', 3 * 60 * 60)), // 3 hrs
-    }
+    },
   },
   sendGrid: {
     apiKey: env('SENDGRID_API_KEY'),
@@ -84,7 +83,7 @@ const config = {
       secretAccessKey: env('AWS_S3_SECRET_ACCESS_KEY'),
       region: env('AWS_S3_REGION'),
     },
-  }
+  },
 };
 
 export default () => config;

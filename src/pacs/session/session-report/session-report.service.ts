@@ -8,9 +8,8 @@ import { SessionReport } from './session-report.entity';
 export class SessionReportService extends BaseService {
   constructor(
     @InjectRepository(SessionReport)
-    protected sessionNoteRepository: Repository<SessionReport>
+    protected sessionNoteRepository: Repository<SessionReport>,
   ) {
     super();
   }
-
 }

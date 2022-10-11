@@ -21,9 +21,7 @@ import { FileService } from './file.service';
 @ApiTags('Pacs')
 @Controller('pacs/files')
 export class FileController {
-  constructor(
-    private fileService: FileService
-  ) {}
+  constructor(private fileService: FileService) {}
 
   @ApiQuery({ name: 'searchText', required: false })
   @ApiQuery({ name: 'page', required: false })
@@ -31,7 +29,7 @@ export class FileController {
   @Get()
   async searchFiles(
     @Query() query: SearchFileDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ): Promise<Pagination<File>> {
     return this.fileService.getFiles(query, account);
   }
@@ -41,7 +39,7 @@ export class FileController {
   async updateFile(
     @Param() { id }: EntityIdDto,
     @Body() item: any,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ): Promise<File> {
     return this.fileService.update(id, item, account);
   }
@@ -57,5 +55,4 @@ export class FileController {
   // async updateFileNote(@Body() item: any, @Param() { id }: EntityIdDto) {
   //   return this.fileService.updateNote(id, item);
   // }
-
 }

@@ -8,7 +8,6 @@ export class TimerService {
   async start(sessionId: string): Promise<any> {
     const timer = await this.cacheService.get(sessionId);
     if (timer) {
-
     }
     // store sessionId in the cache, ttl -> meeting duration
 
@@ -22,7 +21,7 @@ export class TimerService {
     if (!timer) {
       return;
     }
-    // 1. get jobs (timer executors) -> jobMetaData 
+    // 1. get jobs (timer executors) -> jobMetaData
     // -> a. run job to terminate meeting cache token
     // -> b. delete job to reminder meeting closing
     // 2. remove cache token

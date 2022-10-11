@@ -29,7 +29,7 @@ export class PlanController {
   @Get()
   @PublicRoute()
   async getPlans(
-    @Query() query: PaginationOptionsDto
+    @Query() query: PaginationOptionsDto,
   ): Promise<Pagination<Plan>> {
     return this.planService.getPlans(query);
   }
@@ -41,7 +41,7 @@ export class PlanController {
   @FeatureLimitCheck(FeatureSlugs.SESSION)
   async addPermission(
     @Param() { permissionId }: PermissionIdDto,
-    @Param() { id }: EntityIdDto
+    @Param() { id }: EntityIdDto,
   ) {
     return this.planService.addPermission(id, permissionId);
   }
@@ -52,7 +52,7 @@ export class PlanController {
   @Delete('/:id/permissions/:permissionId')
   async removePermission(
     @Param() { permissionId }: PermissionIdDto,
-    @Param() { id }: EntityIdDto
+    @Param() { id }: EntityIdDto,
   ) {
     return this.planService.removePermission(id, permissionId);
   }

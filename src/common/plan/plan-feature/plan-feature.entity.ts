@@ -6,7 +6,7 @@ export class PlanFeature {
 
   @Column()
   planId: number;
-  
+
   @Column()
   featureId: string;
 

@@ -3,7 +3,7 @@ import { PaginationCursorOptionsDto } from '../../common/dto';
 import { CommsBase } from '../interface';
 import { ChimeCommsProvider } from '../providers/chime';
 
-const hostname = "node001.ue1.ws-messaging.chime.aws";
+const hostname = 'node001.ue1.ws-messaging.chime.aws';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ChatService extends CommsBase {

@@ -39,7 +39,7 @@ export class BusinessContact {
   @Column()
   businessId: number;
 
-  @ManyToOne(() => Business, business => business.contacts)
+  @ManyToOne(() => Business, (business) => business.contacts)
   business: Business;
 
   @OneToOne(() => Account)

@@ -13,8 +13,7 @@ export class AppUtilities {
   constructor(private configService: ConfigService) {}
 
   public generateOtp(length = 4): string {
-    return Math
-      .floor(Math.random() * Math.pow(10, length))
+    return Math.floor(Math.random() * Math.pow(10, length))
       .toString()
       .padStart(length, '0');
   }
@@ -50,14 +49,14 @@ export class AppUtilities {
 
   public static encode(
     data: string,
-    encoding: BufferEncoding = 'base64'
+    encoding: BufferEncoding = 'base64',
   ): string {
     return Buffer.from(data).toString(encoding);
   }
 
   public static decode(
     data: string,
-    encoding: BufferEncoding = 'base64'
+    encoding: BufferEncoding = 'base64',
   ): string {
     return Buffer.from(data, encoding).toString();
   }

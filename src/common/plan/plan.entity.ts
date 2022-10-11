@@ -18,7 +18,7 @@ export class Plan {
 
   @Column()
   price: number;
-  
+
   @Column()
   currency: string;
 
@@ -42,8 +42,8 @@ export class Plan {
 
   @Column({ default: true })
   status: boolean;
-  
-  @ManyToMany(() => Feature, feature => feature.plans)
+
+  @ManyToMany(() => Feature, (feature) => feature.plans)
   @JoinTable({ name: 'plan_feature' })
   permissions?: Feature[];
 }

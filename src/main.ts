@@ -10,9 +10,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import { useContainer } from 'typeorm';
 import { AppModule } from './app.module';
-import {
-  ResponseInterceptor,
-} from './common/interceptors/response.interceptor';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 const initSwagger = (app: INestApplication, serverUrl: string) => {
   const config = new DocumentBuilder()
@@ -57,10 +55,10 @@ async function bootstrap() {
               ...errorObj,
               [validationList.property]: validationList,
             }),
-            {}
-          )
+            {},
+          ),
         ),
-    })
+    }),
   );
 
   await app.listen(configService.get('app.port'));

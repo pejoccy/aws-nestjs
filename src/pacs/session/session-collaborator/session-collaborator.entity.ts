@@ -14,12 +14,15 @@ export class SessionToCollaborator {
   @Column()
   fileId: number;
 
-  @Column({ enum: FeatureSlugs})
+  @Column({ enum: FeatureSlugs })
   permission: FeatureSlugs;
 
-  @ManyToOne(() => Session, session => session.sessionToCollaborators)
+  @ManyToOne(() => Session, (session) => session.sessionToCollaborators)
   session: Session;
 
-  @ManyToOne(() => Account, collaborator => collaborator.sessionToCollaborators)
+  @ManyToOne(
+    () => Account,
+    (collaborator) => collaborator.sessionToCollaborators,
+  )
   collaborator: Account;
 }

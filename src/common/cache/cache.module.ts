@@ -11,7 +11,7 @@ import { CacheService } from './cache.service';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         store: redisStore,
-        ...config.get('db.redis')
+        ...config.get('db.redis'),
       }),
     }),
   ],

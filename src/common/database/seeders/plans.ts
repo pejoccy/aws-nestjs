@@ -1,4 +1,8 @@
-import { AccountTypes, FeatureSlugs, TimeUnits } from "../../../common/interfaces";
+import {
+  AccountTypes,
+  FeatureSlugs,
+  TimeUnits,
+} from '../../../common/interfaces';
 
 export const planSeedData = [
   {

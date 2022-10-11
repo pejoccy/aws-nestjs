@@ -10,15 +10,12 @@ import { File } from './file.entity';
 export class FileService extends BaseService {
   constructor(
     @InjectRepository(File)
-    private fileRepository: Repository<File>
+    private fileRepository: Repository<File>,
   ) {
     super();
   }
 
-  async getFiles(
-    { limit, page, searchText }: SearchFileDto,
-    account: Account
-  ) {
+  async getFiles({ limit, page, searchText }: SearchFileDto, account: Account) {
     return this.search(
       this.fileRepository,
       ['name'],
@@ -27,24 +24,20 @@ export class FileService extends BaseService {
       {
         relations: ['session', 'session.collaborators'],
         where: [{ creatorId: account.id, patientId: account.id }],
-      }
+      },
     );
   }
 
-  async update(
-    id: number,
-    item: any,
-    account: Account
-  ) {
+  async update(id: number, item: any, account: Account) {
     item = this.excludeExtraneousKeys(item);
     const { affected, raw: file } = await this.fileRepository.update(
       { id, creatorId: account.id },
-      item
+      item,
     );
     if (!affected) {
       throw new ForbiddenException(
-        'Insufficient access right to perform this action!'
-      )
+        'Insufficient access right to perform this action!',
+      );
     }
 
     return file;

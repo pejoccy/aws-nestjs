@@ -6,9 +6,7 @@ import { BusinessModule } from '../account/business/business.module';
 import { PatientModule } from '../account/patient/patient.module';
 import { SpecialistModule } from '../account/specialist/specialist.module';
 import { MailerModule } from '../common/mailer/mailer.module';
-import {
-  SpecializationModule,
-} from '../common/specialization/specialization.module';
+import { SpecializationModule } from '../common/specialization/specialization.module';
 import { SubscriptionModule } from '../common/subscription/subscription.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -30,6 +28,6 @@ import { AuthService } from './auth.service';
     SubscriptionModule,
     AccountModule,
   ],
-  exports: [AccountModule]
+  exports: [AccountModule],
 })
 export class AuthModule {}

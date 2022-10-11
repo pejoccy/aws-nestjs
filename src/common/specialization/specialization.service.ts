@@ -9,14 +9,13 @@ import { Specialization } from './specialization.entity';
 export class SpecializationService extends BaseService {
   constructor(
     @InjectRepository(Specialization)
-    private specializationRepository: Repository<Specialization>
+    private specializationRepository: Repository<Specialization>,
   ) {
     super();
   }
 
   async setupSpecialization({ title, code }: CreateSpecializationDto) {
-    const { raw: specialization } = await this
-      .specializationRepository
+    const { raw: specialization } = await this.specializationRepository
       .createQueryBuilder()
       .insert()
       .into(Specialization)

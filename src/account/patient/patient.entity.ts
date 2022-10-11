@@ -9,7 +9,7 @@ import {
 import { Country } from '../../common/country/country.entity';
 import { Gender } from '../../common/interfaces';
 import { Account } from '../account.entity';
-  
+
 @Entity()
 export class Patient {
   @PrimaryGeneratedColumn()

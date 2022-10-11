@@ -47,17 +47,17 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
         MediaRegion: aws.region,
         ExternalMeetingId: ref,
       };
-  
+
       return this.chimeMeeting.createMeeting(params).promise();
     }
 
     const params: Chime.CreateMeetingWithAttendeesRequest = {
       ClientRequestToken: v4(),
-        MediaRegion: aws.region,
-        ExternalMeetingId: ref,
-        Attendees: attendees.map(attendee => ({ ExternalUserId: attendee })),
+      MediaRegion: aws.region,
+      ExternalMeetingId: ref,
+      Attendees: attendees.map((attendee) => ({ ExternalUserId: attendee })),
     };
-    
+
     return this.chimeMeeting.createMeetingWithAttendees(params).promise();
   }
 
@@ -71,7 +71,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
 
   async getAttendees(
     meetingId: string,
-    pagination?: PaginationCursorOptionsDto
+    pagination?: PaginationCursorOptionsDto,
   ): Promise<any> {
     const params: Chime.ListAttendeesRequest = {
       MeetingId: meetingId,
@@ -94,12 +94,12 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   async addAttendees(meetingId: string, attendees: string[]): Promise<any> {
     const params: Chime.BatchCreateAttendeeRequest = {
       MeetingId: meetingId,
-      Attendees: attendees.map(attendee => ({ ExternalUserId: attendee })),
+      Attendees: attendees.map((attendee) => ({ ExternalUserId: attendee })),
     };
 
     return this.chimeMeeting.batchCreateAttendee(params).promise();
   }
-  
+
   async removeAttendee?(meetingId: string, attendeeId: string): Promise<any> {
     const params: Chime.DeleteAttendeeRequest = {
       MeetingId: meetingId,
@@ -109,19 +109,10 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     return this.chimeMeeting.deleteAttendee(params).promise();
   }
 
-  get userArn() {
-    return this._userArn;
-  }
-  
-  setUserArn(userArn: string) {
-    this._userArn = userArn;
-    return this;
-  }
-
   async startChat(
     userArn: string,
     inviteesArn: string[],
-    name: string
+    name: string,
   ): Promise<any> {
     const aws = this.config.get('awsChime');
 
@@ -131,26 +122,26 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
       Name: name,
       MemberArns: [userArn, ...inviteesArn],
       ClientRequestToken: v4(),
-    }
+    };
 
     return this.chimeMessaging.createChannel(params).promise();
   }
 
   async getChats(
     userArn: string,
-    pagination: PaginationCursorOptionsDto
+    pagination: PaginationCursorOptionsDto,
   ): Promise<any> {
     const aws = this.config.get('awsChime');
 
-    const channelParams: ChimeSDKMessaging.ListChannelMembershipsForAppInstanceUserRequest  = {
-      ChimeBearer: aws.appInstanceAdminArn,
-      AppInstanceUserArn: userArn,
-      MaxResults: pagination.limit,
-      NextToken: pagination.nextToken,
-    };
+    const channelParams: ChimeSDKMessaging.ListChannelMembershipsForAppInstanceUserRequest =
+      {
+        ChimeBearer: aws.appInstanceAdminArn,
+        AppInstanceUserArn: userArn,
+        MaxResults: pagination.limit,
+        NextToken: pagination.nextToken,
+      };
 
-    return this
-      .chimeMessaging
+    return this.chimeMessaging
       .listChannelMembershipsForAppInstanceUser(channelParams)
       .promise();
   }
@@ -158,13 +149,15 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   async findChat(id: string): Promise<any> {
     const aws = this.config.get('awsChime');
 
-    const channelParams: ChimeSDKMessaging.SearchChannelsRequest  = {
+    const channelParams: ChimeSDKMessaging.SearchChannelsRequest = {
       ChimeBearer: aws.appInstanceAdminArn,
-      Fields: [{
-        Key: 'MEMBERS',
-        Values: [id],
-        Operator: 'EQUALS',
-      }],
+      Fields: [
+        {
+          Key: 'MEMBERS',
+          Values: [id],
+          Operator: 'EQUALS',
+        },
+      ],
     };
 
     return this.chimeMessaging.searchChannels(channelParams).promise();
@@ -173,7 +166,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   async getMessages(
     userArn: string,
     chatArn: string,
-    pagination: PaginationCursorOptionsDto
+    pagination: PaginationCursorOptionsDto,
   ): Promise<any> {
     const params: ChimeSDKMessaging.ListChannelMessagesRequest = {
       ChannelArn: chatArn,
@@ -189,15 +182,15 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   async sendMessage(
     userArn: string,
     chatArn: string,
-    msg: string
+    msg: string,
   ): Promise<any> {
     const params: ChimeSDKMessaging.SendChannelMessageRequest = {
       ChimeBearer: userArn,
       ChannelArn: chatArn,
       Content: msg,
       ClientRequestToken: v4(),
-      Persistence: "PERSISTENT",
-      Type: "STANDARD",
+      Persistence: 'PERSISTENT',
+      Type: 'STANDARD',
     };
 
     return this.chimeMessaging.sendChannelMessage(params).promise();
@@ -214,75 +207,75 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   async deleteMessage?(id: string): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  
+
   public getConnectionWebsocketLink(userArn: string, hostname: string) {
     const aws = this.config.get('awsChime');
     const currentMoment = moment();
     const amz_date = currentMoment.format('YYYYMMDDTHHmmSSZ');
     const dateStamp = currentMoment.format('YYYYMMDD');
-    const method = "GET";
-    const service = "chime";
+    const method = 'GET';
+    const service = 'chime';
     const region = aws.region;
-    const canonical_uri = "/connect";
-    const canonical_headers = "host:" + hostname.toLowerCase() + "\n";
-    const signed_headers = "host";
-    const algorithm = "AWS4-HMAC-SHA256";
+    const canonical_uri = '/connect';
+    const canonical_headers = 'host:' + hostname.toLowerCase() + '\n';
+    const signed_headers = 'host';
+    const algorithm = 'AWS4-HMAC-SHA256';
     const credential_scope =
-      dateStamp + "/" + region + "/" + service + "/" + "aws4_request";
-  
+      dateStamp + '/' + region + '/' + service + '/' + 'aws4_request';
+
     let canonical_querystring =
-      "X-Amz-Algorithm=" +
+      'X-Amz-Algorithm=' +
       algorithm +
-      "&" +
-      "X-Amz-Credential=" +
+      '&' +
+      'X-Amz-Credential=' +
       encodeURIComponent(`${aws.config.accessKeyId}/${credential_scope}`) +
-      "&" +
-      "X-Amz-Date=" +
+      '&' +
+      'X-Amz-Date=' +
       amz_date +
-      "&" +
-      "X-Amz-Expires=" +
-      "3600" +
-      "&" +
-      "X-Amz-SignedHeaders=" +
+      '&' +
+      'X-Amz-Expires=' +
+      '3600' +
+      '&' +
+      'X-Amz-SignedHeaders=' +
       signed_headers +
-      "&" +
-      "sessionId=" +
+      '&' +
+      'sessionId=' +
       encodeURIComponent(String(v4()).replace(/\-/, '')) +
-      "&" +
-      "userArn=" +
+      '&' +
+      'userArn=' +
       encodeURIComponent(userArn);
-  
-    const payload_hash = crypto.SHA256("");
+
+    const payload_hash = crypto.SHA256('');
     const canonical_request =
       method +
-      "\n" +
+      '\n' +
       canonical_uri +
-      "\n" +
+      '\n' +
       canonical_querystring +
-      "\n" +
+      '\n' +
       canonical_headers +
-      "\n" +
+      '\n' +
       signed_headers +
-      "\n" +
+      '\n' +
       payload_hash;
-  
+
     const string_to_sign =
       algorithm +
-      "\n" +
+      '\n' +
       amz_date +
-      "\n" +
+      '\n' +
       credential_scope +
-      "\n" +
+      '\n' +
       crypto.SHA256(canonical_request);
-  
+
     const signing_key = this.getSignatureKey(dateStamp);
     const signature = crypto
       .HmacSHA256(string_to_sign, signing_key)
       .toString(crypto.enc.Hex);
-  
-    canonical_querystring += "&X-Amz-Signature=" + signature;
-  
-    return "wss://" + hostname + canonical_uri + "?" + canonical_querystring;
+
+    canonical_querystring += '&X-Amz-Signature=' + signature;
+
+    return 'wss://' + hostname + canonical_uri + '?' + canonical_querystring;
   }
 
   private setupCredentials() {
@@ -290,7 +283,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     AWS.config.credentials = new Credentials(
       awsConfig.accessKeyId,
       awsConfig.secretAccessKey,
-      null
+      null,
     );
   }
 
@@ -306,20 +299,20 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     const aws = this.config.get('awsChime');
     this.chimeMeeting = new Chime({ region: aws.region });
     this.chimeMeeting.endpoint = new Endpoint(
-      "https://service.chime.aws.amazon.com/console"
+      'https://service.chime.aws.amazon.com/console',
     );
   }
 
   private getSignatureKey(dateStamp: string) {
     const aws = this.config.get('awsChime');
     const sign = (key: any, msg: any) => crypto.HmacSHA256(msg, key);
-  
-    const newKey = "AWS4" + AWS.config.credentials.secretAccessKey;
+
+    const newKey = 'AWS4' + AWS.config.credentials.secretAccessKey;
     const kDate = sign(newKey, dateStamp);
     const kRegion = sign(kDate, aws.region);
-    const kService = sign(kRegion, "chime");
-    const kSigning = sign(kService, "aws4_request");
-  
+    const kService = sign(kRegion, 'chime');
+    const kSigning = sign(kService, 'aws4_request');
+
     return kSigning;
   }
 }

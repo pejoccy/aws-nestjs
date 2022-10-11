@@ -7,7 +7,7 @@ export enum ActivityType {
 
 export abstract class CommsBase {
   protected userArn: string;
-  
+
   setUserArn(userArn: string) {
     this.userArn = userArn;
     return this;
@@ -17,7 +17,7 @@ export abstract class CommsBase {
 export interface ChatServer {
   getChats(
     userArn: string,
-    pagination: PaginationCursorOptionsDto
+    pagination: PaginationCursorOptionsDto,
   ): Promise<any>;
   startChat(userArn: string, inviteesArn: string[], name: string): Promise<any>;
   findChat?(name: string): Promise<any>;
@@ -27,7 +27,7 @@ export interface ChatServer {
   getMessages(
     userArn: string,
     chatArn: string,
-    pagination: PaginationCursorOptionsDto
+    pagination: PaginationCursorOptionsDto,
   ): Promise<any>;
   sendMessage(userArn: string, chatArn: string, msg: string): Promise<any>;
   sendFile?(userArn: string, chatArn: string, file: any): Promise<any>;
@@ -40,7 +40,7 @@ export interface MeetingServer {
   endMeeting(id: string): Promise<any>;
   getAttendees(
     meetingId: string,
-    pagination: PaginationCursorOptionsDto
+    pagination: PaginationCursorOptionsDto,
   ): Promise<any>;
   addAttendees?(meetingId: string, attendees: string[]): Promise<any>;
   removeAttendee?(meetingId: string, attendeeId: string): Promise<any>;

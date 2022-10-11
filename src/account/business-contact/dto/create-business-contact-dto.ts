@@ -23,7 +23,7 @@ export class CreateBusinessContactDto {
   @IsNotEmpty()
   @IsString()
   lastName: string;
-  
+
   @ApiProperty()
   @IsMobilePhone()
   public mobilePhone: string;
@@ -32,7 +32,7 @@ export class CreateBusinessContactDto {
   @IsOptional()
   @IsBase64()
   profilePhoto?: string;
-  
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

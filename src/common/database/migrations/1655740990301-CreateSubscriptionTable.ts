@@ -6,7 +6,9 @@ import {
   TableUnique,
 } from 'typeorm';
 
-export class CreateSubscriptionTable1655740990301 implements MigrationInterface {
+export class CreateSubscriptionTable1655740990301
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -77,7 +79,7 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
             isNullable: true,
           },
         ],
-      })
+      }),
     );
 
     await queryRunner.createUniqueConstraint(
@@ -85,7 +87,7 @@ export class CreateSubscriptionTable1655740990301 implements MigrationInterface 
       new TableUnique({
         name: 'uniq_subscription_paymentId',
         columnNames: ['paymentId'],
-      })
+      }),
     );
 
     await queryRunner.createForeignKeys('subscription', [

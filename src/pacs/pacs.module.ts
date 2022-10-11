@@ -27,12 +27,7 @@ import { S3Service } from './s3.service';
     SessionModule,
     MulterModule.register({}),
   ],
-  providers: [
-    PacsService,
-    FileQueueConsumer,
-    FileQueueProducer,
-    S3Service,
-  ],
+  providers: [PacsService, FileQueueConsumer, FileQueueProducer, S3Service],
   exports: [PacsService],
 })
 export class PacsModule {}

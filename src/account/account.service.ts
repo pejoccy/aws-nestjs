@@ -13,7 +13,7 @@ import { Account } from './account.entity';
 export class AccountService extends BaseService {
   constructor(
     @InjectRepository(Account)
-    private accountRepository: Repository<Account>
+    private accountRepository: Repository<Account>,
   ) {
     super();
   }
@@ -33,7 +33,10 @@ export class AccountService extends BaseService {
     return raw[0];
   }
 
-  public async changePassword(userId: string, password: string): Promise<Account> {
+  public async changePassword(
+    userId: string,
+    password: string,
+  ): Promise<Account> {
     const { affected, raw: [user] = [] } = await this.accountRepository
       .createQueryBuilder()
       .update({ password, isVerified: true })

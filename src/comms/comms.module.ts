@@ -6,12 +6,7 @@ import { TimerService } from './timer/timer.service';
 
 @Module({
   imports: [],
-  providers: [
-    ChatService,
-    ChimeCommsProvider,
-    MeetService,
-    TimerService,
-  ],
-  exports: []
+  providers: [ChatService, ChimeCommsProvider, MeetService, TimerService],
+  exports: [ChatService, ChimeCommsProvider, MeetService, TimerService],
 })
 export class CommsModule {}

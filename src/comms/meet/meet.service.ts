@@ -5,7 +5,7 @@ import { ChimeCommsProvider } from '../providers/chime';
 @Injectable({ scope: Scope.REQUEST })
 export class MeetService extends CommsBase {
   constructor(private meetServer: ChimeCommsProvider) {
-    super()
+    super();
   }
 
   async getAttendees(meetingId: string) {
@@ -19,7 +19,7 @@ export class MeetService extends CommsBase {
   async leaveMeeting(meetingId: string) {
     return this.meetServer.removeAttendee(meetingId, this.userArn);
   }
-  
+
   async endMeeting(meetingId: string) {
     return this.meetServer.endMeeting(meetingId);
   }

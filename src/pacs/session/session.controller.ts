@@ -31,9 +31,7 @@ import { SendSessionChatMessageDto } from './dto/send-session-chat-message.dto';
 @ApiTags('Session')
 @Controller('/sessions')
 export class SessionController {
-  constructor(
-    private sessionService: SessionService
-  ) {}
+  constructor(private sessionService: SessionService) {}
 
   @ApiQuery({ name: 'searchText', required: false })
   @ApiQuery({ name: 'page', required: false })
@@ -41,7 +39,7 @@ export class SessionController {
   @Get()
   async searchSessions(
     @Query() query: SearchSessionDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ): Promise<Pagination<Session>> {
     return this.sessionService.getSessions(query, account);
   }
@@ -49,7 +47,7 @@ export class SessionController {
   @Get('/info/:id')
   async getSession(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ): Promise<Session> {
     return this.sessionService.getSession(id, account);
   }
@@ -59,7 +57,7 @@ export class SessionController {
   async inviteCollaborator(
     @Param() { id }: EntityIdDto,
     @Body() item: InviteCollaboratorDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.inviteCollaborator(id, item, account);
   }
@@ -68,11 +66,11 @@ export class SessionController {
   @Get('/collaborators/invitations/:invitationId')
   async verifyCollaborationInviteToken(
     @Param() { invitationId }: AcceptCollaboratorDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     await this.sessionService.verifyCollaborationInviteToken(
       invitationId,
-      account
+      account,
     );
   }
 
@@ -80,11 +78,11 @@ export class SessionController {
   @Post('/collaborators/invitations/:invitationId')
   async acceptSessionCollaboration(
     @Param() { invitationId }: AcceptCollaboratorDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.acceptSessionCollaboration(
       invitationId,
-      account
+      account,
     );
   }
 
@@ -93,7 +91,7 @@ export class SessionController {
   async addNote(
     @Param() { id }: EntityIdDto,
     @Body() item: CreateSessionNoteDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.addNote(id, item, account);
   }
@@ -103,7 +101,7 @@ export class SessionController {
   async updateNote(
     @Body() item: UpdateSessionNoteDto,
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     this.sessionService.updateNote(id, item, account);
   }
@@ -112,7 +110,7 @@ export class SessionController {
   async getReports(
     @Param() { id }: EntityIdDto,
     @Query() query: SearchSessionDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.getSessionReports(id, query, account);
   }
@@ -120,7 +118,7 @@ export class SessionController {
   @Get('/:sessionId/reports/:id')
   async getReport(
     @Param() { id, sessionId }: GetSessionReportDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.getSessionReport(id, sessionId, account);
   }
@@ -130,7 +128,7 @@ export class SessionController {
   async addSessionReport(
     @Body() item: AddSessionReportDto,
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     await this.sessionService.addSessionReport(id, item, account);
   }
@@ -138,7 +136,7 @@ export class SessionController {
   @Get('/:id/chat')
   async getChatRoom(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.getSessionChatRoom(id, account);
   }
@@ -147,7 +145,7 @@ export class SessionController {
   async getChats(
     @Param() { id }: EntityIdDto,
     @Query() query: PaginationCursorOptionsDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.getSessionChatMessages(id, query, account);
   }
@@ -156,7 +154,7 @@ export class SessionController {
   async sendChat(
     @Param() { id }: EntityIdDto,
     @Body() dto: SendSessionChatMessageDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.sendSessionChatMessage(id, dto.message, account);
   }
@@ -164,7 +162,7 @@ export class SessionController {
   @Post('/:id/meet/join')
   async joinMeeting(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.joinSessionMeeting(id, account);
   }
@@ -172,9 +170,8 @@ export class SessionController {
   @Post('/:id/meet/leave')
   async leaveMeeting(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account
+    @GetAccount() account: Account,
   ) {
     return this.sessionService.leaveSessionMeeting(id, account);
   }
-
 }

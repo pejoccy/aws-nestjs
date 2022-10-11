@@ -17,5 +17,5 @@ export const GetAccount = createParamDecorator<AccountAuthOptions>(
     }
 
     return req.user?.data;
-  }
+  },
 );

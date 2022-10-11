@@ -24,16 +24,16 @@ export class InitAccountDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @ValidateIf(obj => obj.userType === AccountTypes.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   firstName?: string;
 
   @IsNotEmpty()
   @IsString()
-  @ValidateIf(obj => obj.userType === AccountTypes.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   lastName?: string;
 
   @IsNotEmpty()
   @IsMobilePhone()
-  @ValidateIf(obj => obj.userType === AccountTypes.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   mobilePhone?: string;
 }

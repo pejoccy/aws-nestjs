@@ -10,17 +10,15 @@ import { Plan } from './plan.entity';
 export class PlanService extends BaseService {
   constructor(
     @InjectRepository(Plan)
-    private planRepository: Repository<Plan>
+    private planRepository: Repository<Plan>,
   ) {
     super();
   }
 
   async getPlans(options: PaginationOptionsDto) {
-    return this.paginate(
-      this.planRepository,
-      options,
-      { relations: ['permissions'] }
-    );
+    return this.paginate(this.planRepository, options, {
+      relations: ['permissions'],
+    });
   }
 
   async addPermission(planId: number, permissionId: number) {
@@ -32,9 +30,7 @@ export class PlanService extends BaseService {
         .add({ id: permissionId });
     } catch (error) {
       if (error.code === PG_DB_ERROR_CODES.CONFLICT) {
-        throw new NotAcceptableException(
-          'Permission already added!'
-        );
+        throw new NotAcceptableException('Permission already added!');
       }
       throw error;
     }
@@ -49,9 +45,7 @@ export class PlanService extends BaseService {
         .remove({ id: permissionId });
     } catch (error) {
       if (error.code === PG_DB_ERROR_CODES.CONFLICT) {
-        throw new NotAcceptableException(
-          'Permission already removed!'
-        );
+        throw new NotAcceptableException('Permission already removed!');
       }
       throw error;
     }
