@@ -16,17 +16,17 @@ import { PatientService } from '../account/patient/patient.service';
 import { SpecialistService } from '../account/specialist/specialist.service';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import { 
+import {
   AuthTokenTypes,
   CachedAuthData,
   PG_DB_ERROR_CODES,
-  UserRoles,
+  AccountTypes,
+  CommsProviders,
 } from '../common/interfaces';
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
-import {
-  SubscriptionService,
-} from '../common/subscription/subscription.service';
+import { SubscriptionService } from '../common/subscription/subscription.service';
+import { ChimeCommsProvider } from '../comms/providers/chime';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -47,7 +47,8 @@ export class AuthService extends BaseService {
     private accountService: AccountService,
     private businessService: BusinessService,
     private specialistService: SpecialistService,
-    private patientService: PatientService
+    private patientService: PatientService,
+    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
@@ -64,7 +65,7 @@ export class AuthService extends BaseService {
           data: { userId: user.id },
           otp,
         },
-        15 * 60 * 60 * 1000 // 15 mins
+        15 * 60 * 60 * 1000, // 15 mins
       );
 
       // emit forgotPassword event
@@ -88,9 +89,8 @@ export class AuthService extends BaseService {
         'subscription.plan.permissions',
       ],
     });
-    const passwordMatches = !!account && (
-      await this.validatePassword(password, account)
-    );
+    const passwordMatches =
+      !!account && (await this.validatePassword(password, account));
     if (!account || !passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -102,7 +102,7 @@ export class AuthService extends BaseService {
     const expiresIn = new Date().getTime() + jwtExpiration;
     const accessToken = await this.setAuthTokenCache(
       AuthTokenTypes.AUTH,
-      account
+      account,
     );
 
     return {
@@ -115,7 +115,7 @@ export class AuthService extends BaseService {
         ...account.specialist,
         ...account.businessContact,
         isVerified: account.isVerified,
-        subscription: account.subscription,
+        // subscription: account.subscription,
       },
     };
   }
@@ -126,17 +126,17 @@ export class AuthService extends BaseService {
     userType,
     ...userDto
   }: InitAccountDto): Promise<any> {
-    const user = await this.accountRepository.findOne({ where: { email }});
+    const user = await this.accountRepository.findOne({ where: { email } });
     if (user) {
       throw new NotAcceptableException(
-        'An account with same email already exists!'
+        'An account with same email already exists!',
       );
     }
-    
+
     const token = this.appUtilities.generateShortCode();
     const otp = this.appUtilities.generateOtp();
     let accountInitData: InitAccountDto = { email, password, userType };
-    if (userType === UserRoles.BUSINESS) {
+    if (userType === AccountTypes.BUSINESS) {
       accountInitData = { ...accountInitData, ...userDto };
     }
     await this.cacheService.set(
@@ -146,7 +146,7 @@ export class AuthService extends BaseService {
         data: accountInitData,
         otp,
       },
-      24 * 60 * 60 // 1 day
+      24 * 60 * 60, // 1 day
     );
 
     this.mailService.sendUserAccountSetupEmail(email, otp);
@@ -161,7 +161,7 @@ export class AuthService extends BaseService {
     specialist,
     patient,
     userType,
-  }: ICreateAccount & { userType: UserRoles }) {
+  }: ICreateAccount & { userType: AccountTypes }) {
     const queryRunner = await this.startTransaction();
     const initData = await this.verifyOtp(token, otp);
     if (
@@ -182,34 +182,41 @@ export class AuthService extends BaseService {
         isVerified: true,
       });
       // setup default subscription
-      await this.subscriptionService.setupDefaultSubscription(account);
-      if (userType === UserRoles.BUSINESS && !!business) {
-        business = await this.businessService.setup(
-          business,
-          {
-            ...userDto,
-            email,
-            accountId: account.id,
-          }
-        );
-      }
-      else if (userType === UserRoles.SPECIALIST && !!specialist) {
+      // await this.subscriptionService.setupDefaultSubscription(account);
+      if (userType === AccountTypes.BUSINESS && !!business) {
+        business = await this.businessService.setup(business, {
+          ...userDto,
+          email,
+          accountId: account.id,
+        });
+      } else if (userType === AccountTypes.SPECIALIST && !!specialist) {
         specialist = await this.specialistService.create({
           ...specialist,
           email,
           accountId: account.id,
         });
-      }
-      else if (userType === UserRoles.PATIENT && !!patient) {
+      } else if (userType === AccountTypes.PATIENT && !!patient) {
         patient = await this.patientService.create({
           ...patient,
           email,
           accountId: account.id,
         });
-      }
-      else {
+      } else {
         throw new NotAcceptableException('Invalid user type and data!');
       }
+      // setup Account Comms
+      const identity = await this.commsProvider.createIdentity(
+        String(account.id),
+        account.email,
+      );
+      this.accountRepository.update(account.id, {
+        comms: () =>
+          `'${JSON.stringify({
+            [CommsProviders.AWS_CHIME]: {
+              identity: identity.AppInstanceUserArn,
+            },
+          })}'`,
+      });
 
       // clean up
       delete account.password;
@@ -219,7 +226,7 @@ export class AuthService extends BaseService {
     } catch (error) {
       if (error.code === PG_DB_ERROR_CODES.CONFLICT) {
         throw new NotAcceptableException(
-          'An account with same email already exists!'
+          'An account with same email already exists!',
         );
       }
       throw error;
@@ -228,9 +235,10 @@ export class AuthService extends BaseService {
     }
   }
 
-  public async verifyTokenizedOtp(
-    { token, otp }: AuthOtpDto
-  ): Promise<CachedAuthData> {
+  public async verifyTokenizedOtp({
+    token,
+    otp,
+  }: AuthOtpDto): Promise<CachedAuthData> {
     const data = await this.verifyOtp(token, otp);
     if (
       ![AuthTokenTypes.RESET, AuthTokenTypes.SETUP].includes(data?.authType)
@@ -242,14 +250,14 @@ export class AuthService extends BaseService {
   }
 
   public async resetPassword(item: ResetPasswordDto) {
-   const authToken = await this.verifyTokenizedOtp(item);
-   const password = await this.hashPassword(item.password);
-   await this.accountService.changePassword(authToken.data?.userId, password);
+    const authToken = await this.verifyTokenizedOtp(item);
+    const password = await this.hashPassword(item.password);
+    await this.accountService.changePassword(authToken.data?.userId, password);
   }
 
   private async verifyOtp<T = any>(
     token: string,
-    otp: string
+    otp: string,
   ): Promise<CachedAuthData<T>> {
     const data = await this.cacheService.get<CachedAuthData<T>>(token);
     if (!data || data.otp !== otp) {
@@ -265,7 +273,7 @@ export class AuthService extends BaseService {
 
   private async validatePassword(
     password: string,
-    user: Account
+    user: Account,
   ): Promise<boolean> {
     return await bcrypt.compare(password, user.password);
   }
@@ -283,24 +291,20 @@ export class AuthService extends BaseService {
   private async setAuthTokenCache(
     authType: AuthTokenTypes,
     cacheData?: any,
-    ttl: number = this.configService.get<number>('jwt.signOptions.expiresIn')
+    ttl: number = this.configService.get<number>('jwt.signOptions.expiresIn'),
   ) {
     let refreshTokenTtl = ttl;
     if (authType === AuthTokenTypes.AUTH) {
       refreshTokenTtl = this.configService.get<number>(
-        'jwt.refreshToken.expiresIn'
+        'jwt.refreshToken.expiresIn',
       );
     }
     const token = this.generateJwtToken(
       { authType },
-      { expiresIn: refreshTokenTtl }
+      { expiresIn: refreshTokenTtl },
     );
     const [, , cacheKey] = token.split('.');
-    await this.cacheService.set(
-      cacheKey,
-      { data: cacheData, authType },
-      ttl
-    );
+    await this.cacheService.set(cacheKey, { data: cacheData, authType }, ttl);
 
     return token;
   }

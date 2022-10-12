@@ -62,7 +62,7 @@ export class File {
   @Column({ enum: FileStatus })
   status: FileStatus;
 
-  @ManyToOne(() => Session, folder => folder.files)
+  @ManyToOne(() => Session, (folder) => folder.files)
   session: Session;
 
   @OneToOne(() => Patient)

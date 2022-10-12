@@ -4,7 +4,6 @@ import { readFileSync } from 'fs';
 // dotenv.config();
 dotenv.config({ path: process.env.ENV_PATH });
 
-
 const env = (key: string, defaultVal: any = undefined) =>
   process.env[key] || defaultVal;
 
@@ -17,10 +16,19 @@ const config = {
     environment: env('NODE_ENV'),
     port: Number(env('APP_PORT', 3001)),
   },
+  awsChime: {
+    config: {
+      accessKeyId: env('AWS_CHIME_ACCESS_KEY_ID'),
+      secretAccessKey: env('AWS_CHIME_SECRET_ACCESS_KEY'),
+    },
+    region: env('AWS_CHIME_REGION'),
+    appInstanceArn: env('AWS_CHIME_APP_ARN'),
+    appInstanceAdminArn: env('AWS_CHIME_ADMIN_ARN'),
+  },
   client: {
     emailUrls: {
       sessionCollaboratorInvite: env('CLIENT_COLLABORATE_URL'),
-    }
+    },
   },
   db: {
     pgsql: {
@@ -55,7 +63,7 @@ const config = {
     },
     refreshToken: {
       expiresIn: Number(env('REFRESH_EXPIRY_TIME_SEC', 3 * 60 * 60)), // 3 hrs
-    }
+    },
   },
   sendGrid: {
     apiKey: env('SENDGRID_API_KEY'),
@@ -75,7 +83,7 @@ const config = {
       secretAccessKey: env('AWS_S3_SECRET_ACCESS_KEY'),
       region: env('AWS_S3_REGION'),
     },
-  }
+  },
 };
 
 export default () => config;

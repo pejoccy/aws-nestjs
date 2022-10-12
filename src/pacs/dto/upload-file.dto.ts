@@ -35,7 +35,8 @@ export class UploadFileDto {
   studyInfo?: string;
 
   @ApiPropertyOptional({
-    description: 'This is the patient ID of an existing patient obtained from the API GET /api/v1/patients OR a new patient created by calling the POST /api/v1/patients.'
+    description:
+      'This is the patient ID of an existing patient obtained from the API GET /api/v1/patients OR a new patient created by calling the POST /api/v1/patients.',
   })
   @IsNumberString()
   @IsOptional()

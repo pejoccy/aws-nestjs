@@ -17,9 +17,9 @@ import multer from 'multer';
 import { Account } from '../account/account.entity';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { GetAccount } from '../common/decorators/get-user-decorator';
-import { ResourcePermission } from '../common/decorators/permission.decorator';
+import { FeatureLimitCheck } from '../common/decorators/feature-limit-check.decorator';
 import { EntityIdDto } from '../common/dto/entity.dto';
-import { ResourcePermissions, imageFileFilter } from '../common/interfaces';
+import { FeatureSlugs, imageFileFilter } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { PacsService } from './pacs.service';
@@ -29,29 +29,29 @@ import { PacsService } from './pacs.service';
 @Controller('pacs')
 @UseGuards(PermissionGuard)
 export class PacsController {
-  constructor(
-    private pacsService: PacsService
-  ) {}
+  constructor(private pacsService: PacsService) {}
 
   @Get('/t/:id')
   async getFileData(
     @GetAccount() account: Account,
     @Param() { id }: EntityIdDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ) {
     return this.pacsService.getFileDataContent(id, account, res);
   }
 
   @ApiConsumes('multipart/form-data')
   @Post('/uploads')
-  @ResourcePermission(ResourcePermissions.SCAN_AND_UPLOAD)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: multer.diskStorage({}),
-    fileFilter: imageFileFilter,
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    }, 
-  }))
+  @FeatureLimitCheck(FeatureSlugs.SESSION)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.diskStorage({}),
+      fileFilter: imageFileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
   async upload(
     @Body() item: UploadFileDto,
     @GetAccount() account: Account,
@@ -62,14 +62,16 @@ export class PacsController {
 
   @ApiConsumes('multipart/form-data')
   @Post('/bulk-uploads')
-  @ResourcePermission(ResourcePermissions.BULK_SCAN_AND_UPLOAD)
-  @UseInterceptors(FilesInterceptor('files', 20, {
-    storage: multer.diskStorage({}),
-    fileFilter: imageFileFilter,
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    }, 
-  }))
+  @FeatureLimitCheck(FeatureSlugs.SESSION_FILES)
+  @UseInterceptors(
+    FilesInterceptor('files', 20, {
+      storage: multer.diskStorage({}),
+      fileFilter: imageFileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
   async uploadBulk(
     @Body() item: UploadFolderDto,
     @GetAccount() account: Account,

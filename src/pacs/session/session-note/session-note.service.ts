@@ -8,9 +8,8 @@ import { SessionNote } from './session-note.entity';
 export class SessionNoteService extends BaseService {
   constructor(
     @InjectRepository(SessionNote)
-    private sessionNoteRepository: Repository<SessionNote>
+    private sessionNoteRepository: Repository<SessionNote>,
   ) {
     super();
   }
-
 }

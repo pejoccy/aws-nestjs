@@ -9,11 +9,7 @@ export class CacheService {
     return await this.cache.get(key);
   }
 
-  async set(
-    key: string,
-    item: any,
-    ttl?: number,
-  ): Promise<any> {
+  async set(key: string, item: any, ttl?: number): Promise<any> {
     return await this.cache.set(key, item, { ttl: ttl ? ttl : undefined });
   }
 
@@ -28,9 +24,8 @@ export class CacheService {
   async wrap(
     key: string,
     cb: (error: any, result: any) => any,
-    config?: CachingConfig
+    config?: CachingConfig,
   ): Promise<any> {
-    
     const data = await this.cache.wrap(key, cb, config);
     if (!!data && config?.ttl && typeof config.ttl === 'number') {
       this.set(key, data, config.ttl);

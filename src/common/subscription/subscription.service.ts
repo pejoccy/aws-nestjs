@@ -22,12 +22,12 @@ export class SubscriptionService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(Account)
     private accountRepository: Repository<Account>,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
-  
+
   public async subscribe(
     { planId, isTrial }: PlanSubscriptionDto,
-    account: Account
+    account: Account,
   ) {
     const plan = await this.planRepository.findOne(planId);
     if (!plan) {
@@ -37,14 +37,14 @@ export class SubscriptionService {
       await this.validateMultipleTrialSubscription(account, plan);
     }
     // find account latest subscription, where nextBilling is greater than today
-    let subscription = await this.subscriptionRepository.findOne({
+    const subscription = await this.subscriptionRepository.findOne({
       where: { accountId: account.id },
       order: { nextBillingDate: -1 },
     });
-    
+
     return this.finalizeSubscription(plan, account, subscription);
   }
-  
+
   public async setupDefaultSubscription(account: Account) {
     const plan = await this.planRepository.findOne({
       where: { isDefault: true },
@@ -60,7 +60,7 @@ export class SubscriptionService {
     plan: Plan,
     account: Account,
     subscription?: Subscription,
-    payment?: any
+    payment?: any,
   ) {
     let billingStartDate = new Date();
     if (
@@ -71,19 +71,20 @@ export class SubscriptionService {
     }
     if (!payment && !plan.isDefault && !plan.trialPeriod) {
       throw new NotAcceptableException(
-        'Plan does not support trial subscription!'
+        'Plan does not support trial subscription!',
       );
     }
     const nextBillingDate = !plan.isDefault
       ? this.getNextBillingDate(
           payment ? plan.timeUnit : plan.trialTimeUnit,
           payment ? plan.validity : plan.trialPeriod,
-          billingStartDate
+          billingStartDate,
         )
       : undefined;
 
-    ({ raw: [subscription] } = await this
-      .subscriptionRepository
+    ({
+      raw: [subscription],
+    } = await this.subscriptionRepository
       .createQueryBuilder()
       .insert()
       .values({
@@ -97,29 +98,29 @@ export class SubscriptionService {
       .execute());
 
     // update user entity
-    await this.accountRepository.update(
-      { id: account.id },
-      { subscriptionId: subscription.id }
-    );
+    // await this.accountRepository.update(
+    //   { id: account.id },
+    //   { subscriptionId: subscription.id },
+    // );
 
     return subscription;
   }
 
   private async validateMultipleTrialSubscription(
     account: Account,
-    plan: Plan
+    plan: Plan,
   ) {
     const multiplePlanTrials = this.configService.get(
       'app.settings.multipleTrialSubscription',
-      false
+      false,
     );
-    
+
     const subscription = await this.subscriptionRepository.findOne({
       where: { accountId: account.id, planId: plan.id },
     });
     if (!multiplePlanTrials && subscription) {
       throw new NotAcceptableException(
-        'Multiple trial plan subscription not allowed!'
+        'Multiple trial plan subscription not allowed!',
       );
     }
   }
@@ -127,7 +128,7 @@ export class SubscriptionService {
   private getNextBillingDate(
     timeUnit: TimeUnits,
     validity: number,
-    billingStartDate: Date
+    billingStartDate: Date,
   ): Date {
     return moment(billingStartDate).add(validity, timeUnit).toDate();
   }

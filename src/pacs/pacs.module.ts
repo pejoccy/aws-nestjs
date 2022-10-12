@@ -11,6 +11,7 @@ import { FileQueueProducer } from './queues/producer';
 import { ReportTemplateModule } from './report-template/report-template.module';
 import { SessionModule } from './session/session.module';
 import { S3Service } from './s3.service';
+import { CommsModule } from 'src/comms/comms.module';
 
 @Module({
   controllers: [PacsController],
@@ -22,17 +23,13 @@ import { S3Service } from './s3.service';
         redis: config.get('db.redis'),
       }),
     }),
+    CommsModule,
     FileModule,
     ReportTemplateModule,
     SessionModule,
     MulterModule.register({}),
   ],
-  providers: [
-    PacsService,
-    FileQueueConsumer,
-    FileQueueProducer,
-    S3Service,
-  ],
+  providers: [PacsService, FileQueueConsumer, FileQueueProducer, S3Service],
   exports: [PacsService],
 })
 export class PacsModule {}

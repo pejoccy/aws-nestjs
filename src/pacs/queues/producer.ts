@@ -7,7 +7,7 @@ import { JOBS, FILE_QUEUE, UploadFileJobAttribs } from './interfaces';
 export class FileQueueProducer {
   constructor(
     @InjectQueue(FILE_QUEUE)
-    private readonly fileQueue: Queue
+    private readonly fileQueue: Queue,
   ) {}
 
   async uploadFile(data: UploadFileJobAttribs) {

@@ -1,4 +1,4 @@
-import { 
+import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
@@ -23,7 +23,7 @@ export class SessionNote extends BaseEntity {
   @Column()
   creatorId: number;
 
-  @ManyToOne(() => Session, session => session.notes)
+  @ManyToOne(() => Session, (session) => session.notes)
   session: Session;
 
   @ManyToOne(() => Account)

@@ -8,17 +8,21 @@ import {
   OneToMany,
   JoinTable,
 } from 'typeorm';
-import { UserRoles } from '../common/interfaces';
+import { CommsProviders, AccountTypes } from '../common/interfaces';
 import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
-import {
-  SessionToCollaborator,
-} from '../pacs/session/session-collaborator/session-collaborator.entity';
+import { SessionToCollaborator } from '../pacs/session/session-collaborator/session-collaborator.entity';
 import { Session } from '../pacs/session/session.entity';
 import { BusinessContact } from './business-contact/business-contact.entity';
 import { Business } from './business/business.entity';
 import { Patient } from './patient/patient.entity';
 import { Specialist } from './specialist/specialist.entity';
+
+export interface AccountCommsOptions {
+  [CommsProviders.AWS_CHIME]: {
+    identity: string;
+  };
+}
 
 @Entity()
 export class Account {
@@ -27,6 +31,9 @@ export class Account {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ unique: true })
+  alias: string;
 
   @Column({ nullable: true, select: true })
   password?: string;
@@ -40,8 +47,8 @@ export class Account {
   @Column({ nullable: true, select: true })
   lastLoginIp?: string;
 
-  @Column({ nullable: true, enum: UserRoles })
-  role?: UserRoles;
+  @Column({ nullable: true, enum: AccountTypes })
+  role?: AccountTypes;
 
   @Column({ nullable: true, select: true })
   profilePhotoId?: string;
@@ -50,33 +57,33 @@ export class Account {
   @JoinColumn()
   profilePhoto?: File;
 
-  @Column({ nullable: true })
-  subscriptionId?: number;
+  @Column({ type: 'jsonb' })
+  comms: AccountCommsOptions;
 
-  @OneToOne(() => BusinessContact, contact => contact.account)
+  @OneToOne(() => BusinessContact, (contact) => contact.account)
   businessContact: BusinessContact;
 
-  @ManyToMany(() => Business, business => business.accounts)
+  @ManyToMany(() => Business, (business) => business.accounts)
   @JoinTable({ name: 'business_contact' })
   business: Business[];
 
-  @OneToOne(() => Patient, patient => patient.account)
+  @OneToOne(() => Patient, (patient) => patient.account)
   patient: Patient;
 
-  @OneToOne(() => Subscription, subscription => subscription.account)
-  @JoinColumn()
-  subscription?: Subscription;
-  
-  @OneToOne(() => Specialist, specialist => specialist.account)
+  // @OneToOne(() => Subscription, (subscription) => subscription.account)
+  // @JoinColumn()
+  // subscription?: Subscription;
+
+  @OneToOne(() => Specialist, (specialist) => specialist.account)
   specialist?: Specialist;
 
   @OneToMany(
     () => SessionToCollaborator,
-    fileToCollaborator => fileToCollaborator.collaborator
+    (fileToCollaborator) => fileToCollaborator.collaborator,
   )
   public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
 
-  @ManyToMany(() => Session, session => session.collaborators)
+  @ManyToMany(() => Session, (session) => session.collaborators)
   @JoinTable({ name: 'session_collaborator' })
   collaboratedSessions: Session[];
 }

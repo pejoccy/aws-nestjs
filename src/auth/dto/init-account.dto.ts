@@ -8,11 +8,11 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { IsPassword } from '../../common/decorators/is-password';
-import { UserRoles } from '../../common/interfaces';
+import { AccountTypes } from '../../common/interfaces';
 
 export class InitAccountDto {
-  @IsEnum(UserRoles)
-  userType: UserRoles;
+  @IsEnum(AccountTypes)
+  userType: AccountTypes;
 
   @IsEmail()
   email: string;
@@ -24,16 +24,16 @@ export class InitAccountDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @ValidateIf(obj => obj.userType === UserRoles.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   firstName?: string;
 
   @IsNotEmpty()
   @IsString()
-  @ValidateIf(obj => obj.userType === UserRoles.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   lastName?: string;
 
   @IsNotEmpty()
   @IsMobilePhone()
-  @ValidateIf(obj => obj.userType === UserRoles.BUSINESS)
+  @ValidateIf((obj) => obj.userType === AccountTypes.BUSINESS)
   mobilePhone?: string;
 }

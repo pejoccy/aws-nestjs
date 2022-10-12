@@ -15,7 +15,7 @@ export class CountryController {
   constructor(
     @InjectRepository(Country)
     private countryRepository: Repository<Country>,
-    private countryService: CountryService
+    private countryService: CountryService,
   ) {}
 
   @ApiQuery({ name: 'searchText', required: false })
@@ -30,7 +30,7 @@ export class CountryController {
       this.countryRepository,
       ['name', 'code'],
       searchText,
-      { limit, page }
+      { limit, page },
     );
   }
 }

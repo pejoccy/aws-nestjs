@@ -6,7 +6,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { TimeUnits } from '../interfaces';
-import { Permission } from '../permission/permission.entity';
+import { Feature } from '../feature/feature.entity';
 
 @Entity()
 export class Plan {
@@ -18,7 +18,7 @@ export class Plan {
 
   @Column()
   price: number;
-  
+
   @Column()
   currency: string;
 
@@ -42,8 +42,8 @@ export class Plan {
 
   @Column({ default: true })
   status: boolean;
-  
-  @ManyToMany(() => Permission, permission => permission.plans)
-  @JoinTable({ name: 'plan_permission' })
-  permissions?: Permission[];
+
+  @ManyToMany(() => Feature, (feature) => feature.plans)
+  @JoinTable({ name: 'plan_feature' })
+  permissions?: Feature[];
 }

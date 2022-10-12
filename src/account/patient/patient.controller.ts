@@ -16,7 +16,7 @@ export class PatientController {
   constructor(
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
-    private patientService: PatientService
+    private patientService: PatientService,
   ) {}
 
   @ApiQuery({ name: 'searchText', required: false })
@@ -24,13 +24,13 @@ export class PatientController {
   @ApiQuery({ name: 'limit', required: false })
   @Get()
   async getSearch(
-    @Query() { limit, page, searchText }: SearchPatientDto
+    @Query() { limit, page, searchText }: SearchPatientDto,
   ): Promise<Pagination<Patient>> {
     return this.patientService.search(
       this.patientRepository,
       ['email', 'firstName', 'lastName', 'mobilePhone'],
       searchText,
-      { limit, page }
+      { limit, page },
     );
   }
 

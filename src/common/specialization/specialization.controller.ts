@@ -13,7 +13,7 @@ export class SpecializationController {
   constructor(
     @InjectRepository(Specialization)
     private specializationRepository: Repository<Specialization>,
-    private specializationService: SpecializationService
+    private specializationService: SpecializationService,
   ) {}
 
   @ApiQuery({ name: 'searchText', required: false })
@@ -23,14 +23,14 @@ export class SpecializationController {
   @PublicRoute()
   async search(
     @Query('searchText') searchText?: string,
-    @Query() pagination?: PaginationOptionsDto
+    @Query() pagination?: PaginationOptionsDto,
   ) {
     return this.specializationService.search(
       this.specializationRepository,
       ['filter'],
       searchText,
       pagination,
-      { where: { status: true } }
+      { where: { status: true } },
     );
   }
 }

@@ -10,17 +10,31 @@ import {
 import { Account } from '../../account/account.entity';
 import { Patient } from '../../account/patient/patient.entity';
 import { BaseEntity } from '../../common/base/_entity';
-import { FileModality, ShareOptions } from '../../common/interfaces';
+import {
+  CommsProviders,
+  FileModality,
+  ShareOptions,
+} from '../../common/interfaces';
 import { File } from '../file/file.entity';
+import { ReportTemplate } from '../report-template/report-template.entity';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionNote } from './session-note/session-note.entity';
-import { ReportTemplate } from '../report-template/report-template.entity';
 import { SessionReport } from './session-report/session-report.entity';
+
+export interface SessionComms {
+  [CommsProviders.AWS_CHIME]: {
+    chatChannelArn: string;
+    meetChannelArn: string;
+  };
+}
 
 @Entity()
 export class Session extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  alias: string;
 
   @Column()
   name: string;
@@ -43,16 +57,19 @@ export class Session extends BaseEntity {
   @Column()
   patientId?: number;
 
+  @Column({ type: 'jsonb' })
+  comms?: SessionComms;
+
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
 
-  @OneToMany(() => File, file => file.session)
+  @OneToMany(() => File, (file) => file.session)
   files: File[];
 
-  @OneToMany(() => SessionNote, note => note.session)
+  @OneToMany(() => SessionNote, (note) => note.session)
   notes: SessionNote[];
 
-  @OneToMany(() => SessionReport, report => report.session)
+  @OneToMany(() => SessionReport, (report) => report.session)
   reports: SessionReport[];
 
   @OneToOne(() => Account)
@@ -67,7 +84,7 @@ export class Session extends BaseEntity {
   @JoinColumn()
   patient?: Patient;
 
-  @ManyToMany(() => Account, account => account.collaboratedSessions)
+  @ManyToMany(() => Account, (account) => account.collaboratedSessions)
   collaborators: Account[];
 
   /*
@@ -75,7 +92,7 @@ export class Session extends BaseEntity {
   */
   @OneToMany(
     () => SessionToCollaborator,
-    sessionToCollaborator => sessionToCollaborator.session
+    (sessionToCollaborator) => sessionToCollaborator.session,
   )
   public sessionToCollaborators!: SessionToCollaborator[];
 }

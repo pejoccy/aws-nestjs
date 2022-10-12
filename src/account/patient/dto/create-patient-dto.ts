@@ -26,7 +26,7 @@ export class CreatePatientDto {
   lastName: string;
 
   @ApiProperty({
-    description: 'This is the patient\'s date of birth.',
+    description: "This is the patient's date of birth.",
     example: '2001-10-31',
   })
   @IsISO8601()

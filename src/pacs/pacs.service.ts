@@ -14,7 +14,7 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import { ShareOptions } from '../common/interfaces';
+import { CommsProviders, ShareOptions } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { File } from './file/file.entity';
@@ -24,6 +24,8 @@ import { UploadFileJobAttribs } from './queues/interfaces';
 import { FileQueueProducer } from './queues/producer';
 import { S3Service } from './s3.service';
 import { ReportTemplate } from './report-template/report-template.entity';
+import { ChimeCommsProvider } from 'src/comms/providers/chime';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class PacsService extends BaseService {
@@ -36,17 +38,18 @@ export class PacsService extends BaseService {
     private reportTemplateRepository: Repository<ReportTemplate>,
     private fileQueue: FileQueueProducer,
     private s3Service: S3Service,
-    private appUtilities: AppUtilities
+    private appUtilities: AppUtilities,
+    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
-  
+
   async getFileDataContent(id: number, account: Account, res: Response) {
     const file = await this.fileRepository.findOne({
       where: {
         id,
         provider: Not(FileStorageProviders.LOCAL),
-        hash: Not(IsNull())
+        hash: Not(IsNull()),
       },
       relations: ['session', 'session.collaborators'],
     });
@@ -66,18 +69,15 @@ export class PacsService extends BaseService {
       'Content-Type': file.mime,
       'Content-Disposition': `filename="${file.name}"`,
       'Cache-Control': `max-age=${3600 * 6};`,
-      'Expires': moment().add(6, 'hours').toString(),
+      Expires: moment().add(6, 'hours').toString(),
     });
 
     const s3File = await this.s3Service.getPrivateFile(file.hash);
-    
+
     return new StreamableFile(s3File);
   }
 
-  async upload(
-    item: UploadFileDto,
-    account: Account
-  ) {
+  async upload(item: UploadFileDto, account: Account) {
     if (!item.file) {
       throw new BadRequestException('File is missing/invalid!');
     }
@@ -85,13 +85,25 @@ export class PacsService extends BaseService {
     const template = await this.reportTemplateRepository.findOne({
       modality: item.modality,
     });
+    const alias = v4();
+    // create meet and chat channels
+    const { chatChannelArn, meetChannelArn } =
+      await this.setupSessionCommsChannels(account, alias);
+
     const session = await this.sessionRepository.save({
+      account,
+      alias,
       name: sessionName,
       modality: item.modality,
       studyDate: item.studyDate,
       studyInfo: item.studyInfo,
       patientId: item.patientId,
-      account,
+      comms: {
+        [CommsProviders.AWS_CHIME]: {
+          chatChannelArn,
+          meetChannelArn,
+        },
+      },
       createdBy: account,
       reportTemplateId: template.id,
     });
@@ -106,6 +118,7 @@ export class PacsService extends BaseService {
       session,
       mime: item.file.mimetype,
       size: item.file.size,
+      patientId: item.patientId,
       modality: item.modality,
       modalitySection: item.modalitySection,
       ext: mime.extension(item.file.mimetype) || undefined,
@@ -125,19 +138,26 @@ export class PacsService extends BaseService {
     };
   }
 
-  async uploadBulk(
-    item: UploadFolderDto,
-    account: Account
-  ) {
+  async uploadBulk(item: UploadFolderDto, account: Account) {
     const template = await this.reportTemplateRepository.findOne({
       modality: item.modality,
     });
+    const alias = v4();
+    const { chatChannelArn, meetChannelArn } =
+      await this.setupSessionCommsChannels(account, alias);
     const session = await this.sessionRepository.save({
       name: item.name,
+      alias,
       modality: item.modality,
       studyDate: item.studyDate,
       studyInfo: item.studyInfo,
       patientId: item.patientId,
+      comms: {
+        [CommsProviders.AWS_CHIME]: {
+          chatChannelArn,
+          meetChannelArn,
+        },
+      },
       account,
       createdBy: account,
       reportTemplateId: template.id,
@@ -148,8 +168,8 @@ export class PacsService extends BaseService {
     const { raw } = await this.fileRepository
       .createQueryBuilder()
       .insert()
-      .values(item.files.map(
-        file => ({
+      .values(
+        item.files.map((file) => ({
           account,
           session,
           createdBy: account,
@@ -158,12 +178,13 @@ export class PacsService extends BaseService {
           previewUrl: file.path,
           mime: file.mimetype,
           size: file.size,
+          patientId: item.patientId,
           modality: item.modality,
           modalitySection: item.modalitySection,
           ext: mime.extension(file.mimetype) || undefined,
           provider: FileStorageProviders.LOCAL,
-        })
-      ))
+        })),
+      )
       .returning(['id', 'status', 'sessionId'])
       .execute();
 
@@ -191,12 +212,12 @@ export class PacsService extends BaseService {
     if (!files || files.length <= 0) {
       console.log(
         `No file found for sessionId: ${sessionId} or fileIds`,
-        fileIds
+        fileIds,
       );
       return;
     }
     // update files
-    files.forEach(async file => {
+    files.forEach(async (file) => {
       const buffer = readFileSync(file.previewUrl);
       try {
         await this.fileRepository.update(file.id, {
@@ -212,16 +233,27 @@ export class PacsService extends BaseService {
             provider: FileStorageProviders.AWS,
           });
         } catch (error) {
-           await this.s3Service.deletePrivateFile(uploadedFile.Key);
-           throw error;
+          await this.s3Service.deletePrivateFile(uploadedFile.Key);
+          throw error;
         }
       } catch (error) {
         console.error(error);
         this.fileRepository.update(file.id, { status: FileStatus.INVALID });
         throw error;
       } finally {
-        unlink(file.previewUrl, error => error && console.error(error));
+        unlink(file.previewUrl, (error) => error && console.error(error));
       }
     });
+  }
+
+  private async setupSessionCommsChannels(account: Account, name: string) {
+    const userArn = account.comms.aws_chime.identity;
+    const meetChannel = await this.commsProvider.startMeeting(name, [userArn]);
+    const chatChannel = await this.commsProvider.startChat(userArn, [], name);
+
+    return {
+      chatChannelArn: chatChannel.ChannelArn,
+      meetChannelArn: meetChannel.Meeting.MeetingId,
+    };
   }
 }

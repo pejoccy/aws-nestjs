@@ -34,7 +34,7 @@ export class Business {
   countryId: number;
 
   @Column()
-  mobilePhone: string;  
+  mobilePhone: string;
 
   @Column()
   website: string;
@@ -42,10 +42,10 @@ export class Business {
   @Column()
   logoId: number;
 
-  @OneToMany(() => BusinessContact, contact => contact.business)
+  @OneToMany(() => BusinessContact, (contact) => contact.business)
   contacts: BusinessContact[];
 
-  @ManyToMany(() => Account, account => account.business)
+  @ManyToMany(() => Account, (account) => account.business)
   @JoinTable({ name: 'business_contact' })
   accounts: Account[];
 

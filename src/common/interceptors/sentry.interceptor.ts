@@ -25,7 +25,7 @@ export class SentryInterceptor implements NestInterceptor {
         // capture the error, you can filter out some errors here
         Sentry.captureException(
           error,
-          this.sentryService.span.getTraceContext()
+          this.sentryService.span.getTraceContext(),
         );
 
         // throw again the error
@@ -34,7 +34,7 @@ export class SentryInterceptor implements NestInterceptor {
       finalize(() => {
         span.finish();
         this.sentryService.span.finish();
-      })
+      }),
     );
   }
 }

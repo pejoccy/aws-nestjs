@@ -8,7 +8,7 @@ import { Country } from './country.entity';
 export class CountryService extends BaseService {
   constructor(
     @InjectRepository(Country)
-    protected countryRepository: Repository<Country>
+    protected countryRepository: Repository<Country>,
   ) {
     super();
   }

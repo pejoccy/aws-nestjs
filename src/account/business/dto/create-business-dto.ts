@@ -29,13 +29,13 @@ export class CreateBusinessDto {
   @ApiProperty({ enum: BusinessCategories })
   @IsEnum(BusinessCategories)
   category: BusinessCategories;
-  
+
   @ApiProperty({
     description: 'This is the country id from GET /api/v1/countries',
   })
   @IsNumber()
   countryId: number;
-  
+
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

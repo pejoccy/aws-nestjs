@@ -8,9 +8,8 @@ import { ReportTemplate } from './report-template.entity';
 export class ReportTemplateService extends BaseService {
   constructor(
     @InjectRepository(ReportTemplate)
-    protected sessionReportTemplateRepository: Repository<ReportTemplate>
+    protected sessionReportTemplateRepository: Repository<ReportTemplate>,
   ) {
     super();
   }
-
 }

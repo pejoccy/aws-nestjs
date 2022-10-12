@@ -9,17 +9,13 @@ export class S3Service {
 
   constructor(
     configService: ConfigService,
-    private appUtilities: AppUtilities
+    private appUtilities: AppUtilities,
   ) {
     config.update(configService.get('storage.s3'));
     this.s3Sdk = new S3();
   }
 
-  async uploadPrivateFile(
-    dataBuffer: Buffer,
-    fileHash?: string
-  ) {
-    
+  async uploadPrivateFile(dataBuffer: Buffer, fileHash?: string) {
     const uploadResult = await this.s3Sdk
       .upload({
         Bucket: process.env.AWS_S3_BUCKET,
@@ -27,7 +23,7 @@ export class S3Service {
         Key: fileHash || this.appUtilities.generateUniqueKey(),
       })
       .promise();
-    
+
     return uploadResult;
   }
 

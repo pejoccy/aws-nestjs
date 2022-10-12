@@ -18,31 +18,26 @@ export class MailerService {
   }
 
   async send(data: SendMailOptions) {
-    return sgMail
-      .send({ from: this.emailSender, ...data })
-      .then(resp => {
-        console.log(resp);
+    return sgMail.send({ from: this.emailSender, ...data }).then((resp) => {
+      console.log(resp);
 
-        return resp;
-      });
+      return resp;
+    });
   }
 
   async sendUserAccountSetupEmail(email: string, otp: string) {
     const html = await this.getFileTemplate('account-setup', { otp });
-    
+
     return this.send({
       to: email,
       subject: 'Complete Account Setup',
       html,
-    }).catch(err => console.log(JSON.stringify(err, null, 2)));
+    }).catch((err) => console.log(JSON.stringify(err, null, 2)));
   }
 
-  async sendForgotPasswordEmail(
-    { email }: Account,
-    otp: string
-  ) {
+  async sendForgotPasswordEmail({ email }: Account, otp: string) {
     const html = await this.getFileTemplate('password-reset', { otp });
-    
+
     return this.send({
       to: email,
       subject: 'Reset Account Password',
@@ -53,16 +48,16 @@ export class MailerService {
   async sendInviteCollaboratorEmail(
     email: string,
     inviteHash: string,
-    sessionId: number
+    sessionId: number,
   ) {
     const acceptInvitationURL = this.configService.get(
-      'client.emailUrls.sessionCollaboratorInvite'
+      'client.emailUrls.sessionCollaboratorInvite',
     );
     // ?inviteCode=&sessionId=
     const html = await this.getFileTemplate('invite-collaborator', {
       acceptInvitationURL: `${acceptInvitationURL}?inviteCode=${inviteHash}&sessionId=${sessionId}`,
     });
-    
+
     return this.send({
       to: email,
       subject: 'Invitation to Collaborate on Orysx',
@@ -72,7 +67,7 @@ export class MailerService {
 
   protected async getFileTemplate(
     name: string,
-    templateData?: Record<string, any>
+    templateData?: Record<string, any>,
   ): Promise<string> {
     const templateBase = './templates';
     const filePath = path.join(__dirname, templateBase, `${name}.ejs`);

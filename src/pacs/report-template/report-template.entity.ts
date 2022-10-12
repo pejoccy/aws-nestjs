@@ -1,9 +1,5 @@
 import { FileModality } from 'src/common/interfaces';
-import { 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { BaseEntity } from '../../common/base/_entity';
 
 export enum ITemplateControlTypes {
@@ -16,8 +12,8 @@ export enum ITemplateControlTypes {
 }
 
 export interface ITemplateControlOptions {
-  label: string,
-  value: string,
+  label: string;
+  value: string;
 }
 
 export interface ITemplateControl {

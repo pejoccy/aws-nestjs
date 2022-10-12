@@ -6,4 +6,5 @@ export interface ApiResponseMetaOptions {
   message: string;
 }
 
-export const ApiResponseMeta = (options: ApiResponseMetaOptions) => SetMetadata(API_RESPONSE_META, options);
+export const ApiResponseMeta = (options: ApiResponseMetaOptions) =>
+  SetMetadata(API_RESPONSE_META, options);

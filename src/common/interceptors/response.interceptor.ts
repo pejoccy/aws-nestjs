@@ -19,17 +19,20 @@ export interface Response<T> {
 }
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T> | StreamableFile> {
+export class ResponseInterceptor<T>
+  implements NestInterceptor<T, Response<T> | StreamableFile>
+{
   constructor(private reflector: Reflector = new Reflector()) {}
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler
+    next: CallHandler,
   ): Observable<Response<T> | StreamableFile> {
-    const responseOptions = this.reflector.getAllAndOverride<ApiResponseMetaOptions>(
-      API_RESPONSE_META,
-      [context.getHandler(), context.getClass()]
-    );
+    const responseOptions =
+      this.reflector.getAllAndOverride<ApiResponseMetaOptions>(
+        API_RESPONSE_META,
+        [context.getHandler(), context.getClass()],
+      );
     const message = responseOptions?.message || ResponseMessage.SUCCESS;
 
     return next.handle().pipe(
@@ -42,8 +45,8 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T> | 
           statusCode: 200,
           message,
           data,
-        }
-      })
+        };
+      }),
     );
   }
 }

@@ -20,7 +20,8 @@ export class IsPasswordRule implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments) {
     const messageBuilder = buildMessage(
-      (prefix) => `${prefix}$property is too weak. ${prefix}$property must be a combination of letters (uppercase and lowercase) numbers and special characters with 8 characters minimum.`
+      (prefix) =>
+        `${prefix}$property is too weak. ${prefix}$property must be a combination of letters (uppercase and lowercase) numbers and special characters with 8 characters minimum.`,
     );
 
     return messageBuilder(args);

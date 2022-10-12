@@ -7,12 +7,10 @@ import {
 import { RealIP } from 'nestjs-real-ip';
 import { SetupBusinessDto } from '../account/business/dto/setup-business.dto';
 import { SetupPatientDto } from '../account/patient/dto/setup-patient.dto';
-import {
-  SetupSpecialistDto,
-} from '../account/specialist/dto/setup-specialist.dto';
+import { SetupSpecialistDto } from '../account/specialist/dto/setup-specialist.dto';
 import { PublicRoute } from '../common/decorators/public-route-decorator';
 import { ApiResponseMeta } from '../common/decorators/response.decorator';
-import { UserRoles } from '../common/interfaces';
+import { AccountTypes } from '../common/interfaces';
 import { AuthService } from './auth.service';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -23,20 +21,15 @@ import { SignInDto } from './dto/sign-in.dto';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService
-  ) {}
-  
+  constructor(private authService: AuthService) {}
+
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
   })
   @Post('/login')
   @PublicRoute()
-  async signIn(
-    @Body() item: SignInDto,
-    @RealIP() ip: string,
-  ): Promise<any> {
+  async signIn(@Body() item: SignInDto, @RealIP() ip: string): Promise<any> {
     return this.authService.signIn({ ...item, ipAddress: ip });
   }
 
@@ -53,12 +46,14 @@ export class AuthController {
   @ApiResponseMeta({ message: 'Patient account created successfully!' })
   @Post('/setup-patient')
   @PublicRoute()
-  async completePatientAccountSetup(@Body() { otp, token, ...rest }: SetupPatientDto) {
+  async completePatientAccountSetup(
+    @Body() { otp, token, ...rest }: SetupPatientDto,
+  ) {
     return this.authService.signUp({
       otp,
       token,
       patient: rest,
-      userType: UserRoles.PATIENT,
+      userType: AccountTypes.PATIENT,
     });
   }
 
@@ -66,17 +61,13 @@ export class AuthController {
   @Post('/setup-specialist')
   @PublicRoute()
   async completeSpecialistAccountSetup(
-    @Body() {
-      otp,
-      token,
-      ...item
-    }: SetupSpecialistDto
+    @Body() { otp, token, ...item }: SetupSpecialistDto,
   ) {
     return this.authService.signUp({
       otp,
       token,
       specialist: item,
-      userType: UserRoles.SPECIALIST,
+      userType: AccountTypes.SPECIALIST,
     });
   }
 
@@ -84,24 +75,22 @@ export class AuthController {
   @Post('/setup-business')
   @PublicRoute()
   async completeBusinessSetup(
-    @Body() { otp, token, ...business }: SetupBusinessDto
+    @Body() { otp, token, ...business }: SetupBusinessDto,
   ) {
     return this.authService.signUp({
       otp,
       token,
       business,
-      userType: UserRoles.BUSINESS
+      userType: AccountTypes.BUSINESS,
     });
   }
 
   @ApiResponseMeta({
-    message: 'A password reset token has been sent to your email'
+    message: 'A password reset token has been sent to your email',
   })
   @Post('/forgotPassword')
   @PublicRoute()
-  async forgotPassword(
-    @Body() item: ForgotPasswordDto,
-  ) {
+  async forgotPassword(@Body() item: ForgotPasswordDto) {
     return this.authService.forgotPassword(item);
   }
 
@@ -112,12 +101,10 @@ export class AuthController {
     await this.authService.verifyTokenizedOtp(item);
   }
 
-  @ApiResponseMeta({ message: 'Password successfully reset'})
+  @ApiResponseMeta({ message: 'Password successfully reset' })
   @Post('/resetPassword')
   @PublicRoute()
-  async resetPassword(
-    @Body() item: ResetPasswordDto,
-  ) {
+  async resetPassword(@Body() item: ResetPasswordDto) {
     await this.authService.resetPassword(item);
   }
 }

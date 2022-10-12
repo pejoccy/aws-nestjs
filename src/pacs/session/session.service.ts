@@ -2,9 +2,11 @@ import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationCursorOptionsDto } from 'src/common/dto';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Specialist } from '../../account/specialist/specialist.entity';
@@ -12,6 +14,8 @@ import { AppUtilities } from '../../app.utilities';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
 import { MailerService } from '../../common/mailer/mailer.service';
+import { ChatService } from '../../comms/chat/chat.service';
+import { MeetService } from '../../comms/meet/meet.service';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
@@ -32,14 +36,16 @@ export class SessionService extends BaseService {
     private specialistRepository: Repository<Specialist>,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private chatService: ChatService,
+    private meetService: MeetService,
   ) {
     super();
   }
 
   async getSessions(
     { limit, page, searchText }: SearchSessionDto,
-    account: Account
+    account: Account,
   ) {
     const qb = this.sessionRepository
       .createQueryBuilder('session')
@@ -49,13 +55,15 @@ export class SessionService extends BaseService {
       .leftJoinAndSelect('session.createdBy', 'createdBy')
       .leftJoinAndSelect('session.reportTemplate', 'reportTemplate')
       .where(
-        `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${searchText && " session.name ILIKE :name " || ':name = :name'}`,
+        `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${
+          (searchText && ' session.name ILIKE :name ') || ':name = :name'
+        }`,
       )
       .setParameters({
         accountId: account.id,
         name: `%${searchText}%`,
       });
-    
+
     return this.paginate(qb, { limit, page });
   }
 
@@ -78,48 +86,50 @@ export class SessionService extends BaseService {
         'reportTemplate',
       ],
     });
-    if (!session || (
-        !this.isCollaborator(session.collaborators, account) &&
+    if (
+      !session ||
+      (!this.isCollaborator(session.collaborators, account) &&
         session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id
-    )) {
+        session.patient?.accountId !== account.id)
+    ) {
       throw new NotFoundException('Session not found!');
     }
 
     return session;
   }
-  
+
   async inviteCollaborator(
     sessionId: number,
     item: InviteCollaboratorDto,
-    account: Account
+    account: Account,
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['collaborators', 'patient'],
     });
-    if (!session || (
-      !this.isCollaborator(session.collaborators, account) &&
-      session.creatorId !== account.id &&
-      session.patient?.accountId !== account.id
-    )) {
+    if (
+      !session ||
+      (!this.isCollaborator(session.collaborators, account) &&
+        session.creatorId !== account.id &&
+        session.patient?.accountId !== account.id)
+    ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
     const inviteHash = this.appUtilities.generateShortCode();
     await this.cacheService.set(
       inviteHash,
       { ...item, invitedBy: account.id, sessionId },
-      2 * 60 * 60 // 2 hrs
+      2 * 60 * 60, // 2 hrs
     );
     console.log({ inviteHash, sessionId });
     // send email
     this.mailService.sendInviteCollaboratorEmail(
       item.email,
       inviteHash,
-      sessionId
+      sessionId,
     );
   }
-  
+
   async acceptSessionCollaboration(inviteHash: string, account: Account) {
     const data = await this.verifyCollaborationInviteToken(inviteHash, account);
 
@@ -131,14 +141,14 @@ export class SessionService extends BaseService {
 
     await this.cacheService.remove(inviteHash);
   }
-  
+
   async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
     const data = await this.cacheService.get(inviteHash);
     if (!data) {
       throw new UnauthorizedException('Invalid/Expired invite token!');
     } else if (account.email !== data.email || !account.specialist) {
       throw new UnauthorizedException(
-        'Unauthorized account to accept this invitation!'
+        'Unauthorized account to accept this invitation!',
       );
     }
 
@@ -148,17 +158,18 @@ export class SessionService extends BaseService {
   async addNote(
     sessionId: number,
     item: CreateSessionNoteDto,
-    account: Account
+    account: Account,
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
-      relations: ['collaborators', 'patient']
+      relations: ['collaborators', 'patient'],
     });
-    if (!session || (
-      !this.isCollaborator(session.collaborators, account) &&
-      session.creatorId !== account.id &&
-      session.patient?.accountId !== account.id
-    )) {
+    if (
+      !session ||
+      (!this.isCollaborator(session.collaborators, account) &&
+        session.creatorId !== account.id &&
+        session.patient?.accountId !== account.id)
+    ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
 
@@ -172,11 +183,11 @@ export class SessionService extends BaseService {
   async updateNote(
     noteId: number,
     item: CreateSessionNoteDto,
-    account: Account
+    account: Account,
   ) {
     const sessionNote = await this.sessionNoteRepository.findOne({
       where: { id: noteId },
-      relations: ['session']
+      relations: ['session'],
     });
     if (!sessionNote || sessionNote.session.creatorId !== account.id) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
@@ -184,24 +195,25 @@ export class SessionService extends BaseService {
 
     return this.sessionNoteRepository.update(
       { id: noteId },
-      { body: item.body }
+      { body: item.body },
     );
   }
 
   async getSessionReports(
     id: number,
     { limit, page, searchText }: SearchSessionDto,
-    account: Account
+    account: Account,
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id },
       relations: ['collaborators', 'patient'],
     });
-    if (!session || (
-        !this.isCollaborator(session.collaborators, account) &&
+    if (
+      !session ||
+      (!this.isCollaborator(session.collaborators, account) &&
         session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id
-    )) {
+        session.patient?.accountId !== account.id)
+    ) {
       throw new NotFoundException('Session report not found!');
     }
 
@@ -226,32 +238,30 @@ export class SessionService extends BaseService {
         'specialist',
       ],
     });
-    if (!report || (
-        !this.isCollaborator(report.session.collaborators, account) &&
+    if (
+      !report ||
+      (!this.isCollaborator(report.session.collaborators, account) &&
         report.session.creatorId !== account.id &&
-        report.session.patient?.accountId !== account.id
-    )) {
+        report.session.patient?.accountId !== account.id)
+    ) {
       throw new NotFoundException('Session report not found!');
     }
 
     return report;
   }
 
-  async addSessionReport(
-    sessionId: number,
-    report: any,
-    account: Account
-  ) {
-    // find 
+  async addSessionReport(sessionId: number, report: any, account: Account) {
+    // find
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
-      relations: ['collaborators', 'patient']
+      relations: ['collaborators', 'patient'],
     });
-    if (!session || (
-      !this.isCollaborator(session.collaborators, account) &&
-      session.creatorId !== account.id &&
-      session.patient?.accountId !== account.id
-    )) {
+    if (
+      !session ||
+      (!this.isCollaborator(session.collaborators, account) &&
+        session.creatorId !== account.id &&
+        session.patient?.accountId !== account.id)
+    ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
 
@@ -260,19 +270,99 @@ export class SessionService extends BaseService {
     });
     if (!specialist) {
       throw new NotAcceptableException(
-        'Only a specialist is allowed to add a session report'
+        'Only a specialist is allowed to add a session report',
       );
     }
 
-    return this.sessionReportRepository
-      .createQueryBuilder()
-      .insert()
-      .values({
-        sessionId,
-        specialistId: specialist.id,
-        report,
-      })
-      // .orUpdate(['report'], ['specialistId', 'sessionId'])
-      .execute();
+    return (
+      this.sessionReportRepository
+        .createQueryBuilder()
+        .insert()
+        .values({
+          sessionId,
+          specialistId: specialist.id,
+          report,
+        })
+        // .orUpdate(['report'], ['specialistId', 'sessionId'])
+        .execute()
+    );
+  }
+
+  async getSessionChatRoom(sessionId: number, account: Account) {
+    const session = await this.validateSessionComm(sessionId);
+    const wsLink = await this.chatService.getWebSocketLink(
+      account.comms.aws_chime.identity,
+    );
+
+    return {
+      wsLink,
+      chatRoom: session.comms.aws_chime.chatChannelArn,
+    };
+  }
+
+  async getSessionChatMessages(
+    sessionId: number,
+    pagination: PaginationCursorOptionsDto,
+    account: Account,
+  ) {
+    const session = await this.validateSessionComm(sessionId);
+
+    return this.chatService
+      .setUserArn(account.comms.aws_chime.identity)
+      .getMessages(session.comms.aws_chime.chatChannelArn, pagination);
+  }
+
+  async sendSessionChatMessage(
+    sessionId: number,
+    message: string,
+    account: Account,
+  ) {
+    const session = await this.validateSessionComm(sessionId);
+
+    return this.chatService
+      .setUserArn(account.comms.aws_chime.identity)
+      .sendMessage(session.comms.aws_chime.chatChannelArn, message);
+  }
+
+  async joinSessionMeeting(sessionId: number, account: Account) {
+    const session = await this.validateSessionComm(sessionId);
+
+    return this.meetService
+      .setUserArn(account.comms.aws_chime.identity)
+      .joinMeeting(session.comms.aws_chime.meetChannelArn);
+  }
+
+  async leaveSessionMeeting(sessionId: number, account: Account) {
+    // end meeting if no other attendees
+    // unset session.comms.aws.meetingId
+    const session = await this.validateSessionComm(sessionId);
+
+    await this.meetService
+      .setUserArn(account.comms.aws_chime.identity)
+      .leaveMeeting(session.comms.aws_chime.meetChannelArn);
+
+    const remainingAttendees = await this.meetService.getAttendees(
+      session.comms.aws_chime.meetChannelArn,
+    );
+    if (!remainingAttendees.length) {
+      this.meetService.endMeeting(session.comms.aws_chime.meetChannelArn);
+      // @TODO update session.comms.*.meetingArn
+      // this.sessionRepository.update(sessionId, { comms:  })
+    }
+  }
+
+  private async validateSessionComm(sessionId: number) {
+    const session = await this.sessionRepository.findOne(sessionId);
+    if (
+      !session ||
+      !session.comms.aws_chime?.chatChannelArn ||
+      !session.comms.aws_chime?.meetChannelArn
+    ) {
+      throw new ServiceUnavailableException(
+        'Session comms configuration not setup!',
+      );
+    }
+
+    return session;
   }
 }
