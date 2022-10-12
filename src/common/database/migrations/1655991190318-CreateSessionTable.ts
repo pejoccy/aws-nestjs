@@ -19,6 +19,10 @@ export class CreateSessionTable1655991190318 implements MigrationInterface {
             isGenerated: true,
           },
           {
+            name: 'alias',
+            type: 'varchar',
+          },
+          {
             name: 'name',
             type: 'varchar',
           },

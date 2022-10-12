@@ -168,7 +168,7 @@ export class BaseService {
       };
 
       query.where = Array.isArray(searchOptions.where)
-        ? searchOptions.where.map(composeWhereOptions)
+        ? [...searchOptions.where].map(composeWhereOptions)
         : composeWhereOptions(searchOptions.where || {});
     }
 

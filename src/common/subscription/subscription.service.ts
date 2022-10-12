@@ -98,10 +98,10 @@ export class SubscriptionService {
       .execute());
 
     // update user entity
-    await this.accountRepository.update(
-      { id: account.id },
-      { subscriptionId: subscription.id },
-    );
+    // await this.accountRepository.update(
+    //   { id: account.id },
+    //   { subscriptionId: subscription.id },
+    // );
 
     return subscription;
   }

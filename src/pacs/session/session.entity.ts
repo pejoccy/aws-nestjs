@@ -34,6 +34,9 @@ export class Session extends BaseEntity {
   id: number;
 
   @Column()
+  alias: string;
+
+  @Column()
   name: string;
 
   @Column()

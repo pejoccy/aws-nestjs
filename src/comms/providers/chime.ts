@@ -36,7 +36,7 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
       ClientRequestToken: v4(),
     };
 
-    return this.chimeIdentity.createAppInstanceUser(params);
+    return this.chimeIdentity.createAppInstanceUser(params).promise();
   }
 
   async startMeeting(ref: string, attendees?: string[]): Promise<any> {
@@ -125,6 +125,19 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     };
 
     return this.chimeMessaging.createChannel(params).promise();
+  }
+
+  async joinChat(userArn: string, channelArn: string): Promise<any> {
+    const aws = this.config.get('awsChime');
+
+    const params: ChimeSDKMessaging.CreateChannelMembershipRequest = {
+      ChimeBearer: aws.appInstanceAdminArn,
+      ChannelArn: channelArn,
+      MemberArn: userArn,
+      Type: 'DEFAULT',
+    };
+
+    return this.chimeMessaging.createChannelMembership(params).promise();
   }
 
   async getChats(

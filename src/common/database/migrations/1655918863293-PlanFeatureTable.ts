@@ -16,9 +16,9 @@ const planFeatureSeedData = planSeedData.reduce(
   (acc, { features, id: planId }) => {
     for (const [accountType, feature] of Object.entries(features)) {
       for (const [slug, limit] of Object.entries(feature)) {
-        console.log(featureSeedData, { [slug]: limit });
+        // console.log(featureSeedData, { [slug]: limit });
         const featureId = featureSeedData.find((feat) => feat.slug === slug);
-        console.log({ featureId });
+        // console.log({ featureId });
         acc.push({
           planId,
           featureId: featureId.id,

@@ -21,10 +21,12 @@ import {
   CachedAuthData,
   PG_DB_ERROR_CODES,
   AccountTypes,
+  CommsProviders,
 } from '../common/interfaces';
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
 import { SubscriptionService } from '../common/subscription/subscription.service';
+import { ChimeCommsProvider } from '../comms/providers/chime';
 import { AuthOtpDto } from './dto/auth-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -46,6 +48,7 @@ export class AuthService extends BaseService {
     private businessService: BusinessService,
     private specialistService: SpecialistService,
     private patientService: PatientService,
+    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
@@ -112,7 +115,7 @@ export class AuthService extends BaseService {
         ...account.specialist,
         ...account.businessContact,
         isVerified: account.isVerified,
-        subscription: account.subscription,
+        // subscription: account.subscription,
       },
     };
   }
@@ -179,7 +182,7 @@ export class AuthService extends BaseService {
         isVerified: true,
       });
       // setup default subscription
-      await this.subscriptionService.setupDefaultSubscription(account);
+      // await this.subscriptionService.setupDefaultSubscription(account);
       if (userType === AccountTypes.BUSINESS && !!business) {
         business = await this.businessService.setup(business, {
           ...userDto,
@@ -201,6 +204,19 @@ export class AuthService extends BaseService {
       } else {
         throw new NotAcceptableException('Invalid user type and data!');
       }
+      // setup Account Comms
+      const identity = await this.commsProvider.createIdentity(
+        String(account.id),
+        account.email,
+      );
+      this.accountRepository.update(account.id, {
+        comms: () =>
+          `'${JSON.stringify({
+            [CommsProviders.AWS_CHIME]: {
+              identity: identity.AppInstanceUserArn,
+            },
+          })}'`,
+      });
 
       // clean up
       delete account.password;

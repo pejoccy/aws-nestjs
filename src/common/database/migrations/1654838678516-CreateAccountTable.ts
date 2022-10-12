@@ -14,6 +14,10 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
             isGenerated: true,
           },
           {
+            name: 'alias',
+            type: 'varchar',
+          },
+          {
             name: 'email',
             type: 'varchar',
           },

@@ -14,7 +14,7 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import { ShareOptions } from '../common/interfaces';
+import { CommsProviders, ShareOptions } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { File } from './file/file.entity';
@@ -24,6 +24,8 @@ import { UploadFileJobAttribs } from './queues/interfaces';
 import { FileQueueProducer } from './queues/producer';
 import { S3Service } from './s3.service';
 import { ReportTemplate } from './report-template/report-template.entity';
+import { ChimeCommsProvider } from 'src/comms/providers/chime';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class PacsService extends BaseService {
@@ -37,6 +39,7 @@ export class PacsService extends BaseService {
     private fileQueue: FileQueueProducer,
     private s3Service: S3Service,
     private appUtilities: AppUtilities,
+    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
@@ -82,13 +85,25 @@ export class PacsService extends BaseService {
     const template = await this.reportTemplateRepository.findOne({
       modality: item.modality,
     });
+    const alias = v4();
+    // create meet and chat channels
+    const { chatChannelArn, meetChannelArn } =
+      await this.setupSessionCommsChannels(account, alias);
+
     const session = await this.sessionRepository.save({
+      account,
+      alias,
       name: sessionName,
       modality: item.modality,
       studyDate: item.studyDate,
       studyInfo: item.studyInfo,
       patientId: item.patientId,
-      account,
+      comms: {
+        [CommsProviders.AWS_CHIME]: {
+          chatChannelArn,
+          meetChannelArn,
+        },
+      },
       createdBy: account,
       reportTemplateId: template.id,
     });
@@ -127,12 +142,22 @@ export class PacsService extends BaseService {
     const template = await this.reportTemplateRepository.findOne({
       modality: item.modality,
     });
+    const alias = v4();
+    const { chatChannelArn, meetChannelArn } =
+      await this.setupSessionCommsChannels(account, alias);
     const session = await this.sessionRepository.save({
       name: item.name,
+      alias,
       modality: item.modality,
       studyDate: item.studyDate,
       studyInfo: item.studyInfo,
       patientId: item.patientId,
+      comms: {
+        [CommsProviders.AWS_CHIME]: {
+          chatChannelArn,
+          meetChannelArn,
+        },
+      },
       account,
       createdBy: account,
       reportTemplateId: template.id,
@@ -219,5 +244,16 @@ export class PacsService extends BaseService {
         unlink(file.previewUrl, (error) => error && console.error(error));
       }
     });
+  }
+
+  private async setupSessionCommsChannels(account: Account, name: string) {
+    const userArn = account.comms.aws_chime.identity;
+    const meetChannel = await this.commsProvider.startMeeting(name, [userArn]);
+    const chatChannel = await this.commsProvider.startChat(userArn, [], name);
+
+    return {
+      chatChannelArn: chatChannel.ChannelArn,
+      meetChannelArn: meetChannel.Meeting.MeetingId,
+    };
   }
 }

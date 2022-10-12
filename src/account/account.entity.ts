@@ -32,6 +32,9 @@ export class Account {
   @Column({ unique: true })
   email: string;
 
+  @Column({ unique: true })
+  alias: string;
+
   @Column({ nullable: true, select: true })
   password?: string;
 
@@ -54,9 +57,6 @@ export class Account {
   @JoinColumn()
   profilePhoto?: File;
 
-  @Column()
-  subscriptionId?: number;
-
   @Column({ type: 'jsonb' })
   comms: AccountCommsOptions;
 
@@ -70,9 +70,9 @@ export class Account {
   @OneToOne(() => Patient, (patient) => patient.account)
   patient: Patient;
 
-  @OneToOne(() => Subscription, (subscription) => subscription.account)
-  @JoinColumn()
-  subscription?: Subscription;
+  // @OneToOne(() => Subscription, (subscription) => subscription.account)
+  // @JoinColumn()
+  // subscription?: Subscription;
 
   @OneToOne(() => Specialist, (specialist) => specialist.account)
   specialist?: Specialist;

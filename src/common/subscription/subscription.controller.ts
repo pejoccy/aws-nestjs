@@ -24,6 +24,6 @@ export class SubscriptionController {
 
   @Get('/info')
   async getSubscription(@GetAccount() account: Account) {
-    return account.subscription;
+    return account;
   }
 }
