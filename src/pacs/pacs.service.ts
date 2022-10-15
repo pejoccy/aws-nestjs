@@ -87,7 +87,7 @@ export class PacsService extends BaseService {
     });
     const alias = v4();
     // create meet and chat channels
-    const { chatChannelArn, meetChannelArn } =
+    const { chatChannelArn, meetChannel } =
       await this.setupSessionCommsChannels(account, alias);
 
     const session = await this.sessionRepository.save({
@@ -101,7 +101,7 @@ export class PacsService extends BaseService {
       comms: {
         [CommsProviders.AWS_CHIME]: {
           chatChannelArn,
-          meetChannelArn,
+          meetChannel,
         },
       },
       createdBy: account,
@@ -143,7 +143,7 @@ export class PacsService extends BaseService {
       modality: item.modality,
     });
     const alias = v4();
-    const { chatChannelArn, meetChannelArn } =
+    const { chatChannelArn, meetChannel } =
       await this.setupSessionCommsChannels(account, alias);
     const session = await this.sessionRepository.save({
       name: item.name,
@@ -155,7 +155,7 @@ export class PacsService extends BaseService {
       comms: {
         [CommsProviders.AWS_CHIME]: {
           chatChannelArn,
-          meetChannelArn,
+          meetChannel,
         },
       },
       account,
@@ -248,12 +248,14 @@ export class PacsService extends BaseService {
 
   private async setupSessionCommsChannels(account: Account, name: string) {
     const userArn = account.comms.aws_chime.identity;
-    const meetChannel = await this.commsProvider.startMeeting(name, [userArn]);
-    const chatChannel = await this.commsProvider.startChat(userArn, [], name);
+    const [meetChannel, chatChannel] = await Promise.all([
+      this.commsProvider.startMeeting(name),
+      this.commsProvider.startChat([userArn], name),
+    ]);
 
     return {
       chatChannelArn: chatChannel.ChannelArn,
-      meetChannelArn: meetChannel.Meeting.MeetingId,
+      meetChannel: meetChannel.Meeting,
     };
   }
 }

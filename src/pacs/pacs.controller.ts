@@ -23,6 +23,7 @@ import { FeatureSlugs, imageFileFilter } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { PacsService } from './pacs.service';
+import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('Pacs')
@@ -41,6 +42,7 @@ export class PacsController {
   }
 
   @ApiConsumes('multipart/form-data')
+  @ApiResponseMeta({ message: 'Session files uploaded successfully!' })
   @Post('/uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION)
   @UseInterceptors(
@@ -57,10 +59,11 @@ export class PacsController {
     @GetAccount() account: Account,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.pacsService.upload({ ...item, file }, account);
+    await this.pacsService.upload({ ...item, file }, account);
   }
 
   @ApiConsumes('multipart/form-data')
+  @ApiResponseMeta({ message: 'Session files uploaded successfully!' })
   @Post('/bulk-uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION_FILES)
   @UseInterceptors(
@@ -77,6 +80,6 @@ export class PacsController {
     @GetAccount() account: Account,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.pacsService.uploadBulk({ ...item, files }, account);
+    await this.pacsService.uploadBulk({ ...item, files }, account);
   }
 }

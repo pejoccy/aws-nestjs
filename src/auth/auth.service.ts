@@ -32,6 +32,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { InitAccountDto } from './dto/init-account.dto';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -84,9 +85,9 @@ export class AuthService extends BaseService {
         'patient',
         'specialist',
         'specialist.specialization',
-        'subscription',
-        'subscription.plan',
-        'subscription.plan.permissions',
+        // 'subscription',
+        // 'subscription.plan',
+        // 'subscription.plan.permissions',
       ],
     });
     const passwordMatches =
@@ -175,11 +176,20 @@ export class AuthService extends BaseService {
       const password = await this.hashPassword(initData.data?.password);
       const { email, userType: userRole, ...userDto } = initData.data || {};
 
+      const alias = v4();
+      // setup Account Comms
+      const identity = await this.commsProvider.createIdentity(alias, email);
       const account = await this.accountRepository.save({
         email,
+        alias,
         password,
         role: userRole,
         isVerified: true,
+        comms: {
+          [CommsProviders.AWS_CHIME]: {
+            identity: identity.AppInstanceUserArn,
+          },
+        },
       });
       // setup default subscription
       // await this.subscriptionService.setupDefaultSubscription(account);
@@ -204,19 +214,6 @@ export class AuthService extends BaseService {
       } else {
         throw new NotAcceptableException('Invalid user type and data!');
       }
-      // setup Account Comms
-      const identity = await this.commsProvider.createIdentity(
-        String(account.id),
-        account.email,
-      );
-      this.accountRepository.update(account.id, {
-        comms: () =>
-          `'${JSON.stringify({
-            [CommsProviders.AWS_CHIME]: {
-              identity: identity.AppInstanceUserArn,
-            },
-          })}'`,
-      });
 
       // clean up
       delete account.password;

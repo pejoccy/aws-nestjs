@@ -18,10 +18,9 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   private chimeIdentity: ChimeSDKIdentity;
   private chimeMessaging: ChimeSDKMessaging;
   private chimeMeeting: Chime;
-  protected _userArn: string;
 
   constructor(private config: ConfigService) {
-    // @TODO bootstrap and set sessionArn
+    this.initIdentitySdk();
     this.setupCredentials();
     this.initMessagingSdk();
     this.initMeetingSdk();
@@ -75,8 +74,8 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   ): Promise<any> {
     const params: Chime.ListAttendeesRequest = {
       MeetingId: meetingId,
-      NextToken: pagination.nextToken,
-      MaxResults: pagination.limit,
+      NextToken: pagination?.nextToken,
+      MaxResults: pagination?.limit,
     };
 
     return this.chimeMeeting.listAttendees(params).promise();
@@ -109,31 +108,33 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     return this.chimeMeeting.deleteAttendee(params).promise();
   }
 
-  async startChat(
-    userArn: string,
-    inviteesArn: string[],
-    name: string,
-  ): Promise<any> {
+  async startChat(inviteesArns: string[], name: string): Promise<any> {
     const aws = this.config.get('awsChime');
 
     const params: ChimeSDKMessaging.CreateChannelRequest = {
       AppInstanceArn: aws.appInstanceArn,
       ChimeBearer: aws.appInstanceAdminArn,
       Name: name,
-      MemberArns: [userArn, ...inviteesArn],
       ClientRequestToken: v4(),
     };
 
-    return this.chimeMessaging.createChannel(params).promise();
+    const channel = await this.chimeMessaging.createChannel(params).promise();
+    await Promise.all(
+      inviteesArns.map((inviteeArn) =>
+        this.joinChat(inviteeArn, channel.ChannelArn),
+      ),
+    );
+
+    return channel;
   }
 
-  async joinChat(userArn: string, channelArn: string): Promise<any> {
+  async joinChat(userId: string, channelArn: string): Promise<any> {
     const aws = this.config.get('awsChime');
 
     const params: ChimeSDKMessaging.CreateChannelMembershipRequest = {
       ChimeBearer: aws.appInstanceAdminArn,
       ChannelArn: channelArn,
-      MemberArn: userArn,
+      MemberArn: userId,
       Type: 'DEFAULT',
     };
 
@@ -150,8 +151,8 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
       {
         ChimeBearer: aws.appInstanceAdminArn,
         AppInstanceUserArn: userArn,
-        MaxResults: pagination.limit,
-        NextToken: pagination.nextToken,
+        MaxResults: pagination?.limit,
+        NextToken: pagination?.nextToken,
       };
 
     return this.chimeMessaging
@@ -184,9 +185,11 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
     const params: ChimeSDKMessaging.ListChannelMessagesRequest = {
       ChannelArn: chatArn,
       ChimeBearer: userArn,
-      MaxResults: pagination.limit,
-      NextToken: pagination.nextToken,
-      NotAfter: pagination.notAfter,
+      MaxResults: pagination?.limit,
+      NextToken: pagination?.nextToken,
+      NotAfter: pagination?.notAfter,
+      NotBefore: pagination?.notBefore,
+      SortOrder: pagination?.sortOrder,
     };
 
     return this.chimeMessaging.listChannelMessages(params).promise();
@@ -303,6 +306,14 @@ export class ChimeCommsProvider implements ChatServer, MeetingServer {
   private initMessagingSdk() {
     const aws = this.config.get('awsChime');
     this.chimeMessaging = new ChimeSDKMessaging({
+      credentials: aws.config,
+      region: aws.region,
+    });
+  }
+
+  private initIdentitySdk() {
+    const aws = this.config.get('awsChime');
+    this.chimeIdentity = new ChimeSDKIdentity({
       credentials: aws.config,
       region: aws.region,
     });

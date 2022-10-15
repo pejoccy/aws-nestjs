@@ -5,11 +5,16 @@ export enum ActivityType {
   LEFT = 'left',
 }
 
-export abstract class CommsBase {
-  protected userArn: string;
+export type IUser = {
+  arn: string;
+  alias: string;
+};
 
-  setUserArn(userArn: string) {
-    this.userArn = userArn;
+export abstract class CommsBase {
+  protected user: IUser;
+
+  setUser(user: IUser) {
+    this.user = user;
     return this;
   }
 }
@@ -19,7 +24,7 @@ export interface ChatServer {
     userArn: string,
     pagination: PaginationCursorOptionsDto,
   ): Promise<any>;
-  startChat(userArn: string, inviteesArn: string[], name: string): Promise<any>;
+  startChat(inviteesArn: string[], name: string): Promise<any>;
   findChat?(name: string): Promise<any>;
   archiveChat?(chatArn: string): Promise<any>;
   deleteChat?(chatArn: string): Promise<any>;
