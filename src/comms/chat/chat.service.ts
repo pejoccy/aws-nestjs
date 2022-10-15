@@ -12,15 +12,15 @@ export class ChatService extends CommsBase {
   }
 
   async getMessages(chatArn: string, pagination: PaginationCursorOptionsDto) {
-    return this.chatServer.getMessages(this.userArn, chatArn, pagination);
+    return this.chatServer.getMessages(this.user.arn, chatArn, pagination);
   }
 
   async sendMessage(chatArn: string, message: string) {
-    return this.chatServer.sendMessage(this.userArn, chatArn, message);
+    return this.chatServer.sendMessage(this.user.arn, chatArn, message);
   }
 
   async getChats(pagination: PaginationCursorOptionsDto) {
-    return this.chatServer.getChats(this.userArn, pagination);
+    return this.chatServer.getChats(this.user.arn, pagination);
   }
 
   async getChat(chatArn: string) {

@@ -13,6 +13,7 @@ import { BaseEntity } from '../../common/base/_entity';
 import {
   CommsProviders,
   FileModality,
+  IChimeMeeting,
   ShareOptions,
 } from '../../common/interfaces';
 import { File } from '../file/file.entity';
@@ -24,7 +25,7 @@ import { SessionReport } from './session-report/session-report.entity';
 export interface SessionComms {
   [CommsProviders.AWS_CHIME]: {
     chatChannelArn: string;
-    meetChannelArn: string;
+    meetChannel: IChimeMeeting;
   };
 }
 

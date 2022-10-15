@@ -144,3 +144,19 @@ export enum BusinessCategories {
 export enum CommsProviders {
   AWS_CHIME = 'aws_chime',
 }
+
+export type IChimeMeeting = {
+  MeetingId: string;
+  MediaRegion: string;
+  MediaPlacement: {
+    AudioHostUrl: string;
+    SignalingUrl: string;
+    ScreenDataUrl: string;
+    TurnControlUrl: string;
+    AudioFallbackUrl: string;
+    ScreenSharingUrl: string;
+    ScreenViewingUrl: string;
+    EventIngestionUrl: string;
+  };
+  ExternalMeetingId: string;
+};

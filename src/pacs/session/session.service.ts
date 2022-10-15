@@ -308,7 +308,7 @@ export class SessionService extends BaseService {
     const session = await this.validateSessionComm(sessionId);
 
     return this.chatService
-      .setUserArn(account.comms.aws_chime.identity)
+      .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
       .getMessages(session.comms.aws_chime.chatChannelArn, pagination);
   }
 
@@ -320,16 +320,21 @@ export class SessionService extends BaseService {
     const session = await this.validateSessionComm(sessionId);
 
     return this.chatService
-      .setUserArn(account.comms.aws_chime.identity)
+      .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
       .sendMessage(session.comms.aws_chime.chatChannelArn, message);
   }
 
   async joinSessionMeeting(sessionId: number, account: Account) {
     const session = await this.validateSessionComm(sessionId);
 
-    return this.meetService
-      .setUserArn(account.comms.aws_chime.identity)
-      .joinMeeting(session.comms.aws_chime.meetChannelArn);
+    const attendee = await this.meetService
+      .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
+      .joinMeeting(session.comms.aws_chime.meetChannel.MeetingId);
+
+    return {
+      ...attendee,
+      Meeting: session.comms.aws_chime.meetChannel,
+    };
   }
 
   async leaveSessionMeeting(sessionId: number, account: Account) {
@@ -338,14 +343,15 @@ export class SessionService extends BaseService {
     const session = await this.validateSessionComm(sessionId);
 
     await this.meetService
-      .setUserArn(account.comms.aws_chime.identity)
-      .leaveMeeting(session.comms.aws_chime.meetChannelArn);
+      .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
+      .leaveMeeting(session.comms.aws_chime.meetChannel.MeetingId);
 
     const remainingAttendees = await this.meetService.getAttendees(
-      session.comms.aws_chime.meetChannelArn,
+      session.comms.aws_chime.meetChannel.MeetingId,
     );
     if (!remainingAttendees.length) {
-      this.meetService.endMeeting(session.comms.aws_chime.meetChannelArn);
+      // @TODO delete the meeting when session has been concluded
+      // this.meetService.endMeeting(session.comms.aws_chime.meetChannelArn);
       // @TODO update session.comms.*.meetingArn
       // this.sessionRepository.update(sessionId, { comms:  })
     }
@@ -356,7 +362,7 @@ export class SessionService extends BaseService {
     if (
       !session ||
       !session.comms.aws_chime?.chatChannelArn ||
-      !session.comms.aws_chime?.meetChannelArn
+      !session.comms.aws_chime?.meetChannel
     ) {
       throw new ServiceUnavailableException(
         'Session comms configuration not setup!',
