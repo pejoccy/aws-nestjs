@@ -6,16 +6,18 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginationCursorOptionsDto } from 'src/common/dto';
+import { CommsProviders } from 'src/common/interfaces';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Specialist } from '../../account/specialist/specialist.entity';
 import { AppUtilities } from '../../app.utilities';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
+import { PaginationCursorOptionsDto } from '../../common/dto';
 import { MailerService } from '../../common/mailer/mailer.service';
 import { ChatService } from '../../comms/chat/chat.service';
 import { MeetService } from '../../comms/meet/meet.service';
+import { ChimeCommsProvider } from '../../comms/providers/chime';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
@@ -39,6 +41,7 @@ export class SessionService extends BaseService {
     private cacheService: CacheService,
     private chatService: ChatService,
     private meetService: MeetService,
+    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
@@ -326,14 +329,60 @@ export class SessionService extends BaseService {
 
   async joinSessionMeeting(sessionId: number, account: Account) {
     const session = await this.validateSessionComm(sessionId);
+    const joinMeeting = async () => {
+      const attendee = await this.meetService
+        .setUser({
+          arn: account.comms.aws_chime.identity,
+          alias: account.alias,
+        })
+        .joinMeeting(session.comms.aws_chime.meetChannel.MeetingId);
 
-    const attendee = await this.meetService
-      .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
-      .joinMeeting(session.comms.aws_chime.meetChannel.MeetingId);
+      return {
+        ...attendee,
+        Meeting: session.comms.aws_chime.meetChannel,
+      };
+    };
+
+    try {
+      return await joinMeeting();
+    } catch (error) {
+      if (error.name === 'NotFound') {
+        const { meetChannel } = await this.setupSessionCommsChannels(
+          account,
+          session.alias,
+        );
+        console.log({ meetChannel });
+        await this.sessionRepository.update(session.id, {
+          comms: {
+            [CommsProviders.AWS_CHIME]: {
+              ...session.comms?.[CommsProviders.AWS_CHIME],
+              meetChannel,
+            },
+          },
+        });
+        session.comms[CommsProviders.AWS_CHIME] = {
+          ...session.comms?.[CommsProviders.AWS_CHIME],
+          meetChannel,
+        };
+
+        return joinMeeting();
+      }
+      throw new ServiceUnavailableException(
+        'Oooops! Something went wrong, we cannot connect you.',
+      );
+    }
+  }
+
+  public async setupSessionCommsChannels(account: Account, name: string) {
+    const userArn = account.comms.aws_chime.identity;
+    const [meetChannel, chatChannel] = await Promise.all([
+      this.commsProvider.startMeeting(name),
+      this.commsProvider.startChat([userArn], name),
+    ]);
 
     return {
-      ...attendee,
-      Meeting: session.comms.aws_chime.meetChannel,
+      chatChannelArn: chatChannel.ChannelArn,
+      meetChannel: meetChannel.Meeting,
     };
   }
 

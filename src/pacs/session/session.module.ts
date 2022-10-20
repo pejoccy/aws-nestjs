@@ -15,6 +15,6 @@ import { SessionService } from './session.service';
     CommsModule,
     TypeOrmModule.forFeature([Session, SessionNote, SessionReport, Specialist]),
   ],
-  exports: [TypeOrmModule],
+  exports: [SessionService, TypeOrmModule],
 })
 export class SessionModule {}

@@ -10,6 +10,7 @@ import { Response } from 'express';
 import { readFileSync, unlink } from 'fs';
 import mime from 'mime-types';
 import moment from 'moment';
+import { v4 } from 'uuid';
 import { In, IsNull, Not, Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { AppUtilities } from '../app.utilities';
@@ -19,13 +20,12 @@ import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { File } from './file/file.entity';
 import { FileStorageProviders, FileStatus } from './file/interface';
-import { Session } from './session/session.entity';
 import { UploadFileJobAttribs } from './queues/interfaces';
 import { FileQueueProducer } from './queues/producer';
-import { S3Service } from './s3.service';
 import { ReportTemplate } from './report-template/report-template.entity';
-import { ChimeCommsProvider } from 'src/comms/providers/chime';
-import { v4 } from 'uuid';
+import { S3Service } from './s3.service';
+import { Session } from './session/session.entity';
+import { SessionService } from './session/session.service';
 
 @Injectable()
 export class PacsService extends BaseService {
@@ -38,8 +38,8 @@ export class PacsService extends BaseService {
     private reportTemplateRepository: Repository<ReportTemplate>,
     private fileQueue: FileQueueProducer,
     private s3Service: S3Service,
+    private sessionService: SessionService,
     private appUtilities: AppUtilities,
-    private commsProvider: ChimeCommsProvider,
   ) {
     super();
   }
@@ -88,7 +88,7 @@ export class PacsService extends BaseService {
     const alias = v4();
     // create meet and chat channels
     const { chatChannelArn, meetChannel } =
-      await this.setupSessionCommsChannels(account, alias);
+      await this.sessionService.setupSessionCommsChannels(account, alias);
 
     const session = await this.sessionRepository.save({
       account,
@@ -144,7 +144,7 @@ export class PacsService extends BaseService {
     });
     const alias = v4();
     const { chatChannelArn, meetChannel } =
-      await this.setupSessionCommsChannels(account, alias);
+      await this.sessionService.setupSessionCommsChannels(account, alias);
     const session = await this.sessionRepository.save({
       name: item.name,
       alias,
@@ -244,18 +244,5 @@ export class PacsService extends BaseService {
         unlink(file.previewUrl, (error) => error && console.error(error));
       }
     });
-  }
-
-  private async setupSessionCommsChannels(account: Account, name: string) {
-    const userArn = account.comms.aws_chime.identity;
-    const [meetChannel, chatChannel] = await Promise.all([
-      this.commsProvider.startMeeting(name),
-      this.commsProvider.startChat([userArn], name),
-    ]);
-
-    return {
-      chatChannelArn: chatChannel.ChannelArn,
-      meetChannel: meetChannel.Meeting,
-    };
   }
 }

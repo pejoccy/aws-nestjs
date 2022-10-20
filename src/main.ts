@@ -19,7 +19,6 @@ const initSwagger = (app: INestApplication, serverUrl: string) => {
     .setVersion('1.0')
     .addServer(serverUrl)
     .addBearerAuth()
-    .addBasicAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
