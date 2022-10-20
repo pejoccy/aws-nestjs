@@ -143,6 +143,7 @@ export class SessionService extends BaseService {
       .addAndRemove(account.id, account.id);
 
     await this.cacheService.remove(inviteHash);
+    // @TODO add collaborator to session comms
   }
 
   async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
