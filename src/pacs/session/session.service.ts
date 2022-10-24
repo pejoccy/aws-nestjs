@@ -143,7 +143,7 @@ export class SessionService extends BaseService {
       .addAndRemove(account.id, account.id);
 
     await this.cacheService.remove(inviteHash);
-    const session = await this.sessionRepository.findOne(data.sessionId);
+    const session = await this.validateSessionComm(data.sessionId, account);
     // create chat membership
     await this.commsProvider.joinChat(
       account.comms.aws_chime.identity,
