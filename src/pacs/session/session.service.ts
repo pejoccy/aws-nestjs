@@ -124,7 +124,7 @@ export class SessionService extends BaseService {
       { ...item, invitedBy: account.id, sessionId },
       2 * 60 * 60, // 2 hrs
     );
-    console.log({ inviteHash, sessionId });
+
     // send email
     this.mailService.sendInviteCollaboratorEmail(
       item.email,
@@ -143,7 +143,12 @@ export class SessionService extends BaseService {
       .addAndRemove(account.id, account.id);
 
     await this.cacheService.remove(inviteHash);
-    // @TODO add collaborator to session comms
+    const session = await this.sessionRepository.findOne(data.sessionId);
+    // create chat membership
+    await this.commsProvider.joinChat(
+      account.comms.aws_chime.identity,
+      session.comms.aws_chime.chatChannelArn,
+    );
   }
 
   async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
@@ -293,7 +298,7 @@ export class SessionService extends BaseService {
   }
 
   async getSessionChatRoom(sessionId: number, account: Account) {
-    const session = await this.validateSessionComm(sessionId);
+    const session = await this.validateSessionComm(sessionId, account);
     const wsLink = await this.chatService.getWebSocketLink(
       account.comms.aws_chime.identity,
     );
@@ -309,7 +314,7 @@ export class SessionService extends BaseService {
     pagination: PaginationCursorOptionsDto,
     account: Account,
   ) {
-    const session = await this.validateSessionComm(sessionId);
+    const session = await this.validateSessionComm(sessionId, account);
 
     return this.chatService
       .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
@@ -321,7 +326,7 @@ export class SessionService extends BaseService {
     message: string,
     account: Account,
   ) {
-    const session = await this.validateSessionComm(sessionId);
+    const session = await this.validateSessionComm(sessionId, account);
 
     return this.chatService
       .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
@@ -329,7 +334,7 @@ export class SessionService extends BaseService {
   }
 
   async joinSessionMeeting(sessionId: number, account: Account) {
-    const session = await this.validateSessionComm(sessionId);
+    const session = await this.validateSessionComm(sessionId, account);
     const joinMeeting = async () => {
       const attendee = await this.meetService
         .setUser({
@@ -352,7 +357,7 @@ export class SessionService extends BaseService {
           account,
           session.alias,
         );
-        console.log({ meetChannel });
+
         await this.sessionRepository.update(session.id, {
           comms: {
             [CommsProviders.AWS_CHIME]: {
@@ -390,7 +395,7 @@ export class SessionService extends BaseService {
   async leaveSessionMeeting(sessionId: number, account: Account) {
     // end meeting if no other attendees
     // unset session.comms.aws.meetingId
-    const session = await this.validateSessionComm(sessionId);
+    const session = await this.validateSessionComm(sessionId, account);
 
     await this.meetService
       .setUser({ arn: account.comms.aws_chime.identity, alias: account.alias })
@@ -407,8 +412,11 @@ export class SessionService extends BaseService {
     }
   }
 
-  private async validateSessionComm(sessionId: number) {
-    const session = await this.sessionRepository.findOne(sessionId);
+  private async validateSessionComm(sessionId: number, account: Account) {
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+      relations: ['collaborators', 'patient'],
+    });
     if (
       !session ||
       !session.comms.aws_chime?.chatChannelArn ||
@@ -417,6 +425,12 @@ export class SessionService extends BaseService {
       throw new ServiceUnavailableException(
         'Session comms configuration not setup!',
       );
+    } else if (
+      !this.isCollaborator(session.collaborators, account) &&
+      session.creatorId !== account.id &&
+      session.patient?.accountId !== account.id
+    ) {
+      throw new NotAcceptableException('Session access denied!');
     }
 
     return session;

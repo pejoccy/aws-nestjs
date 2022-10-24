@@ -1,4 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import { Specialization } from '../../specialization/specialization.entity';
+import { specializationSeedData } from '../seeders/specialization';
 
 export class CreateSpecializationTable1654876580875
   implements MigrationInterface
@@ -17,6 +19,7 @@ export class CreateSpecializationTable1654876580875
           {
             name: 'code',
             type: 'varchar',
+            isNullable: true,
           },
           {
             name: 'title',
@@ -25,6 +28,7 @@ export class CreateSpecializationTable1654876580875
           {
             name: 'category',
             type: 'varchar',
+            isNullable: true,
             comment: 'e.g. ',
           },
           {
@@ -61,6 +65,13 @@ export class CreateSpecializationTable1654876580875
         columnNames: ['title'],
       }),
     ]);
+
+    await queryRunner.manager
+      .createQueryBuilder()
+      .insert()
+      .into(Specialization)
+      .values(specializationSeedData)
+      .execute();
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
