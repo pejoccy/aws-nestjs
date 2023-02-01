@@ -65,6 +65,13 @@ export class BaseService {
     );
   }
 
+  protected isSessionOwner(session: Session, account: Account): boolean {
+    return (
+      session.creatorId === account.id ||
+      session.patient?.accountId !== account.id
+    );
+  }
+
   public async startTransaction(): Promise<QueryRunner> {
     const queryRunner = getConnection().createQueryRunner();
     await queryRunner.startTransaction();

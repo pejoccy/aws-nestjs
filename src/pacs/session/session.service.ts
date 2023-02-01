@@ -143,6 +143,17 @@ export class SessionService extends BaseService {
     );
   }
 
+  async shareSession(sessionId: number, account: Account) {
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+      relations: ['collaborators', 'patient'],
+    });
+    if (!this.isSessionOwner(session, account)) {
+      throw new NotAcceptableException('Unauthorized to share session!');
+    }
+    // return a link
+  }
+
   async acceptSessionCollaborationRequest(
     inviteHash: string,
     account: Account,
@@ -167,6 +178,23 @@ export class SessionService extends BaseService {
       account.comms.aws_chime.identity,
       session.comms.aws_chime.chatChannelArn,
     );
+  }
+
+  async removeSessionCollaborator(
+    sessionId: number,
+    accountId: number,
+    account: Account,
+  ) {
+    const session = await this.sessionRepository.findOneOrFail(sessionId);
+    if (!this.isSessionOwner(session, account)) {
+      throw new NotAcceptableException('Sorry! You must be the session owner.');
+    }
+
+    await this.sessionRepository
+      .createQueryBuilder()
+      .relation(Session, 'collaborators')
+      .of(sessionId)
+      .remove(accountId);
   }
 
   async declineSessionCollaboration(inviteHash: string, sessionId: number) {
