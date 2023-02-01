@@ -78,7 +78,7 @@ export class SessionController {
     @Param() { invitationId }: AcceptCollaboratorDto,
     @GetAccount() account: Account,
   ) {
-    return this.sessionService.acceptSessionCollaboration(
+    return this.sessionService.acceptSessionCollaborationRequest(
       invitationId,
       account,
     );

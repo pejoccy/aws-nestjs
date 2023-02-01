@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { CommsProviders, AccountTypes } from '../common/interfaces';
-import { Subscription } from '../common/subscription/subscription.entity';
+// import { Subscription } from '../common/subscription/subscription.entity';
 import { File } from '../pacs/file/file.entity';
 import { SessionToCollaborator } from '../pacs/session/session-collaborator/session-collaborator.entity';
 import { Session } from '../pacs/session/session.entity';
@@ -40,6 +40,9 @@ export class Account {
 
   @Column({ default: false })
   isVerified: boolean;
+
+  @Column({ default: false })
+  isAnonymous: boolean;
 
   @Column({ nullable: true, select: true })
   lastLoggedInAt?: Date;

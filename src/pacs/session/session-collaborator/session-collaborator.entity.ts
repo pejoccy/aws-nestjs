@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Account } from '../../../account/account.entity';
-import { FeatureSlugs } from '../../../common/interfaces';
+import { ResourcePermissions } from '../../../common/interfaces';
 import { Session } from '../session.entity';
 
 @Entity()
@@ -12,10 +12,16 @@ export class SessionToCollaborator {
   collaboratorId: number;
 
   @Column()
-  fileId: number;
+  sessionId: number;
 
-  @Column({ enum: FeatureSlugs })
-  permission: FeatureSlugs;
+  @Column({ nullable: true })
+  expiresAt?: Date;
+
+  @Column({
+    enum: ResourcePermissions,
+    default: ResourcePermissions.READ_WRITE,
+  })
+  permission: ResourcePermissions;
 
   @ManyToOne(() => Session, (session) => session.sessionToCollaborators)
   session: Session;

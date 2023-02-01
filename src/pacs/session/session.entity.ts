@@ -19,6 +19,7 @@ import {
 import { File } from '../file/file.entity';
 import { ReportTemplate } from '../report-template/report-template.entity';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
+import { SessionInvite } from './session-invite/session-invite.entity';
 import { SessionNote } from './session-note/session-note.entity';
 import { SessionReport } from './session-report/session-report.entity';
 
@@ -88,6 +89,9 @@ export class Session extends BaseEntity {
   @ManyToMany(() => Account, (account) => account.collaboratedSessions)
   collaborators: Account[];
 
+  @OneToMany(() => SessionInvite, (invitation) => invitation.session)
+  invitations: SessionInvite[];
+
   /*
     defined this prop to include permission field when FileToCollaborator entity is fetched
   */
@@ -95,5 +99,5 @@ export class Session extends BaseEntity {
     () => SessionToCollaborator,
     (sessionToCollaborator) => sessionToCollaborator.session,
   )
-  public sessionToCollaborators!: SessionToCollaborator[];
+  sessionToCollaborators!: SessionToCollaborator[];
 }

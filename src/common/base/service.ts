@@ -17,8 +17,9 @@ import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
+import { Account } from '../../account/account.entity';
+import { Session } from '../../pacs/session/session.entity';
 import { PaginationOptionsDto } from '../dto';
-import { Account } from 'src/account/account.entity';
 
 export enum OrderType {
   asc = 'ASC',
@@ -51,11 +52,16 @@ export interface TransformTemplate {
 
 export class BaseService {
   protected isCollaborator(
+    session: Session,
     collaborators: Account[],
     account: Account,
   ): boolean {
-    return (collaborators || []).some(
-      (collaborator) => account.id === collaborator.id,
+    return (
+      (collaborators || []).some(
+        (collaborator) => account.id === collaborator.id,
+      ) ||
+      session.creatorId === account.id ||
+      session.patient?.accountId !== account.id
     );
   }
 

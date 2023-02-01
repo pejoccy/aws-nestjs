@@ -3,7 +3,6 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
-  TableUnique,
 } from 'typeorm';
 
 export class CreateSessionReportTable1656861684597
