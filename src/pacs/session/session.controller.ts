@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -12,7 +14,6 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
-import { EntityIdDto } from '../../common/dto/entity.dto';
 import { AcceptCollaboratorDto } from './dto/accept-collaborator.dto';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
@@ -45,28 +46,61 @@ export class SessionController {
 
   @Get('/info/:id')
   async getSession(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ): Promise<Session> {
     return this.sessionService.getSession(id, account);
   }
 
-  @Get('/:id/invitations')
+  @ApiResponseMeta({ message: 'Invitation sent successfully!' })
+  @Post('/:id/collaborators')
+  async inviteCollaborator(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() item: InviteCollaboratorDto,
+    @GetAccount() account: Account,
+  ) {
+    return this.sessionService.inviteCollaborator(id, item, account);
+  }
+
+  @Post('/:id/share')
+  async shareSession(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() item: InviteCollaboratorDto,
+    @GetAccount() account: Account,
+  ) {
+    return this.sessionService.shareSession(id, account);
+  }
+
+  @Delete('/:id/collaborators/:accountId')
+  async removeCollaborator(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('accountId', ParseIntPipe) accountId: number,
+    @GetAccount() account: Account,
+  ) {
+    return this.sessionService.removeSessionCollaborator(
+      id,
+      accountId,
+      account,
+    );
+  }
+
+  @Get('/:id/collaborators/invitations')
   async getInvitations(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ): Promise<SessionInvite[]> {
     return this.sessionService.getInvitations(id, account);
   }
 
-  @ApiResponseMeta({ message: 'Invitation sent successfully!' })
-  @Post('/:id/collaborators')
-  async inviteCollaborator(
-    @Param() { id }: EntityIdDto,
-    @Body() item: InviteCollaboratorDto,
+  @Delete('/:id/collaborators/:inviteId')
+  async cancelInvitation(
+    @Param('inviteId', ParseIntPipe) inviteId: number,
     @GetAccount() account: Account,
   ) {
-    return this.sessionService.inviteCollaborator(id, item, account);
+    return this.sessionService.cancelSessionCollaborationRequest(
+      inviteId,
+      account,
+    );
   }
 
   @ApiResponseMeta({ message: 'Token verified successfully!' })
@@ -96,7 +130,7 @@ export class SessionController {
   @ApiResponseMeta({ message: 'Note saved successfully!' })
   @Post('/:id/notes')
   async addNote(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @Body() item: CreateSessionNoteDto,
     @GetAccount() account: Account,
   ) {
@@ -107,7 +141,7 @@ export class SessionController {
   @Patch('/notes/:id')
   async updateNote(
     @Body() item: UpdateSessionNoteDto,
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ) {
     this.sessionService.updateNote(id, item, account);
@@ -115,7 +149,7 @@ export class SessionController {
 
   @Get('/:id/reports')
   async getReports(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: SearchSessionDto,
     @GetAccount() account: Account,
   ) {
@@ -134,7 +168,7 @@ export class SessionController {
   @Post('/:id/reports')
   async addSessionReport(
     @Body() item: AddSessionReportDto,
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ) {
     await this.sessionService.addSessionReport(id, item, account);
@@ -142,7 +176,7 @@ export class SessionController {
 
   @Get('/:id/chat')
   async getChatRoom(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ) {
     return this.sessionService.getSessionChatRoom(id, account);
@@ -150,7 +184,7 @@ export class SessionController {
 
   @Get('/:id/chat/messages')
   async getChats(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: PaginationCursorOptionsDto,
     @GetAccount() account: Account,
   ) {
@@ -159,7 +193,7 @@ export class SessionController {
 
   @Post('/:id/chat/messages')
   async sendChat(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: SendSessionChatMessageDto,
     @GetAccount() account: Account,
   ) {
@@ -168,7 +202,7 @@ export class SessionController {
 
   @Post('/:id/meet/join')
   async joinMeeting(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ) {
     return this.sessionService.joinSessionMeeting(id, account);
@@ -176,7 +210,7 @@ export class SessionController {
 
   @Post('/:id/meet/leave')
   async leaveMeeting(
-    @Param() { id }: EntityIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ) {
     return this.sessionService.leaveSessionMeeting(id, account);
