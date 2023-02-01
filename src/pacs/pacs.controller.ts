@@ -43,8 +43,8 @@ export class PacsController {
 
   @ApiConsumes('multipart/form-data')
   @ApiResponseMeta({ message: 'Session files uploaded successfully!' })
-  @Post('/uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION)
+  @Post('/uploads')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: multer.diskStorage({}),
@@ -64,8 +64,8 @@ export class PacsController {
 
   @ApiConsumes('multipart/form-data')
   @ApiResponseMeta({ message: 'Session files uploaded successfully!' })
-  @Post('/bulk-uploads')
   @FeatureLimitCheck(FeatureSlugs.SESSION_FILES)
+  @Post('/bulk-uploads')
   @UseInterceptors(
     FilesInterceptor('files', 20, {
       storage: multer.diskStorage({}),

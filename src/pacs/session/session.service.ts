@@ -6,7 +6,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CommsProviders } from 'src/common/interfaces';
+import moment from 'moment';
+import { CommsProviders, InviteStatus } from 'src/common/interfaces';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Specialist } from '../../account/specialist/specialist.entity';
@@ -20,6 +21,7 @@ import { MeetService } from '../../comms/meet/meet.service';
 import { ChimeCommsProvider } from '../../comms/providers/chime';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
+import { SessionInvite } from './session-invite/session-invite.entity';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { SessionNote } from './session-note/session-note.entity';
 import { SessionReport } from './session-report/session-report.entity';
@@ -36,6 +38,8 @@ export class SessionService extends BaseService {
     private sessionReportRepository: Repository<SessionReport>,
     @InjectRepository(Specialist)
     private specialistRepository: Repository<Specialist>,
+    @InjectRepository(SessionInvite)
+    private sessionInviteRepository: Repository<SessionInvite>,
     private appUtilities: AppUtilities,
     private mailService: MailerService,
     private cacheService: CacheService,
@@ -91,9 +95,7 @@ export class SessionService extends BaseService {
     });
     if (
       !session ||
-      (!this.isCollaborator(session.collaborators, account) &&
-        session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id)
+      !this.isCollaborator(session, session.collaborators, account)
     ) {
       throw new NotFoundException('Session not found!');
     }
@@ -112,17 +114,25 @@ export class SessionService extends BaseService {
     });
     if (
       !session ||
-      (!this.isCollaborator(session.collaborators, account) &&
-        session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id)
+      !this.isCollaborator(session, session.collaborators, account)
     ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
+    const invitationWindowMins = 2 * 60 * 60;
+    const expiresAt = moment().add(invitationWindowMins, 'm').toDate();
     const inviteHash = this.appUtilities.generateShortCode();
+
+    await this.sessionInviteRepository.save({
+      permission: item.permission,
+      token: inviteHash,
+      inviteeEmail: item.email,
+      sessionId,
+      expiresAt,
+    });
     await this.cacheService.set(
       inviteHash,
       { ...item, invitedBy: account.id, sessionId },
-      2 * 60 * 60, // 2 hrs
+      invitationWindowMins,
     );
 
     // send email
@@ -133,7 +143,10 @@ export class SessionService extends BaseService {
     );
   }
 
-  async acceptSessionCollaboration(inviteHash: string, account: Account) {
+  async acceptSessionCollaborationRequest(
+    inviteHash: string,
+    account: Account,
+  ) {
     const data = await this.verifyCollaborationInviteToken(inviteHash, account);
 
     await this.sessionRepository
@@ -141,6 +154,11 @@ export class SessionService extends BaseService {
       .relation(Session, 'collaborators')
       .of(data.sessionId)
       .addAndRemove(account.id, account.id);
+
+    await this.sessionInviteRepository.update(
+      { sessionId: data.sessionId, token: inviteHash },
+      { status: InviteStatus.ACCEPTED },
+    );
 
     await this.cacheService.remove(inviteHash);
     const session = await this.validateSessionComm(data.sessionId, account);
@@ -151,13 +169,35 @@ export class SessionService extends BaseService {
     );
   }
 
+  async declineSessionCollaboration(inviteHash: string, sessionId: number) {
+    const invitation = await this.sessionInviteRepository.update(
+      { sessionId, token: inviteHash },
+      { status: InviteStatus.DECLINED },
+    );
+    if (invitation) {
+      await this.cacheService.remove(inviteHash);
+    }
+  }
+
+  async cancelSessionCollaborationRequest(inviteId: number, account: Account) {
+    const invite = await this.sessionInviteRepository.findOneOrFail(inviteId);
+    await this.verifyCollaborationInviteToken(invite.token, account);
+
+    await this.sessionInviteRepository.update(
+      { id: inviteId },
+      { status: InviteStatus.CANCELLED },
+    );
+
+    await this.cacheService.remove(invite.token);
+  }
+
   async verifyCollaborationInviteToken(inviteHash: string, account: Account) {
     const data = await this.cacheService.get(inviteHash);
     if (!data) {
       throw new UnauthorizedException('Invalid/Expired invite token!');
     } else if (account.email !== data.email || !account.specialist) {
       throw new UnauthorizedException(
-        'Unauthorized account to accept this invitation!',
+        'Unauthorized account to cancel this invitation!',
       );
     }
 
@@ -175,9 +215,7 @@ export class SessionService extends BaseService {
     });
     if (
       !session ||
-      (!this.isCollaborator(session.collaborators, account) &&
-        session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id)
+      !this.isCollaborator(session, session.collaborators, account)
     ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
@@ -219,9 +257,7 @@ export class SessionService extends BaseService {
     });
     if (
       !session ||
-      (!this.isCollaborator(session.collaborators, account) &&
-        session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id)
+      !this.isCollaborator(session, session.collaborators, account)
     ) {
       throw new NotFoundException('Session report not found!');
     }
@@ -249,14 +285,22 @@ export class SessionService extends BaseService {
     });
     if (
       !report ||
-      (!this.isCollaborator(report.session.collaborators, account) &&
-        report.session.creatorId !== account.id &&
-        report.session.patient?.accountId !== account.id)
+      !this.isCollaborator(
+        report.session,
+        report.session.collaborators,
+        account,
+      )
     ) {
       throw new NotFoundException('Session report not found!');
     }
 
     return report;
+  }
+
+  async getInvitations(id: number, account: Account) {
+    return await this.sessionInviteRepository.find({
+      where: { sessionId: id },
+    });
   }
 
   async addSessionReport(sessionId: number, report: any, account: Account) {
@@ -267,9 +311,7 @@ export class SessionService extends BaseService {
     });
     if (
       !session ||
-      (!this.isCollaborator(session.collaborators, account) &&
-        session.creatorId !== account.id &&
-        session.patient?.accountId !== account.id)
+      !this.isCollaborator(session, session.collaborators, account)
     ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
@@ -425,11 +467,7 @@ export class SessionService extends BaseService {
       throw new ServiceUnavailableException(
         'Session comms configuration not setup!',
       );
-    } else if (
-      !this.isCollaborator(session.collaborators, account) &&
-      session.creatorId !== account.id &&
-      session.patient?.accountId !== account.id
-    ) {
+    } else if (!this.isCollaborator(session, session.collaborators, account)) {
       throw new NotAcceptableException('Session access denied!');
     }
 

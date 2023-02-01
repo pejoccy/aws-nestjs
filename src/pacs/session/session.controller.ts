@@ -24,6 +24,7 @@ import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { GetSessionReportDto } from './session-report/dto/get-session-report.dto';
 import { PaginationCursorOptionsDto } from 'src/common/dto';
 import { SendSessionChatMessageDto } from './dto/send-session-chat-message.dto';
+import { SessionInvite } from './session-invite/session-invite.entity';
 
 @ApiBearerAuth()
 @ApiTags('Session')
@@ -48,6 +49,14 @@ export class SessionController {
     @GetAccount() account: Account,
   ): Promise<Session> {
     return this.sessionService.getSession(id, account);
+  }
+
+  @Get('/:id/invitations')
+  async getInvitations(
+    @Param() { id }: EntityIdDto,
+    @GetAccount() account: Account,
+  ): Promise<SessionInvite[]> {
+    return this.sessionService.getInvitations(id, account);
   }
 
   @ApiResponseMeta({ message: 'Invitation sent successfully!' })
@@ -78,7 +87,7 @@ export class SessionController {
     @Param() { invitationId }: AcceptCollaboratorDto,
     @GetAccount() account: Account,
   ) {
-    return this.sessionService.acceptSessionCollaboration(
+    return this.sessionService.acceptSessionCollaborationRequest(
       invitationId,
       account,
     );

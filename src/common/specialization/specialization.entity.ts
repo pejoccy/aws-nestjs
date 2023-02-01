@@ -13,4 +13,7 @@ export class Specialization {
 
   @Column({ default: true, select: false })
   status: boolean;
+
+  @Column({ default: false })
+  isAnonymous: boolean;
 }

@@ -37,8 +37,8 @@ export class PlanController {
   @ApiBearerAuth()
   @ApiParam({ name: 'id' })
   @ApiParam({ name: 'permissionId' })
-  @Post('/:id/permissions/:permissionId')
   @FeatureLimitCheck(FeatureSlugs.SESSION)
+  @Post('/:id/permissions/:permissionId')
   async addPermission(
     @Param() { permissionId }: PermissionIdDto,
     @Param() { id }: EntityIdDto,

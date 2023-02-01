@@ -59,8 +59,7 @@ export class PacsService extends BaseService {
 
     if (
       file.sharing !== ShareOptions.PUBLIC &&
-      file.creatorId !== account.id &&
-      !this.isCollaborator(file.session?.collaborators, account)
+      !this.isCollaborator(file.session, file.session?.collaborators, account)
     ) {
       throw new ForbiddenException();
     }

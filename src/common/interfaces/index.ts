@@ -128,6 +128,13 @@ export enum ResourcePermissions {
   READ_WRITE = 'read-write',
 }
 
+export enum InviteStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  CANCELLED = 'cancelled',
+  DECLINED = 'declined',
+}
+
 export enum Gender {
   MALE = 'male',
   FEMALE = 'female',
