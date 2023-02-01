@@ -297,6 +297,12 @@ export class SessionService extends BaseService {
     return report;
   }
 
+  async getInvitations(id: number, account: Account) {
+    return await this.sessionInviteRepository.find({
+      where: { sessionId: id },
+    });
+  }
+
   async addSessionReport(sessionId: number, report: any, account: Account) {
     // find
     const session = await this.sessionRepository.findOne({
