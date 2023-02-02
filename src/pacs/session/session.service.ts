@@ -145,7 +145,7 @@ export class SessionService extends BaseService {
         expiresAt,
         status: InviteStatus.PENDING,
       })
-      .orUpdate(['token', 'status'], ['sessionId', 'inviteeEmail'])
+      .orUpdate(['token', 'status', 'expiresAt'], ['sessionId', 'inviteeEmail'])
       .execute();
     await this.cacheService.set(
       inviteHash,
