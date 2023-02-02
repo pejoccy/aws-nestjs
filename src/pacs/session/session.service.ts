@@ -118,17 +118,35 @@ export class SessionService extends BaseService {
     ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
+    const invitation = await this.sessionInviteRepository.findOne({
+      where: { sessionId, inviteeEmail: item.email },
+    });
+    if (
+      !!invitation &&
+      [InviteStatus.ACCEPTED, InviteStatus.DECLINED].includes(invitation.status)
+    ) {
+      throw new NotAcceptableException(
+        `Invitee has ${invitation.status} invitation`,
+      );
+    }
     const invitationWindowMins = 2 * 60 * 60;
     const expiresAt = moment().add(invitationWindowMins, 'm').toDate();
     const inviteHash = this.appUtilities.generateShortCode();
 
-    await this.sessionInviteRepository.save({
-      permission: item.permission,
-      token: inviteHash,
-      inviteeEmail: item.email,
-      sessionId,
-      expiresAt,
-    });
+    await this.sessionInviteRepository.manager
+      .createQueryBuilder()
+      .insert()
+      .into(SessionInvite)
+      .values({
+        permission: item.permission,
+        token: inviteHash,
+        inviteeEmail: item.email,
+        sessionId,
+        expiresAt,
+        status: InviteStatus.PENDING,
+      })
+      .orUpdate(['token', 'status', 'expiresAt'], ['sessionId', 'inviteeEmail'])
+      .execute();
     await this.cacheService.set(
       inviteHash,
       { ...item, invitedBy: account.id, sessionId },
