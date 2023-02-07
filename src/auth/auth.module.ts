@@ -29,6 +29,6 @@ import { AuthService } from './auth.service';
     SpecializationModule,
     SubscriptionModule,
   ],
-  exports: [AccountModule],
+  exports: [AccountModule, AuthService, JwtService],
 })
 export class AuthModule {}

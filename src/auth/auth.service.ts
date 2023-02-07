@@ -22,6 +22,7 @@ import {
   PG_DB_ERROR_CODES,
   AccountTypes,
   CommsProviders,
+  AuthTokenOptions,
 } from '../common/interfaces';
 import { CacheService } from '../common/cache/cache.service';
 import { MailerService } from '../common/mailer/mailer.service';
@@ -100,11 +101,16 @@ export class AuthService extends BaseService {
       throw new UnauthorizedException('Account not verified!');
     }
     const jwtExpiration = this.configService.get('jwt.signOptions.expiresIn');
-    const expiresIn = new Date().getTime() + jwtExpiration;
-    const accessToken = await this.setAuthTokenCache(
-      AuthTokenTypes.AUTH,
-      account,
+    const refreshTokenTtl = this.configService.get(
+      'jwt.refreshToken.expiresIn',
     );
+    const expiresIn = new Date().getTime() + jwtExpiration;
+    const accessToken = await this.setAuthTokenCache({
+      authType: AuthTokenTypes.AUTH,
+      cacheData: account,
+      ttl: jwtExpiration,
+      refreshTokenTtl,
+    });
 
     return {
       accessToken,
@@ -252,6 +258,26 @@ export class AuthService extends BaseService {
     await this.accountService.changePassword(authToken.data?.userId, password);
   }
 
+  public async setAuthTokenCache({
+    authType,
+    cacheData,
+    ttl,
+    refreshTokenTtl,
+    cacheKey,
+  }: AuthTokenOptions) {
+    refreshTokenTtl = refreshTokenTtl || ttl;
+    const token = this.generateJwtToken(
+      { authType },
+      { ...(refreshTokenTtl && { expiresIn: refreshTokenTtl }) },
+    );
+    if (!cacheKey) {
+      [, , cacheKey] = token.split('.');
+    }
+    await this.cacheService.set(cacheKey, { data: cacheData, authType }, ttl);
+
+    return token;
+  }
+
   private async verifyOtp<T = any>(
     token: string,
     otp: string,
@@ -283,26 +309,5 @@ export class AuthService extends BaseService {
     };
 
     return this.jwtService.sign(payload, options);
-  }
-
-  private async setAuthTokenCache(
-    authType: AuthTokenTypes,
-    cacheData?: any,
-    ttl: number = this.configService.get<number>('jwt.signOptions.expiresIn'),
-  ) {
-    let refreshTokenTtl = ttl;
-    if (authType === AuthTokenTypes.AUTH) {
-      refreshTokenTtl = this.configService.get<number>(
-        'jwt.refreshToken.expiresIn',
-      );
-    }
-    const token = this.generateJwtToken(
-      { authType },
-      { expiresIn: refreshTokenTtl },
-    );
-    const [, , cacheKey] = token.split('.');
-    await this.cacheService.set(cacheKey, { data: cacheData, authType }, ttl);
-
-    return token;
   }
 }

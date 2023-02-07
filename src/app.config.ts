@@ -26,6 +26,7 @@ const config = {
     appInstanceAdminArn: env('AWS_CHIME_ADMIN_ARN'),
   },
   client: {
+    baseUrl: env('CLIENT_BASE_URL', 'https://test.orysx.com'),
     emailUrls: {
       sessionCollaboratorInvite: env('CLIENT_COLLABORATE_URL'),
     },

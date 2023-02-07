@@ -29,6 +29,14 @@ export type CachedAuthData<T = any> = {
   data?: T;
 };
 
+export type AuthTokenOptions = {
+  authType: AuthTokenTypes;
+  cacheData?: any;
+  ttl?: number;
+  refreshTokenTtl?: number;
+  cacheKey?: string;
+};
+
 export enum AccountTypes {
   PATIENT = 'patient',
   SPECIALIST = 'specialist',
