@@ -82,7 +82,7 @@ export class Account {
 
   @OneToMany(
     () => SessionToCollaborator,
-    (fileToCollaborator) => fileToCollaborator.collaborator,
+    (fileToCollaborator) => fileToCollaborator.account,
   )
   public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
 

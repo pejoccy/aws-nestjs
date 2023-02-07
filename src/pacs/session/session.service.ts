@@ -5,22 +5,29 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import moment from 'moment';
-import { CommsProviders, InviteStatus } from 'src/common/interfaces';
 import { Repository } from 'typeorm';
 import { Account } from '../../account/account.entity';
 import { Specialist } from '../../account/specialist/specialist.entity';
 import { AppUtilities } from '../../app.utilities';
+import { AuthService } from '../../auth/auth.service';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
 import { PaginationCursorOptionsDto } from '../../common/dto';
+import {
+  AuthTokenTypes,
+  CommsProviders,
+  InviteStatus,
+} from '../../common/interfaces';
 import { MailerService } from '../../common/mailer/mailer.service';
 import { ChatService } from '../../comms/chat/chat.service';
 import { MeetService } from '../../comms/meet/meet.service';
 import { ChimeCommsProvider } from '../../comms/providers/chime';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
+import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionInvite } from './session-invite/session-invite.entity';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { SessionNote } from './session-note/session-note.entity';
@@ -30,8 +37,12 @@ import { Session } from './session.entity';
 @Injectable()
 export class SessionService extends BaseService {
   constructor(
+    @InjectRepository(Account)
+    private accountRepository: Repository<Account>,
     @InjectRepository(Session)
     private sessionRepository: Repository<Session>,
+    @InjectRepository(SessionToCollaborator)
+    private sessionCollaboratorRepository: Repository<SessionToCollaborator>,
     @InjectRepository(SessionNote)
     private sessionNoteRepository: Repository<SessionNote>,
     @InjectRepository(SessionReport)
@@ -43,6 +54,8 @@ export class SessionService extends BaseService {
     private appUtilities: AppUtilities,
     private mailService: MailerService,
     private cacheService: CacheService,
+    private configService: ConfigService,
+    private authService: AuthService,
     private chatService: ChatService,
     private meetService: MeetService,
     private commsProvider: ChimeCommsProvider,
@@ -169,7 +182,56 @@ export class SessionService extends BaseService {
     if (!this.isSessionOwner(session, account)) {
       throw new NotAcceptableException('Unauthorized to share session!');
     }
-    // return a link
+    // generate jwt token -> save it in a cache
+    const anonymousUser = await this.accountRepository.findOne({
+      where: { isAnonymous: true },
+    });
+    if (!anonymousUser) {
+      throw new ServiceUnavailableException(
+        'Session sharing account not properly set up!',
+      );
+    }
+    const [sessionCacheKey] = await this.getSessionSharingCacheKey(sessionId);
+    const cacheData = await this.cacheService.get(sessionCacheKey);
+    if (!cacheData) {
+      const ttl = 60 * 60 * 24 * 365; // 1 year
+      const token = await this.authService.setAuthTokenCache({
+        cacheData: anonymousUser,
+        authType: AuthTokenTypes.AUTH,
+        ttl,
+      });
+      await this.cacheService.set(sessionCacheKey, { token, sessionId }, ttl);
+      await this.addSessionCollaborator(sessionId, anonymousUser.id);
+    }
+
+    return `${this.configService.get(
+      'client.baseUrl',
+    )}/sessions/shared?token=${sessionCacheKey}`;
+  }
+
+  async validateSharedSessionToken(sessionToken: string) {
+    const data = await this.cacheService.get(sessionToken);
+    console.log({ sessionToken });
+    if (!data) {
+      throw new NotFoundException('Invalid token!');
+    }
+
+    return { token: data.token, sessionId: data.sessionId };
+  }
+
+  async revokeSessionSharing(sessionId: number, account: Account) {
+    const session = await this.sessionRepository.findOneOrFail(sessionId);
+    if (!this.isSessionOwner(session, account)) {
+      throw new NotAcceptableException('Sorry! You must be the session owner.');
+    }
+    const [sessionCacheKey, anonymousAccountId] =
+      await this.getSessionSharingCacheKey(session.id);
+    await this.cacheService.remove(sessionCacheKey);
+    await this.removeSessionCollaborator(
+      sessionId,
+      anonymousAccountId,
+      account,
+    );
   }
 
   async acceptSessionCollaborationRequest(
@@ -177,13 +239,7 @@ export class SessionService extends BaseService {
     account: Account,
   ) {
     const data = await this.verifyCollaborationInviteToken(inviteHash, account);
-
-    await this.sessionRepository
-      .createQueryBuilder()
-      .relation(Session, 'collaborators')
-      .of(data.sessionId)
-      .addAndRemove(account.id, account.id);
-
+    await this.addSessionCollaborator(data.sessionId, account.id);
     await this.sessionInviteRepository.update(
       { sessionId: data.sessionId, token: inviteHash },
       { status: InviteStatus.ACCEPTED },
@@ -196,6 +252,14 @@ export class SessionService extends BaseService {
       account.comms.aws_chime.identity,
       session.comms.aws_chime.chatChannelArn,
     );
+  }
+
+  async addSessionCollaborator(sessionId: number, accountId: number) {
+    await this.sessionRepository
+      .createQueryBuilder()
+      .relation(Session, 'collaborators')
+      .of(sessionId)
+      .addAndRemove(accountId, accountId);
   }
 
   async removeSessionCollaborator(
@@ -213,6 +277,15 @@ export class SessionService extends BaseService {
       .relation(Session, 'collaborators')
       .of(sessionId)
       .remove(accountId);
+  }
+
+  async removeAllSessionCollaborators(sessionId: number, account: Account) {
+    const session = await this.sessionRepository.findOneOrFail(sessionId);
+    if (!this.isSessionOwner(session, account)) {
+      throw new NotAcceptableException('Sorry! You must be the session owner.');
+    }
+
+    await this.sessionCollaboratorRepository.delete({ sessionId });
   }
 
   async declineSessionCollaboration(inviteHash: string, sessionId: number) {
@@ -260,6 +333,7 @@ export class SessionService extends BaseService {
       relations: ['collaborators', 'patient'],
     });
     if (
+      account.isAnonymous ||
       !session ||
       !this.isCollaborator(session, session.collaborators, account)
     ) {
@@ -282,7 +356,11 @@ export class SessionService extends BaseService {
       where: { id: noteId },
       relations: ['session'],
     });
-    if (!sessionNote || sessionNote.session.creatorId !== account.id) {
+    if (
+      account.isAnonymous ||
+      !sessionNote ||
+      sessionNote.session.creatorId !== account.id
+    ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
 
@@ -344,6 +422,10 @@ export class SessionService extends BaseService {
   }
 
   async getInvitations(id: number, account: Account) {
+    if (account.isAnonymous) {
+      throw new UnauthorizedException();
+    }
+
     return await this.sessionInviteRepository.find({
       where: { sessionId: id },
     });
@@ -356,6 +438,7 @@ export class SessionService extends BaseService {
       relations: ['collaborators', 'patient'],
     });
     if (
+      account.isAnonymous ||
       !session ||
       !this.isCollaborator(session, session.collaborators, account)
     ) {
@@ -414,6 +497,9 @@ export class SessionService extends BaseService {
     message: string,
     account: Account,
   ) {
+    if (account.isAnonymous) {
+      throw new UnauthorizedException();
+    }
     const session = await this.validateSessionComm(sessionId, account);
 
     return this.chatService
@@ -498,6 +584,17 @@ export class SessionService extends BaseService {
       // @TODO update session.comms.*.meetingArn
       // this.sessionRepository.update(sessionId, { comms:  })
     }
+  }
+
+  private async getSessionSharingCacheKey(
+    sessionId: number,
+  ): Promise<[string, number]> {
+    const anonymousUser = await this.accountRepository.findOne({
+      where: { isAnonymous: true },
+    });
+    const cacheKey = AppUtilities.encode(`${sessionId}-${anonymousUser.id}`);
+
+    return [cacheKey, anonymousUser.id];
   }
 
   private async validateSessionComm(sessionId: number, account: Account) {

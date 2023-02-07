@@ -3,13 +3,13 @@ import { Account } from '../../../account/account.entity';
 import { ResourcePermissions } from '../../../common/interfaces';
 import { Session } from '../session.entity';
 
-@Entity()
+@Entity({ name: 'session_collaborator' })
 export class SessionToCollaborator {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  collaboratorId: number;
+  accountId: number;
 
   @Column()
   sessionId: number;
@@ -30,5 +30,5 @@ export class SessionToCollaborator {
     () => Account,
     (collaborator) => collaborator.sessionToCollaborators,
   )
-  collaborator: Account;
+  account: Account;
 }

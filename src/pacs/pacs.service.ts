@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   StreamableFile,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Response } from 'express';
@@ -79,6 +80,10 @@ export class PacsService extends BaseService {
   async upload(item: UploadFileDto, account: Account) {
     if (!item.file) {
       throw new BadRequestException('File is missing/invalid!');
+    } else if (account.isAnonymous) {
+      throw new UnauthorizedException(
+        'Access Denied! Account does not have permission to upload file(s)',
+      );
     }
     const sessionName = moment().format('YYYYMMDDHHmmss');
     const template = await this.reportTemplateRepository.findOne({
@@ -138,6 +143,11 @@ export class PacsService extends BaseService {
   }
 
   async uploadBulk(item: UploadFolderDto, account: Account) {
+    if (account.isAnonymous) {
+      throw new UnauthorizedException(
+        'Access Denied! Account does not have permission to upload file(s)',
+      );
+    }
     const template = await this.reportTemplateRepository.findOne({
       modality: item.modality,
     });
