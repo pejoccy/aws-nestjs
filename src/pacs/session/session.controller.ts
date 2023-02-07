@@ -209,6 +209,17 @@ export class SessionController {
     );
   }
 
+  @Delete('/:id/share')
+  async revokeViewOnlyCollaboration(
+    @Param('id', ParseIntPipe) sessionId: number,
+    @GetAccount() account: Account,
+  ) {
+    return this.sessionService.revokeAnonymousSessionSharing(
+      sessionId,
+      account,
+    );
+  }
+
   @Delete('/:id/collaborators/:inviteId')
   async cancelInvitation(
     @Param('inviteId', ParseIntPipe) inviteId: number,

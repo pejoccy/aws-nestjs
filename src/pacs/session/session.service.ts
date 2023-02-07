@@ -219,7 +219,7 @@ export class SessionService extends BaseService {
     return { token: data.token, sessionId: data.sessionId };
   }
 
-  async revokeSessionSharing(sessionId: number, account: Account) {
+  async revokeAnonymousSessionSharing(sessionId: number, account: Account) {
     const session = await this.sessionRepository.findOneOrFail(sessionId);
     if (!this.isSessionOwner(session, account)) {
       throw new NotAcceptableException('Sorry! You must be the session owner.');
