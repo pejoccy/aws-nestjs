@@ -21,6 +21,7 @@ import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
 import { SendSessionChatMessageDto } from './dto/send-session-chat-message.dto';
+import { ShareSessionLinkDto } from './dto/share-meeting-link.dto';
 import { SessionInvite } from './session-invite/session-invite.entity';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
 import { UpdateSessionNoteDto } from './session-note/dto/update-session-note.dto';
@@ -127,8 +128,9 @@ export class SessionController {
   async shareSession(
     @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
+    @Body() item: ShareSessionLinkDto,
   ) {
-    return this.sessionService.shareSession(id, account);
+    return this.sessionService.shareSession(id, item, account);
   }
 
   @ApiResponseMeta({ message: 'Invitation accepted successfully!' })

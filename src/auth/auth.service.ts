@@ -110,6 +110,7 @@ export class AuthService extends BaseService {
       cacheData: account,
       ttl: jwtExpiration,
       refreshTokenTtl,
+      autoRefreshToken: true,
     });
 
     return {
@@ -264,6 +265,7 @@ export class AuthService extends BaseService {
     ttl,
     refreshTokenTtl,
     cacheKey,
+    autoRefreshToken,
   }: AuthTokenOptions) {
     refreshTokenTtl = refreshTokenTtl || ttl;
     const token = this.generateJwtToken(
@@ -273,7 +275,11 @@ export class AuthService extends BaseService {
     if (!cacheKey) {
       [, , cacheKey] = token.split('.');
     }
-    await this.cacheService.set(cacheKey, { data: cacheData, authType }, ttl);
+    await this.cacheService.set(
+      cacheKey,
+      { data: cacheData, authType, autoRefreshToken },
+      ttl,
+    );
 
     return token;
   }

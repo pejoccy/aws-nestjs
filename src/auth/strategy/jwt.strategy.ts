@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ): Promise<CachedAuthData> {
     const data = await this.refreshAuthToken(request, jwtPayload);
     if (!data) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid/expired authorization token!');
     }
 
     return data;

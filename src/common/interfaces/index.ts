@@ -35,6 +35,7 @@ export type AuthTokenOptions = {
   ttl?: number;
   refreshTokenTtl?: number;
   cacheKey?: string;
+  autoRefreshToken?: boolean;
 };
 
 export enum AccountTypes {

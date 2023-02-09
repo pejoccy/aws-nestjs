@@ -62,7 +62,19 @@ export class MailerService {
       to: email,
       subject: 'Invitation to Collaborate on Orysx',
       html,
-    }).catch(console.dir);
+    }).catch(console.error);
+  }
+
+  async sendSessionShareLinkEmail(email: string, sessionShareLink: string) {
+    const html = await this.getFileTemplate('share-session-link', {
+      link: sessionShareLink,
+    });
+
+    return this.send({
+      to: email,
+      subject: 'Share Collaboration Session',
+      html,
+    }).catch(console.error);
   }
 
   protected async getFileTemplate(

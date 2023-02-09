@@ -17,6 +17,9 @@ export class SessionToCollaborator {
   @Column({ nullable: true })
   expiresAt?: Date;
 
+  // @Column({ nullable: true, default: true })
+  // status?: boolean;
+
   @Column({
     enum: ResourcePermissions,
     default: ResourcePermissions.READ_WRITE,
