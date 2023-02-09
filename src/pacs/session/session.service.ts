@@ -27,6 +27,7 @@ import { MeetService } from '../../comms/meet/meet.service';
 import { ChimeCommsProvider } from '../../comms/providers/chime';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';
 import { SearchSessionDto } from './dto/search-session.dto';
+import { ShareSessionLinkDto } from './dto/share-meeting-link.dto';
 import { SessionToCollaborator } from './session-collaborator/session-collaborator.entity';
 import { SessionInvite } from './session-invite/session-invite.entity';
 import { CreateSessionNoteDto } from './session-note/dto/create-session-note.dto';
@@ -174,7 +175,11 @@ export class SessionService extends BaseService {
     );
   }
 
-  async shareSession(sessionId: number, account: Account) {
+  async shareSession(
+    sessionId: number,
+    { refreshToken, email }: ShareSessionLinkDto,
+    account: Account,
+  ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['collaborators', 'patient'],
@@ -191,22 +196,35 @@ export class SessionService extends BaseService {
         'Session sharing account not properly set up!',
       );
     }
+    const isAnonymousUserACollaborator = !!session.collaborators.find(
+      ({ id }) => id === anonymousUser.id,
+    );
     const [sessionCacheKey] = await this.getSessionSharingCacheKey(sessionId);
     const cacheData = await this.cacheService.get(sessionCacheKey);
-    if (!cacheData) {
-      const ttl = 60 * 60 * 24 * 365; // 1 year
-      const token = await this.authService.setAuthTokenCache({
+    let token = cacheData?.token;
+    const ttl = 60 * 60 * 24 * 365;
+    if (!cacheData || refreshToken || !isAnonymousUserACollaborator) {
+      if (refreshToken && cacheData?.token) {
+        const [, , key] = token.split('.');
+        await this.cacheService.remove(key);
+      }
+      token = await this.authService.setAuthTokenCache({
         cacheData: anonymousUser,
         authType: AuthTokenTypes.AUTH,
         ttl,
       });
-      await this.cacheService.set(sessionCacheKey, { token, sessionId }, ttl);
       await this.addSessionCollaborator(sessionId, anonymousUser.id);
+      await this.cacheService.set(sessionCacheKey, { token, sessionId }, ttl);
     }
-
-    return `${this.configService.get(
+    const sessionShareLink = `${this.configService.get(
       'client.baseUrl',
     )}/sessions/shared?token=${sessionCacheKey}`;
+
+    if (email) {
+      this.mailService.sendSessionShareLinkEmail(email, sessionShareLink);
+    }
+
+    return sessionShareLink;
   }
 
   async validateSharedSessionToken(sessionToken: string) {
@@ -423,7 +441,7 @@ export class SessionService extends BaseService {
 
   async getInvitations(id: number, account: Account) {
     if (account.isAnonymous) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Unauthorized to view invitations.');
     }
 
     return await this.sessionInviteRepository.find({
@@ -498,7 +516,7 @@ export class SessionService extends BaseService {
     account: Account,
   ) {
     if (account.isAnonymous) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Not allowed for shared sessions.');
     }
     const session = await this.validateSessionComm(sessionId, account);
 

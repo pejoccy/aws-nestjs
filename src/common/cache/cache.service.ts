@@ -10,7 +10,7 @@ export class CacheService {
   }
 
   async set(key: string, item: any, ttl?: number): Promise<any> {
-    return await this.cache.set(key, item, { ttl: ttl ? ttl : undefined });
+    return await this.cache.set(key, item, ttl && { ttl });
   }
 
   async remove(key: string): Promise<any | any[]> {
@@ -27,7 +27,12 @@ export class CacheService {
     config?: CachingConfig,
   ): Promise<any> {
     const data = await this.cache.wrap(key, cb, config);
-    if (!!data && config?.ttl && typeof config.ttl === 'number') {
+    if (
+      !!data &&
+      data.autoRefreshToken &&
+      config?.ttl &&
+      typeof config.ttl === 'number'
+    ) {
       this.set(key, data, config.ttl);
     }
 
