@@ -219,7 +219,7 @@ export class SessionService extends BaseService {
     const sessionShareLink = `${this.configService.get(
       'client.baseUrl',
     )}/sessions/shared?token=${sessionCacheKey}`;
-
+    // send email
     if (email) {
       this.mailService.sendSessionShareLinkEmail(email, sessionShareLink);
     }
@@ -229,12 +229,13 @@ export class SessionService extends BaseService {
 
   async validateSharedSessionToken(sessionToken: string) {
     const data = await this.cacheService.get(sessionToken);
-    console.log({ sessionToken });
     if (!data) {
       throw new NotFoundException('Invalid token!');
     }
+    const [, , userCacheKey] = String(data.token).split('.');
+    const { data: user } = await this.cacheService.get(userCacheKey);
 
-    return { token: data.token, sessionId: data.sessionId };
+    return { accessToken: data.token, sessionId: data.sessionId, user };
   }
 
   async revokeAnonymousSessionSharing(sessionId: number, account: Account) {
