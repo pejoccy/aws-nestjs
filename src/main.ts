@@ -5,9 +5,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { NestApplication, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
+import { join } from 'path';
 import { useContainer } from 'typeorm';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -27,7 +28,7 @@ const initSwagger = (app: INestApplication, serverUrl: string) => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestApplication>(AppModule);
   const configService =
     app.get<ConfigService<Record<string, any>>>(ConfigService);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
@@ -38,6 +39,9 @@ async function bootstrap() {
   app.enableCors({ origin: '*' });
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
+  app.useStaticAssets(join(__dirname, '..', 'public/assets'), {
+    prefix: '/assets/',
+  });
 
   initSwagger(app, appHost);
 

@@ -222,7 +222,7 @@ export class SessionController {
     );
   }
 
-  @Delete('/:id/collaborators/:inviteId')
+  @Delete('/:id/invitations/:inviteId')
   async cancelInvitation(
     @Param('inviteId', ParseIntPipe) inviteId: number,
     @GetAccount() account: Account,

@@ -10,10 +10,12 @@ import { SendMailOptions } from './interfaces';
 @Injectable()
 export class MailerService {
   private emailSender: string;
+  private appLogoURL: string;
 
   constructor(private configService: ConfigService) {
     sgMail.setApiKey(configService.get('sendGrid.apiKey'));
     const sender = configService.get('sendGrid.from');
+    this.appLogoURL = `${configService.get('app.host')}/assets/logo.png`;
     this.emailSender = `${sender.name} <${sender.address}>`;
   }
 
@@ -26,7 +28,10 @@ export class MailerService {
   }
 
   async sendUserAccountSetupEmail(email: string, otp: string) {
-    const html = await this.getFileTemplate('account-setup', { otp });
+    const html = await this.getFileTemplate('account-setup', {
+      otp,
+      appLogo: this.appLogoURL,
+    });
 
     return this.send({
       to: email,
@@ -36,7 +41,10 @@ export class MailerService {
   }
 
   async sendForgotPasswordEmail({ email }: Account, otp: string) {
-    const html = await this.getFileTemplate('password-reset', { otp });
+    const html = await this.getFileTemplate('password-reset', {
+      otp,
+      appLogo: this.appLogoURL,
+    });
 
     return this.send({
       to: email,
@@ -50,12 +58,14 @@ export class MailerService {
     inviteHash: string,
     sessionId: number,
   ) {
-    const acceptInvitationURL = this.configService.get(
-      'client.emailUrls.sessionCollaboratorInvite',
-    );
-    // ?inviteCode=&sessionId=
+    const acceptInvitationURL = [
+      this.configService.get('client.baseUrl'),
+      '/library/invite',
+      `?inviteCode=${inviteHash}&sessionId=${sessionId}`,
+    ].join('');
     const html = await this.getFileTemplate('invite-collaborator', {
-      acceptInvitationURL: `${acceptInvitationURL}?inviteCode=${inviteHash}&sessionId=${sessionId}`,
+      acceptInvitationURL,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
@@ -68,6 +78,7 @@ export class MailerService {
   async sendSessionShareLinkEmail(email: string, sessionShareLink: string) {
     const html = await this.getFileTemplate('share-session-link', {
       link: sessionShareLink,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
