@@ -218,7 +218,7 @@ export class SessionService extends BaseService {
     }
     const sessionShareLink = `${this.configService.get(
       'client.baseUrl',
-    )}/sessions/shared?token=${sessionCacheKey}`;
+    )}/folder/share?sessionID=${sessionId}&shareToken=${sessionCacheKey}`;
     // send email
     if (email) {
       this.mailService.sendSessionShareLinkEmail(email, sessionShareLink);
