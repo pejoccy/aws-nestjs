@@ -10,12 +10,12 @@ import { SendMailOptions } from './interfaces';
 @Injectable()
 export class MailerService {
   private emailSender: string;
-  private appURL: string;
+  private appLogoURL: string;
 
   constructor(private configService: ConfigService) {
     sgMail.setApiKey(configService.get('sendGrid.apiKey'));
     const sender = configService.get('sendGrid.from');
-    this.appURL = configService.get('app.host');
+    this.appLogoURL = `${configService.get('app.host')}/assets/logo.png`;
     this.emailSender = `${sender.name} <${sender.address}>`;
   }
 
@@ -30,7 +30,7 @@ export class MailerService {
   async sendUserAccountSetupEmail(email: string, otp: string) {
     const html = await this.getFileTemplate('account-setup', {
       otp,
-      appLogo: `${this.appURL}/assets/logo.png`,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
@@ -43,7 +43,7 @@ export class MailerService {
   async sendForgotPasswordEmail({ email }: Account, otp: string) {
     const html = await this.getFileTemplate('password-reset', {
       otp,
-      appLogo: `${this.appURL}/assets/logo.png`,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
@@ -65,7 +65,7 @@ export class MailerService {
     ].join('');
     const html = await this.getFileTemplate('invite-collaborator', {
       acceptInvitationURL,
-      appLogo: `${this.appURL}/assets/logo.png`,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
@@ -78,7 +78,7 @@ export class MailerService {
   async sendSessionShareLinkEmail(email: string, sessionShareLink: string) {
     const html = await this.getFileTemplate('share-session-link', {
       link: sessionShareLink,
-      appLogo: `${this.appURL}/assets/logo.png`,
+      appLogo: this.appLogoURL,
     });
 
     return this.send({
