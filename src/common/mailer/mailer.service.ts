@@ -50,12 +50,13 @@ export class MailerService {
     inviteHash: string,
     sessionId: number,
   ) {
-    const acceptInvitationURL = this.configService.get(
-      'client.emailUrls.sessionCollaboratorInvite',
-    );
-    // ?inviteCode=&sessionId=
+    const acceptInvitationURL = [
+      this.configService.get('client.baseUrl'),
+      '/library/invite',
+      `?inviteCode=${inviteHash}&sessionId=${sessionId}`,
+    ].join('');
     const html = await this.getFileTemplate('invite-collaborator', {
-      acceptInvitationURL: `${acceptInvitationURL}?inviteCode=${inviteHash}&sessionId=${sessionId}`,
+      acceptInvitationURL,
     });
 
     return this.send({
