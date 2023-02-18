@@ -16,6 +16,7 @@ import { CountryModule } from './common/country/country.module';
 import { NotificationController } from './common/notification/notification.controller';
 import { NotificationModule } from './common/notification/notification.module';
 import { PlanModule } from './common/plan/plan.module';
+import { SentryModule } from './common/sentry/sentry.module';
 import { SubscriptionModule } from './common/subscription/subscription.module';
 import { CommsModule } from './comms/comms.module';
 import { PacsModule } from './pacs/pacs.module';
@@ -33,6 +34,11 @@ import { PacsModule } from './pacs/pacs.module';
     PacsModule,
     PassportModule.register({}),
     PlanModule,
+    SentryModule.forRoot({
+      dsn: process.env.SENTRY_DSN,
+      debug: process.env.SENTRY_DEBUG === 'true',
+      tracesSampleRate: 1.0,
+    }),
     SubscriptionModule,
     TypeOrmModule.forRootAsync({
       useFactory: async (config: ConfigService) => config.get('db.pgsql'),
