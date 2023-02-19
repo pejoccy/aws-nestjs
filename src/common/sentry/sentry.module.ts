@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import * as Sentry from '@sentry/node';
-import { SentryInterceptor } from '../interceptors/sentry.interceptor';
+import { SentryInterceptor } from './sentry.interceptor';
 import { SentryService } from './sentry.service';
 
 export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';

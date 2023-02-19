@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { catchError, finalize, Observable, throwError } from 'rxjs';
-import { SentryService } from '../sentry/sentry.service';
+import { SentryService } from './sentry.service';
 
 /**
  * We must be in Request scope as we inject SentryService
@@ -18,7 +18,7 @@ export class SentryInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // start a child span for performance tracing
-    const span = this.sentryService.startChild({ op: 'route handler' });
+    const span = this.sentryService.startChild({ op: `route handler` });
 
     return next.handle().pipe(
       catchError((error) => {
