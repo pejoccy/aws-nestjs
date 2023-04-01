@@ -65,7 +65,15 @@ export class SessionService extends BaseService {
   }
 
   async getSessions(
-    { limit, page, searchText }: SearchSessionDto,
+    {
+      limit,
+      page,
+      searchText,
+      modality,
+      receivingDate,
+      sessionPrivacy,
+      status,
+    }: SearchSessionDto,
     account: Account,
   ) {
     const qb = this.sessionRepository
@@ -73,16 +81,41 @@ export class SessionService extends BaseService {
       .leftJoinAndSelect('session.collaborators', 'collaborators')
       .leftJoinAndSelect('session.files', 'files')
       .leftJoinAndSelect('session.notes', 'notes')
+      .leftJoinAndSelect('session.reports', 'reports')
       .leftJoinAndSelect('session.createdBy', 'createdBy')
       .leftJoinAndSelect('session.reportTemplate', 'reportTemplate')
       .where(
-        `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) AND ${
-          (searchText && ' session.name ILIKE :name ') || ':name = :name'
-        }`,
+        `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) 
+        ${(searchText && ' AND session.name ILIKE :name ') || ''} 
+        ${
+          (status &&
+            ` AND reports.id ${
+              status === 'true' ? 'IS NOT NULL' : 'IS NULL'
+            } `) ||
+          ''
+        } 
+        ${(sessionPrivacy && ' AND session.sharing = :privacy ') || ''} 
+        ${
+          (receivingDate &&
+            ' AND (session.createdAt >= :startDate AND session.createdAt <= :endDate) ') ||
+          ''
+        } 
+        ${(modality && ' AND session.modality = :modality ') || ''}`,
       )
       .setParameters({
         accountId: account.id,
         name: `%${searchText}%`,
+        privacy: sessionPrivacy,
+        startDate: moment
+          .parseZone(receivingDate)
+          .startOf('day')
+          .format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
+        endDate: moment
+          .parseZone(receivingDate)
+          .endOf('day')
+          .format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
+        status,
+        modality,
       });
 
     return this.paginate(qb, { limit, page });

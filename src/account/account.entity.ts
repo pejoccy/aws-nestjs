@@ -60,7 +60,7 @@ export class Account {
   @JoinColumn()
   profilePhoto?: File;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', select: false })
   comms: AccountCommsOptions;
 
   @OneToOne(() => BusinessContact, (contact) => contact.account)
