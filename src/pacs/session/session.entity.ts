@@ -59,7 +59,7 @@ export class Session extends BaseEntity {
   @Column()
   patientId?: number;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', select: false })
   comms?: SessionComms;
 
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
