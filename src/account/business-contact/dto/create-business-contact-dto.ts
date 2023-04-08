@@ -2,12 +2,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
   IsEmail,
+  IsEnum,
   IsInt,
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Gender } from '../../../common/interfaces';
 
 export class CreateBusinessContactDto {
   @ApiProperty()
@@ -27,6 +29,11 @@ export class CreateBusinessContactDto {
   @ApiProperty()
   @IsMobilePhone()
   public mobilePhone: string;
+
+  @ApiPropertyOptional()
+  @IsEnum(Gender)
+  @IsOptional()
+  public gender?: Gender;
 
   @ApiPropertyOptional()
   @IsOptional()
