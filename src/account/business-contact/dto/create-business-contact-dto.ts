@@ -30,7 +30,7 @@ export class CreateBusinessContactDto {
   @IsMobilePhone()
   public mobilePhone: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: Gender })
   @IsEnum(Gender)
   @IsOptional()
   public gender?: Gender;

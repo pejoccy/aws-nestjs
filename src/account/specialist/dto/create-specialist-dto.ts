@@ -30,7 +30,7 @@ export class CreateSpecialistDto {
   @IsString()
   lastName: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: Gender })
   @IsEnum(Gender)
   @IsOptional()
   public gender?: Gender;

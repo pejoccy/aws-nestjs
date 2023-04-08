@@ -38,7 +38,7 @@ export class CreatePatientDto {
   @IsMobilePhone()
   public mobilePhone: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: Gender })
   @IsEnum(Gender)
   public gender: Gender;
 
