@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBase64,
   IsEmail,
+  IsEnum,
   IsInt,
   IsISO8601,
   IsMobilePhone,
@@ -9,6 +10,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Gender } from 'src/common/interfaces';
 
 export class CreatePatientDto {
   @ApiProperty()
@@ -35,6 +37,10 @@ export class CreatePatientDto {
   @ApiProperty()
   @IsMobilePhone()
   public mobilePhone: string;
+
+  @ApiProperty()
+  @IsEnum(Gender)
+  public gender: Gender;
 
   @ApiProperty({
     description: 'This is the country id from GET /api/v1/countries',

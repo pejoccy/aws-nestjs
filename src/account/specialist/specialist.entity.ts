@@ -5,7 +5,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { SpecialistCategories } from '../../common/interfaces';
+import { Gender, SpecialistCategories } from '../../common/interfaces';
 import { Specialization } from '../../common/specialization/specialization.entity';
 import { Account } from '../account.entity';
 
@@ -22,6 +22,9 @@ export class Specialist {
 
   @Column()
   lastName: string;
+
+  @Column({ nullable: true })
+  public gender?: Gender;
 
   @Column()
   mobilePhone: string;

@@ -9,6 +9,7 @@ import {
 import { Country } from '../../common/country/country.entity';
 import { Account } from '../account.entity';
 import { Business } from '../business/business.entity';
+import { Gender } from 'src/common/interfaces';
 
 @Entity()
 export class BusinessContact {
@@ -23,6 +24,9 @@ export class BusinessContact {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  public gender?: Gender;
 
   @Column()
   contactAddress: string;

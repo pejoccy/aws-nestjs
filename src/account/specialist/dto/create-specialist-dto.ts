@@ -13,7 +13,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { SpecialistCategories } from '../../../common/interfaces';
+import { Gender, SpecialistCategories } from '../../../common/interfaces';
 
 export class CreateSpecialistDto {
   @ApiProperty()
@@ -29,6 +29,11 @@ export class CreateSpecialistDto {
   @IsNotEmpty()
   @IsString()
   lastName: string;
+
+  @ApiPropertyOptional()
+  @IsEnum(Gender)
+  @IsOptional()
+  public gender?: Gender;
 
   @ApiProperty()
   @IsNotEmpty()
