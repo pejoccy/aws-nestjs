@@ -125,6 +125,12 @@ export enum ShareOptions {
   PRIVATE = 'private',
 }
 
+export enum SessionStatus {
+  CREATED = 'Created',
+  COMPLETED = 'Completed',
+  UPDATED = 'Updated',
+}
+
 export enum FileModality {
   X_RAY = 'x-ray',
   MRI = 'mri',

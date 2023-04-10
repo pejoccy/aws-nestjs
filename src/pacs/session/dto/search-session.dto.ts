@@ -1,13 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsBooleanString,
-  IsEnum,
-  IsISO8601,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { PaginationOptionsDto } from '../../../common/dto';
-import { FileModality, ShareOptions } from '../../../common/interfaces';
+import {
+  FileModality,
+  SessionStatus,
+  ShareOptions,
+} from '../../../common/interfaces';
 
 export class SearchSessionDto extends PaginationOptionsDto {
   @ApiPropertyOptional()
@@ -15,17 +13,17 @@ export class SearchSessionDto extends PaginationOptionsDto {
   @IsString()
   searchText?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: SessionStatus })
   @IsOptional()
-  @IsBooleanString()
-  status?: string;
+  @IsEnum(SessionStatus)
+  status?: SessionStatus;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: ShareOptions })
   @IsOptional()
   @IsEnum(ShareOptions)
   sessionPrivacy?: ShareOptions;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: FileModality })
   @IsOptional()
   @IsEnum(FileModality)
   modality?: FileModality;
