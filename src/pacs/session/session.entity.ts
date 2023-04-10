@@ -14,6 +14,7 @@ import {
   CommsProviders,
   FileModality,
   IChimeMeeting,
+  SessionStatus,
   ShareOptions,
 } from '../../common/interfaces';
 import { File } from '../file/file.entity';
@@ -56,7 +57,7 @@ export class Session extends BaseEntity {
   @Column()
   creatorId: number;
 
-  @Column()
+  @Column({ nullable: true })
   patientId?: number;
 
   @Column({ type: 'jsonb' })
@@ -64,6 +65,12 @@ export class Session extends BaseEntity {
 
   @Column({ type: 'enum', enum: ShareOptions, default: ShareOptions.PRIVATE })
   sharing: ShareOptions;
+
+  @Column({ default: SessionStatus.CREATED })
+  sessionStatus: SessionStatus;
+
+  @Column({ default: true })
+  status: boolean;
 
   @OneToMany(() => File, (file) => file.session)
   files: File[];

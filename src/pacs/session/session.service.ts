@@ -20,6 +20,7 @@ import {
   AuthTokenTypes,
   CommsProviders,
   InviteStatus,
+  SessionStatus,
 } from '../../common/interfaces';
 import { MailerService } from '../../common/mailer/mailer.service';
 import { ChatService } from '../../comms/chat/chat.service';
@@ -76,24 +77,26 @@ export class SessionService extends BaseService {
     }: SearchSessionDto,
     account: Account,
   ) {
+    // const inSearchText =
+    //   searchText && `'${searchText.toLowerCase().split(/\s+/).join("', '")}'`;
+
     const qb = this.sessionRepository
       .createQueryBuilder('session')
       .leftJoinAndSelect('session.collaborators', 'collaborators')
       .leftJoinAndSelect('session.files', 'files')
       .leftJoinAndSelect('session.notes', 'notes')
+      .leftJoinAndSelect('session.patient', 'patient')
       .leftJoinAndSelect('session.reports', 'reports')
       .leftJoinAndSelect('session.createdBy', 'createdBy')
       .leftJoinAndSelect('session.reportTemplate', 'reportTemplate')
       .where(
         `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) 
-        ${(searchText && ' AND session.name ILIKE :name ') || ''} 
         ${
-          (status &&
-            ` AND reports.id ${
-              status === 'true' ? 'IS NOT NULL' : 'IS NULL'
-            } `) ||
+          (searchText &&
+            ' AND (session.name ILIKE :term OR session."studyInfo" ILIKE :term OR patient.email ILIKE :term OR patient."mobilePhone" ILIKE :term OR patient."firstName" ILIKE :term OR patient."lastName" ILIKE :term) ') ||
           ''
         } 
+        ${(status && ' AND session."sessionStatus" = :status ') || ''} 
         ${(sessionPrivacy && ' AND session.sharing = :privacy ') || ''} 
         ${
           (receivingDate &&
@@ -104,7 +107,7 @@ export class SessionService extends BaseService {
       )
       .setParameters({
         accountId: account.id,
-        name: `%${searchText}%`,
+        term: `%${searchText}%`,
         privacy: sessionPrivacy,
         startDate: moment
           .parseZone(receivingDate)
@@ -115,6 +118,7 @@ export class SessionService extends BaseService {
           .endOf('day')
           .format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
         status,
+        // inSearchText,
         modality,
       });
 
@@ -133,6 +137,8 @@ export class SessionService extends BaseService {
         'createdBy',
         'createdBy.patient',
         'createdBy.specialist',
+        'createdBy.businessContact',
+        'createdBy.businessContact.business',
         'notes',
         'notes.createdBy',
         'notes.createdBy.patient',
@@ -505,6 +511,10 @@ export class SessionService extends BaseService {
         'Only a specialist is allowed to add a session report',
       );
     }
+
+    await this.sessionRepository.update(sessionId, {
+      sessionStatus: () => `'${SessionStatus.COMPLETED}'`,
+    });
 
     return (
       this.sessionReportRepository
