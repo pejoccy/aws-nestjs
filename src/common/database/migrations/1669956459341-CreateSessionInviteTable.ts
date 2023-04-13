@@ -118,22 +118,6 @@ export class CreateSessionInviteTable1669956459341
         isNullable: true,
       }),
     );
-    await queryRunner.addColumn(
-      'account',
-      new TableColumn({
-        name: 'isAnonymous',
-        type: 'boolean',
-        default: false,
-      }),
-    );
-    await queryRunner.addColumn(
-      'specialization',
-      new TableColumn({
-        name: 'isAnonymous',
-        type: 'boolean',
-        default: false,
-      }),
-    );
 
     // create anonymous collaborate account
     const {
@@ -195,7 +179,5 @@ export class CreateSessionInviteTable1669956459341
       .execute();
     // drop expiresAt column on session_collaborator
     await queryRunner.dropColumn('session_collaborator', 'expiresAt');
-    await queryRunner.dropColumn('account', 'isAnonymous');
-    await queryRunner.dropColumn('specialization', 'isAnonymous');
   }
 }
