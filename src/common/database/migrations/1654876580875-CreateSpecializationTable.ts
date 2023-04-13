@@ -32,6 +32,11 @@ export class CreateSpecializationTable1654876580875
             comment: 'e.g. ',
           },
           {
+            name: 'isAnonymous',
+            type: 'boolean',
+            default: false,
+          },
+          {
             name: 'status',
             type: 'boolean',
             default: true,

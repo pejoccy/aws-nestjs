@@ -31,6 +31,13 @@ export class CreateSpecialistTable1654876580876 implements MigrationInterface {
             type: 'varchar',
           },
           {
+            name: 'gender',
+            type: 'varchar',
+            length: '10',
+            isNullable: true,
+            comment: 'e.g. male, female, others',
+          },
+          {
             name: 'mobilePhone',
             type: 'varchar',
           },

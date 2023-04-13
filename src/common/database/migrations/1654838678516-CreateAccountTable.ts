@@ -47,6 +47,11 @@ export class CreateAccountTable1654838678516 implements MigrationInterface {
             default: false,
           },
           {
+            name: 'isAnonymous',
+            type: 'boolean',
+            default: false,
+          },
+          {
             name: 'status',
             type: 'enum',
             enum: ['active', 'disabled'],

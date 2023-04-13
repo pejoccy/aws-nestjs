@@ -37,6 +37,13 @@ export class CreateBusinessContactTable1654838678518
             type: 'varchar',
           },
           {
+            name: 'gender',
+            type: 'varchar',
+            length: '10',
+            isNullable: true,
+            comment: 'e.g. male, female, others',
+          },
+          {
             name: 'contactAddress',
             type: 'varchar',
             isNullable: true,
