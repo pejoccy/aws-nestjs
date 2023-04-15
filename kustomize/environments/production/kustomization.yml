@@ -1,4 +1,4 @@
 bases:
   - ../../application
-patches:
+patchesStrategicMerge:
   - replica_count.yml

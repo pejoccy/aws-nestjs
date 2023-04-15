@@ -1,7 +1,6 @@
 bases:
   - ../../application
-patches:
-# patchesStrategicMerge:
+patchesStrategicMerge:
   - redis-deployment.yml
   - redis-service.yml
   - deployment.yml
