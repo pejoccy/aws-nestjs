@@ -462,6 +462,9 @@ export class SessionService extends BaseService {
         'session.collaborators',
         'session.patient',
         'session.reportTemplate',
+        'session.createdBy',
+        'session.createdBy.businessContact',
+        'session.createdBy.businessContact.business',
         'specialist',
       ],
     });
