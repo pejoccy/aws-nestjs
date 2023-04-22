@@ -43,7 +43,7 @@ export class Session extends BaseEntity {
   name: string;
 
   @Column()
-  studyDate?: string;
+  studyDate?: Date;
 
   @Column()
   studyInfo?: string;

@@ -71,7 +71,8 @@ export class SessionService extends BaseService {
       page,
       searchText,
       modality,
-      receivingDate,
+      startDate,
+      endDate,
       sessionPrivacy,
       status,
     }: SearchSessionDto,
@@ -99,8 +100,13 @@ export class SessionService extends BaseService {
         ${(status && ' AND session."sessionStatus" = :status ') || ''} 
         ${(sessionPrivacy && ' AND session.sharing = :privacy ') || ''} 
         ${
-          (receivingDate &&
-            ' AND (session.createdAt >= :startDate AND session.createdAt <= :endDate) ') ||
+          (startDate &&
+            ' AND (session.createdAt >= :startDate OR session.studyDate >= :startDate) ') ||
+          ''
+        } 
+        ${
+          (endDate &&
+            ' AND (session.createdAt <= :endDate OR session.studyDate >= :startDate) ') ||
           ''
         } 
         ${(modality && ' AND session.modality = :modality ') || ''}`,
@@ -110,11 +116,11 @@ export class SessionService extends BaseService {
         term: `%${searchText}%`,
         privacy: sessionPrivacy,
         startDate: moment
-          .parseZone(receivingDate)
+          .parseZone(startDate)
           .startOf('day')
           .format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
         endDate: moment
-          .parseZone(receivingDate)
+          .parseZone(endDate)
           .endOf('day')
           .format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
         status,
@@ -482,7 +488,7 @@ export class SessionService extends BaseService {
     return report;
   }
 
-  async getInvitations(id: number, account: Account) {
+  async getSessionInvitations(id: number, account: Account) {
     if (account.isAnonymous) {
       throw new UnauthorizedException('Unauthorized to view invitations.');
     }

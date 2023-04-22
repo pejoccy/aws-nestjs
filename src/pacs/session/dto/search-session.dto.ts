@@ -31,5 +31,10 @@ export class SearchSessionDto extends PaginationOptionsDto {
   @ApiPropertyOptional()
   @IsISO8601()
   @IsOptional()
-  receivingDate?: string;
+  startDate?: string;
+
+  @ApiPropertyOptional()
+  @IsISO8601()
+  @IsOptional()
+  endDate?: string;
 }
