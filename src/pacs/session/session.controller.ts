@@ -82,7 +82,7 @@ export class SessionController {
     @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
   ): Promise<SessionInvite[]> {
-    return this.sessionService.getInvitations(id, account);
+    return this.sessionService.getSessionInvitations(id, account);
   }
 
   @ApiResponseMeta({ message: 'Token verified successfully!' })
