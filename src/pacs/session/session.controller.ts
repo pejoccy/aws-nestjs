@@ -200,6 +200,17 @@ export class SessionController {
     this.sessionService.updateNote(id, item, account);
   }
 
+  @Patch('/collaborators/invitations/:invitationId/decline')
+  async declineCollaborationInvitation(
+    @Param('invitationId') invitationToken: string,
+    @GetAccount() account: Account,
+  ) {
+    return this.sessionService.declineSessionCollaboration(
+      invitationToken,
+      account,
+    );
+  }
+
   @Delete('/:id/collaborators')
   async cancelSessionCollaboration(
     @Param('id', ParseIntPipe) sessionId: number,
