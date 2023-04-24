@@ -352,14 +352,21 @@ export class SessionService extends BaseService {
     await this.sessionCollaboratorRepository.delete({ sessionId });
   }
 
-  async declineSessionCollaboration(inviteHash: string, sessionId: number) {
+  async declineSessionCollaboration(inviteHash: string, account: Account) {
     const invitation = await this.sessionInviteRepository.update(
-      { sessionId, token: inviteHash },
+      {
+        inviteeEmail: account.email,
+        token: inviteHash,
+        status: InviteStatus.PENDING,
+      },
       { status: InviteStatus.DECLINED },
     );
-    if (invitation) {
-      await this.cacheService.remove(inviteHash);
+    if (!invitation) {
+      throw new NotFoundException(
+        'Invitation not found! Invalid/expired invitation token.',
+      );
     }
+    await this.cacheService.remove(inviteHash);
   }
 
   async cancelSessionCollaborationRequest(inviteId: number, account: Account) {
