@@ -84,17 +84,16 @@ export class SessionService extends BaseService {
     const qb = this.sessionRepository
       .createQueryBuilder('session')
       .leftJoinAndSelect('session.collaborators', 'collaborators')
-      .leftJoinAndMapOne(
-        'collaborators.specialist',
-        Specialist,
-        'specialist',
-        'specialist."accountId" = collaborators_session."accountId"',
-      )
+      .leftJoinAndSelect('collaborators.specialist', 'specialist')
       .leftJoinAndSelect('session.files', 'files')
       .leftJoinAndSelect('session.notes', 'notes')
       .leftJoinAndSelect('session.patient', 'patient')
       .leftJoinAndSelect('session.reports', 'reports')
       .leftJoinAndSelect('session.createdBy', 'createdBy')
+      .leftJoinAndSelect('createdBy.patient', 'creatorPatient')
+      .leftJoinAndSelect('createdBy.specialist', 'creatorSpecialist')
+      .leftJoinAndSelect('createdBy.businessContact', 'creatorBusinessContact')
+      .leftJoinAndSelect('creatorBusinessContact.business', 'contactBusiness')
       .leftJoinAndSelect('session.reportTemplate', 'reportTemplate')
       .where(
         `(session."patientId" = :accountId OR session."creatorId" = :accountId OR collaborators_session."accountId" = :accountId) 
@@ -207,6 +206,7 @@ export class SessionService extends BaseService {
         token: inviteHash,
         inviteeEmail: item.email,
         sessionId,
+        invitedById: account.id,
         expiresAt,
         status: InviteStatus.PENDING,
       })
