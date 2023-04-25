@@ -84,6 +84,12 @@ export class SessionService extends BaseService {
     const qb = this.sessionRepository
       .createQueryBuilder('session')
       .leftJoinAndSelect('session.collaborators', 'collaborators')
+      .leftJoinAndMapOne(
+        'collaborators.specialist',
+        Specialist,
+        'specialist',
+        'specialist."accountId" = collaborators_session."accountId"',
+      )
       .leftJoinAndSelect('session.files', 'files')
       .leftJoinAndSelect('session.notes', 'notes')
       .leftJoinAndSelect('session.patient', 'patient')
@@ -189,7 +195,7 @@ export class SessionService extends BaseService {
       );
     }
     const invitationWindowMins = 2 * 60 * 60;
-    const expiresAt = moment().add(invitationWindowMins, 'm').toDate();
+    const expiresAt = moment().add(invitationWindowMins, 'seconds').toDate();
     const inviteHash = this.appUtilities.generateShortCode();
 
     await this.sessionInviteRepository.manager
