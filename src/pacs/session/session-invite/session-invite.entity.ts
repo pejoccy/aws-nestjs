@@ -25,8 +25,8 @@ export class SessionInvite extends BaseEntity {
   @Column()
   sessionId: number;
 
-  @Column()
-  invitedBy: number;
+  @Column({ nullable: true })
+  invitedById?: number;
 
   @Column({
     enum: ResourcePermissions,
@@ -44,8 +44,8 @@ export class SessionInvite extends BaseEntity {
   expiresAt: Date;
 
   @OneToOne(() => Account)
-  @JoinColumn({ name: 'invitedBy' })
-  createdBy?: Account;
+  @JoinColumn({ name: 'invitedById' })
+  invitedBy?: Account;
 
   @ManyToOne(() => Session, (session) => session.invitations)
   session: Session;

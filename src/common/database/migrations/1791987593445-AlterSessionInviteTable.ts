@@ -12,7 +12,7 @@ export class AlterSessionInviteTable1791987593445
     await queryRunner.addColumn(
       'session_invite',
       new TableColumn({
-        name: 'invitedBy',
+        name: 'invitedById',
         type: 'integer',
         isNullable: true,
       }),
@@ -21,8 +21,8 @@ export class AlterSessionInviteTable1791987593445
     await queryRunner.createForeignKey(
       'session_invite',
       new TableForeignKey({
-        name: 'fk_session_invite_invitedBy_account_id',
-        columnNames: ['invitedBy'],
+        name: 'fk_session_invite_invitedById_account_id',
+        columnNames: ['invitedById'],
         referencedTableName: 'account',
         referencedColumnNames: ['id'],
       }),
@@ -32,8 +32,8 @@ export class AlterSessionInviteTable1791987593445
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey(
       'session_invite',
-      'fk_session_invite_invitedBy_account_id',
+      'fk_session_invite_invitedById_account_id',
     );
-    await queryRunner.dropColumn('session_invite', 'invitedBy');
+    await queryRunner.dropColumn('session_invite', 'invitedById');
   }
 }

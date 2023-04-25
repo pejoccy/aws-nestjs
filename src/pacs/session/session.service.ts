@@ -206,7 +206,7 @@ export class SessionService extends BaseService {
         token: inviteHash,
         inviteeEmail: item.email,
         sessionId,
-        invitedBy: account.id,
+        invitedById: account.id,
         expiresAt,
         status: InviteStatus.PENDING,
       })

@@ -28,11 +28,11 @@ export class SessionInviteService extends BaseService {
       relations: [
         'session',
         'session.patient',
-        'createdBy',
-        'createdBy.patient',
-        'createdBy.specialist',
-        'createdBy.businessContact',
-        'createdBy.businessContact.business',
+        'invitedBy',
+        'invitedBy.patient',
+        'invitedBy.specialist',
+        'invitedBy.businessContact',
+        'invitedBy.businessContact.business',
       ],
     });
   }
