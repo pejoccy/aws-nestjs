@@ -25,7 +25,15 @@ export class SessionInviteService extends BaseService {
 
     return await this.paginate(this.sessionInviteRepository, options, {
       where: { inviteeEmail: account.email, status },
-      relations: ['session', 'session.patient'],
+      relations: [
+        'session',
+        'session.patient',
+        'createdBy',
+        'createdBy.patient',
+        'createdBy.specialist',
+        'createdBy.businessContact',
+        'createdBy.businessContact.business',
+      ],
     });
   }
 }

@@ -1,5 +1,13 @@
-import { BaseEntity } from 'src/common/base/_entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Account } from '../../../account/account.entity';
+import { BaseEntity } from '../../../common/base/_entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { InviteStatus, ResourcePermissions } from '../../../common/interfaces';
 import { Session } from '../session.entity';
 
@@ -17,6 +25,9 @@ export class SessionInvite extends BaseEntity {
   @Column()
   sessionId: number;
 
+  @Column()
+  invitedBy: number;
+
   @Column({
     enum: ResourcePermissions,
     default: ResourcePermissions.READ_WRITE,
@@ -31,6 +42,10 @@ export class SessionInvite extends BaseEntity {
 
   @Column()
   expiresAt: Date;
+
+  @OneToOne(() => Account)
+  @JoinColumn({ name: 'invitedBy' })
+  createdBy?: Account;
 
   @ManyToOne(() => Session, (session) => session.invitations)
   session: Session;
