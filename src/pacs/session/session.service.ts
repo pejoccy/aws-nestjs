@@ -154,6 +154,8 @@ export class SessionService extends BaseService {
         'notes.createdBy',
         'notes.createdBy.patient',
         'notes.createdBy.specialist',
+        'notes.createdBy.businessContact',
+        'notes.createdBy.businessContact.business',
         'reportTemplate',
       ],
     });
