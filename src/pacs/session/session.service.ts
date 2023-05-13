@@ -111,7 +111,7 @@ export class SessionService extends BaseService {
         } 
         ${
           (endDate &&
-            ' AND (session."createdAt" <= :endDate OR session."studyDate" <= :startDate) ') ||
+            ' AND (session."createdAt" <= :endDate OR session."studyDate" <= :endDate) ') ||
           ''
         } 
         ${(modality && ' AND session.modality = :modality ') || ''}`.replace(
