@@ -106,15 +106,18 @@ export class SessionService extends BaseService {
         ${(sessionPrivacy && ' AND session.sharing = :privacy ') || ''} 
         ${
           (startDate &&
-            ' AND (session.createdAt >= :startDate OR session.studyDate >= :startDate) ') ||
+            ' AND (session."createdAt" >= :startDate OR session."studyDate" >= :startDate) ') ||
           ''
         } 
         ${
           (endDate &&
-            ' AND (session.createdAt <= :endDate OR session.studyDate >= :startDate) ') ||
+            ' AND (session."createdAt" <= :endDate OR session."studyDate" <= :startDate) ') ||
           ''
         } 
-        ${(modality && ' AND session.modality = :modality ') || ''}`,
+        ${(modality && ' AND session.modality = :modality ') || ''}`.replace(
+          /(\s{2,}|\n)/g,
+          ' ',
+        ),
       )
       .setParameters({
         accountId: account.id,
