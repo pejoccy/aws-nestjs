@@ -121,7 +121,7 @@ export class SessionService extends BaseService {
       )
       .setParameters({
         accountId: account.id,
-        term: `%${searchText}%`,
+        term: (searchText && `%${searchText}%`) || '',
         privacy: sessionPrivacy,
         startDate: moment
           .parseZone(startDate)
