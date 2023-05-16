@@ -1,7 +1,8 @@
-bases:
+resources:
   - ../../application
-patchesStrategicMerge:
+patches:
   - replica_count.yml
+  - ingres.yml
 namespace: production
 images:
   - name: princesegzy01/orysx-api
