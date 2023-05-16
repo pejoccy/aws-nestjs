@@ -1,6 +1,6 @@
 resources:
   - ../../application
-patches:
+patchesStrategicMerge:
   - replica_count.yml
   - ingres.yml
 namespace: test
