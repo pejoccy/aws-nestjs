@@ -52,7 +52,7 @@ const config = {
       //   : false,
       ssl: ['staging', 'production'].includes(env('NODE_ENV'))
         ? {
-            rejectUnauthorized: true,
+            rejectUnauthorized: false,
             ca: process.env.DB_CA_CERT,
           }
         : false,
