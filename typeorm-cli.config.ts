@@ -17,12 +17,12 @@ const config: PostgresConnectionOptions = {
   logging: false,
   logger: 'advanced-console',
   migrations: ['./src/common/database/migrations/*.ts'],
-  // ssl: true,
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
+  ssl: ['staging', 'production'].includes(process.env.NODE_ENV)
+    ? {
+        rejectUnauthorized: true,
+        ca: process.env.DB_CA_CERT,
+      }
+    : false,
   cli: {
     migrationsDir: './migrations',
   },

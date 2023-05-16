@@ -47,8 +47,14 @@ const config = {
       cli: {
         migrationsDir: './database/migrations',
       },
+      // ssl: ['staging', 'production'].includes(env('NODE_ENV'))
+      //   ? { ca: readFileSync(env('CERT_PATH')).toString() }
+      //   : false,
       ssl: ['staging', 'production'].includes(env('NODE_ENV'))
-        ? { ca: readFileSync(env('CERT_PATH')).toString() }
+        ? {
+            rejectUnauthorized: true,
+            ca: process.env.DB_CA_CERT,
+          }
         : false,
     },
     redis: {
