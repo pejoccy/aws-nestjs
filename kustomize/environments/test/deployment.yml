@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orysx-api-deployment
-=  labels:
+  labels:
     app: orysx-api
 spec:
   replicas: 1
