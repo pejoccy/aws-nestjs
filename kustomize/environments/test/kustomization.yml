@@ -1,9 +1,8 @@
 bases:
   - ../../application
 patchesStrategicMerge:
-  - redis-deployment.yml
-  - redis-service.yml
-  - deployment.yml
-  - service.yml
-  - ingres.yml
   - replica_count.yml
+namespace: test
+images:
+  - name: princesegzy01/orysx-api
+    newTag: "test"
