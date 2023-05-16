@@ -119,6 +119,7 @@ export class SessionService extends BaseService {
           ' ',
         ),
       )
+      .orderBy('session."createdAt"', 'DESC')
       .setParameters({
         accountId: account.id,
         term: (searchText && `%${searchText}%`) || '',
