@@ -6,4 +6,4 @@ patchesStrategicMerge:
 namespace: production
 images:
   - name: princesegzy01/orysx-api
-    newTag: "latest"
+    newTag: "production"
