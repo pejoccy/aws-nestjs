@@ -1,7 +1,8 @@
 resources:
   - ../../application
 patchesStrategicMerge:
-  - replica_count.yml
+  # - replica_count.yml
+  - deployment.yml
   - ingres.yml
 namespace: production
 images:
