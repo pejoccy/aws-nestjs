@@ -9,6 +9,7 @@ let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
 let cert = buff.toString('ascii');
 
 console.log(cert)
+console.log(process.env.NODE_ENV)
 console.log(">>>>>>>>>>>>>>>>>>>>>")
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
