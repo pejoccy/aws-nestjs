@@ -1,8 +1,5 @@
 import * as dotenv from 'dotenv';
 
-import path from 'path';
-import fs from 'fs';
-
 dotenv.config({ path: process.env.ENV_PATH });
 
 let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
