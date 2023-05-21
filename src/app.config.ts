@@ -1,8 +1,12 @@
 import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
+import path from 'path';
+import fs from 'fs';
 
-// dotenv.config();
 dotenv.config({ path: process.env.ENV_PATH });
+
+let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
+let cert = buff.toString('ascii');
 
 const env = (key: string, defaultVal: any = undefined) =>
   process.env[key] || defaultVal;
@@ -47,13 +51,9 @@ const config = {
       cli: {
         migrationsDir: './database/migrations',
       },
-      // ssl: ['staging', 'production'].includes(env('NODE_ENV'))
-      //   ? { ca: readFileSync(env('CERT_PATH')).toString() }
-      //   : false,
       ssl: ['staging', 'production'].includes(env('NODE_ENV'))
         ? {
-            rejectUnauthorized: false,
-            ca: process.env.DB_CA_CERT,
+            ca: cert.toString(),
           }
         : false,
     },
