@@ -10,7 +10,7 @@ let cert = buff.toString('ascii');
 
 console.log(cert)
 console.log(process.env.NODE_ENV)
-console.log(">>>>>>>>>>>>>>>>>>>>>")
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>")
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const config: PostgresConnectionOptions = {
