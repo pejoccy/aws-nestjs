@@ -1,7 +1,4 @@
 import * as dotenv from 'dotenv';
-import { readFileSync } from 'fs';
-import path from 'path';
-import fs from 'fs';
 
 dotenv.config({ path: process.env.ENV_PATH });
 
