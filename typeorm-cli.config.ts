@@ -5,6 +5,9 @@ dotenv.config({ path: process.env.ENV_PATH });
 let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
 let cert = buff.toString('ascii');
 
+
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>")
+console.log(cert)
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const config: PostgresConnectionOptions = {
