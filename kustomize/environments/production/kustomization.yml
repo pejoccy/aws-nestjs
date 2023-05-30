@@ -4,6 +4,7 @@ patchesStrategicMerge:
   # - replica_count.yml
   - deployment.yml
   - ingres.yml
+  - ingres_ssl.yml
 namespace: production
 images:
   - name: princesegzy01/orysx-api

@@ -4,6 +4,7 @@ resources:
 patchesStrategicMerge:
 - deployment.yml
 - ingres.yml
+- ingres_ssl.yml
 namespace: test
 images:
 - name: princesegzy01/orysx-api
