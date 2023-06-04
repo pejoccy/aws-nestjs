@@ -24,7 +24,7 @@ spec:
           mountPath: "/etc/orysx-api/.env"
         env:
         - name: ENV_PATH
-          value: "/etc/orysx-api/.env/test.env"
+          value: "/etc/orysx-api/.env/production.env"
         command: ['sh', '-c', 'npm run migration:run']
       containers:
       - name: orysx-api
@@ -32,7 +32,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: ENV_PATH
-          value: "/etc/orysx-api/.env/test.env"
+          value: "/etc/orysx-api/.env/production.env"
         ports:
         - containerPort: 3001
         volumeMounts:
@@ -41,4 +41,4 @@ spec:
       volumes:
       - name: env-file-vol
         secret:
-          secretName: test-env
+          secretName: production-env

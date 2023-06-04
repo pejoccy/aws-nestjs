@@ -13,4 +13,4 @@ spec:
       name: http
       port: 80
       #targetPort: 9000 # The app itself is not listening on 9000
-      targetPort: 3000   # It is listening on port 80 so I changed it  
+      targetPort: 3001   # It is listening on port 80 so I changed it  

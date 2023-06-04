@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orysx-api-deployment
+  # namespace: test
   labels:
     app: orysx-api
 spec:
@@ -18,7 +19,7 @@ spec:
       - name: docker-secret
       initContainers:
       - name: orysx-api-migration
-        image: princesegzy01/orysx-api
+        image: princesegzy01/orysx-api:test
         volumeMounts:
         - name: env-file-vol
           mountPath: "/etc/orysx-api/.env"
@@ -28,7 +29,7 @@ spec:
         command: ['sh', '-c', 'npm run migration:run']
       containers:
       - name: orysx-api
-        image: princesegzy01/orysx-api
+        image: princesegzy01/orysx-api:test
         imagePullPolicy: Always
         env:
         - name: ENV_PATH
