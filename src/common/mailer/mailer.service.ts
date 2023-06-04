@@ -91,7 +91,7 @@ export class MailerService {
       invitedBy.businessContact?.business.name ||
       (invitedBy.specialist &&
         `${invitedBy.specialist.firstName} ${invitedBy.specialist.firstName}`) ||
-      `${invitedBy.patient?.firstName} ${invitedBy.patient.firstName}`;
+      `${invitedBy.patient?.firstName} ${invitedBy.patient?.firstName}`;
 
     const html = await this.getFileTemplate('invite-collaborator', {
       inviter,
@@ -117,7 +117,7 @@ export class MailerService {
       account.businessContact?.business.name ||
       (account.specialist &&
         `${account.specialist.firstName} ${account.specialist.firstName}`) ||
-      `${account.patient?.firstName} ${account.patient.firstName}`;
+      `${account.patient?.firstName} ${account.patient?.firstName}`;
 
     const html = await this.getFileTemplate('share-session-link', {
       inviter,
