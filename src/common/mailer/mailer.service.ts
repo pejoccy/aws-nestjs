@@ -5,7 +5,9 @@ import * as ejs from 'ejs';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Account } from '../../account/account.entity';
+import { SessionInvite } from '../../pacs/session/session-invite/session-invite.entity';
 import { SendMailOptions } from './interfaces';
+import moment from 'moment';
 
 @Injectable()
 export class MailerService {
@@ -27,8 +29,21 @@ export class MailerService {
     });
   }
 
-  async sendUserAccountSetupEmail(email: string, otp: string) {
+  async sendUserAccountSetupEmail(
+    email: string,
+    otp: string,
+    account: Account,
+  ) {
+    const name =
+      (account.patient &&
+        `${account.patient.firstName} ${account.patient.lastName}`) ||
+      (account.businessContact &&
+        `${account.businessContact.firstName} ${account.businessContact.lastName}`) ||
+      (account.specialist &&
+        `${account.specialist.firstName} ${account.specialist.lastName}`);
+
     const html = await this.getFileTemplate('account-setup', {
+      name,
       otp,
       appLogo: this.appLogoURL,
     });
@@ -40,8 +55,17 @@ export class MailerService {
     }).catch((err) => console.log(JSON.stringify(err, null, 2)));
   }
 
-  async sendForgotPasswordEmail({ email }: Account, otp: string) {
+  async sendForgotPasswordEmail({ email, ...account }: Account, otp: string) {
+    const name =
+      (account.patient &&
+        `${account.patient.firstName} ${account.patient.lastName}`) ||
+      (account.businessContact &&
+        `${account.businessContact.firstName} ${account.businessContact.lastName}`) ||
+      (account.specialist &&
+        `${account.specialist.firstName} ${account.specialist.lastName}`);
+
     const html = await this.getFileTemplate('password-reset', {
+      name,
       otp,
       appLogo: this.appLogoURL,
     });
@@ -56,27 +80,49 @@ export class MailerService {
   async sendInviteCollaboratorEmail(
     email: string,
     inviteHash: string,
-    sessionId: number,
+    { invitedBy, ...invitation }: SessionInvite,
   ) {
     const acceptInvitationURL = [
       this.configService.get('client.baseUrl'),
       '/library/invite',
-      `?inviteCode=${inviteHash}&sessionId=${sessionId}`,
+      `?inviteCode=${inviteHash}&sessionId=${invitation.sessionId}`,
     ].join('');
+    const inviter =
+      invitedBy.businessContact?.business.name ||
+      (invitedBy.specialist &&
+        `${invitedBy.specialist.firstName} ${invitedBy.specialist.firstName}`) ||
+      `${invitedBy.patient?.firstName} ${invitedBy.patient.firstName}`;
+
     const html = await this.getFileTemplate('invite-collaborator', {
+      inviter,
+      inviteDate: moment(invitation.createdAt).format('llll'),
+      sessionName: invitation.session.name,
       acceptInvitationURL,
       appLogo: this.appLogoURL,
     });
 
     return this.send({
       to: email,
-      subject: 'Invitation to Collaborate on Orysx',
+      subject: 'Invitation to Collaborate on OrysX',
       html,
     }).catch(console.error);
   }
 
-  async sendSessionShareLinkEmail(email: string, sessionShareLink: string) {
+  async sendSessionShareLinkEmail(
+    email: string,
+    sessionShareLink: string,
+    account: Account,
+  ) {
+    const inviter =
+      account.businessContact?.business.name ||
+      (account.specialist &&
+        `${account.specialist.firstName} ${account.specialist.firstName}`) ||
+      `${account.patient?.firstName} ${account.patient.firstName}`;
+
     const html = await this.getFileTemplate('share-session-link', {
+      inviter,
+      inviteDate: moment().format('llll'),
+      sessionName: 'Anonymous session',
       link: sessionShareLink,
       appLogo: this.appLogoURL,
     });
