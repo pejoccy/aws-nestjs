@@ -2,9 +2,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ path: process.env.ENV_PATH });
 
-let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
-let cert = buff.toString('ascii');
-
 const env = (key: string, defaultVal: any = undefined) =>
   process.env[key] || defaultVal;
 
@@ -50,7 +47,7 @@ const config = {
       },
       ssl: ['staging', 'production'].includes(env('NODE_ENV'))
         ? {
-            ca: cert.toString(),
+            ca: Buffer.from(process.env.DB_CA_CERT, 'base64').toString('ascii'),
           }
         : false,
     },

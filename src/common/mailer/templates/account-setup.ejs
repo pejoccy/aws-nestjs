@@ -264,7 +264,7 @@
                         <div
                           style="
                             font-family: 'Helvetica Neue', Arial, sans-serif;
-                            font-size: 32px;
+                            font-size: 28px;
                             font-weight: bold;
                             line-height: 1;
                             text-align: center;
@@ -312,7 +312,7 @@
                           style="
                             font-family: 'Helvetica Neue', Arial, sans-serif;
                             font-size: 16px;
-                            line-height: 22px;
+                            line-height: 1.5;
                             text-align: center;
                             color: #555;
                           "
@@ -330,81 +330,6 @@
 
                     <tr>
                       <td
-                        align="center"
-                        style="
-                          font-size: 0px;
-                          padding: 10px 25px;
-                          padding-bottom: 20px;
-                          word-break: break-word;
-                        "
-                      >
-                        <div
-                          style="
-                            font-family: 'Helvetica Neue', Arial, sans-serif;
-                            font-size: 16px;
-                            line-height: 22px;
-                            text-align: center;
-                            color: #555;
-                          "
-                        >
-                          Please find your OTP below:
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td
-                        align="center"
-                        style="
-                          font-size: 0px;
-                          padding: 10px 25px;
-                          padding-bottom: 40px;
-                          word-break: break-word;
-                        "
-                      >
-                        <table
-                          align="center"
-                          border="0"
-                          cellpadding="0"
-                          cellspacing="0"
-                          role="presentation"
-                          style="border-collapse: separate; line-height: 100%"
-                        >
-                          <tr>
-                            <td
-                              align="center"
-                              bgcolor="#2F67F6"
-                              role="presentation"
-                              style="
-                                border: none;
-                                border-radius: 3px;
-                                color: #ffffff;
-                                cursor: auto;
-                                padding: 15px 25px;
-                              "
-                              valign="middle"
-                            >
-                              <p
-                                style="
-                                  font-family: 'Helvetica Neue', Arial,
-                                    sans-serif;
-                                  font-size: 18px;
-                                  font-weight: normal;
-                                  line-height: 120%;
-                                  margin: 0;
-                                  text-decoration: none;
-                                  text-transform: none;
-                                "
-                              >
-                                <%= otp %>
-                              </p>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
                         style="
                           font-size: 0px;
                           padding: 10px 25px;
@@ -415,12 +340,12 @@
                           style="
                             font-family: 'Helvetica Neue', Arial, sans-serif;
                             font-size: 16px;
-                            line-height: 22px;
+                            line-height: 1.5;
                             text-align: center;
                             color: #555;
                           "
                         >
-                          Please enter this OTP to complete your account
+                          Please enter this OTP, <b><%= otp %></b> to complete your account
                           creation process. If you did not initiate this
                           request, please disregard this email and take the
                           necessary steps to secure your account.
