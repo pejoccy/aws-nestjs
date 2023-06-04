@@ -18,8 +18,8 @@ export class AppUtilities {
       .padStart(length, '0');
   }
 
-  public generateShortCode(): string {
-    const nanoid = customAlphabet(CUSTOM_CHARS, 10);
+  public generateShortCode(length = 10): string {
+    const nanoid = customAlphabet(CUSTOM_CHARS, length);
     return nanoid();
   }
 

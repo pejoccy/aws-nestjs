@@ -1,9 +1,13 @@
-bases:
-  - ../../application
+resources:
+- ../../application
+  # - replica_count.yml
 patchesStrategicMerge:
-  - redis-deployment.yml
-  - redis-service.yml
-  - deployment.yml
-  - service.yml
-  - ingres.yml
-  - replica_count.yml
+- deployment.yml
+- ingres.yml
+- ingres_ssl.yml
+namespace: test
+images:
+- name: princesegzy01/orysx-api
+  newTag: test
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization

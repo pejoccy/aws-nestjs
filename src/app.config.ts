@@ -1,7 +1,5 @@
 import * as dotenv from 'dotenv';
-import { readFileSync } from 'fs';
 
-// dotenv.config();
 dotenv.config({ path: process.env.ENV_PATH });
 
 const env = (key: string, defaultVal: any = undefined) =>
@@ -48,7 +46,9 @@ const config = {
         migrationsDir: './database/migrations',
       },
       ssl: ['staging', 'production'].includes(env('NODE_ENV'))
-        ? { ca: readFileSync(env('CERT_PATH')).toString() }
+        ? {
+            ca: Buffer.from(process.env.DB_CA_CERT, 'base64').toString('ascii'),
+          }
         : false,
     },
     redis: {

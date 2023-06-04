@@ -1,9 +1,11 @@
-bases:
+resources:
   - ../../application
 patchesStrategicMerge:
-  - redis-deployment.yml
-  - redis-service.yml
+  # - replica_count.yml
   - deployment.yml
-  - service.yml
   - ingres.yml
-  - replica_count.yml
+  - ingres_ssl.yml
+namespace: production
+images:
+  - name: princesegzy01/orysx-api
+    newTag: "production"
