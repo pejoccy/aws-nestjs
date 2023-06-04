@@ -56,7 +56,10 @@ export class AuthService extends BaseService {
   }
 
   public async forgotPassword({ email }: ForgotPasswordDto) {
-    const user = await this.accountRepository.findOne({ email });
+    const user = await this.accountRepository.findOne({
+      where: { email },
+      relations: ['businessContact', 'patient', 'specialist'],
+    });
     const token = this.appUtilities.generateShortCode();
     if (user) {
       const otp = this.appUtilities.generateOtp();
@@ -157,7 +160,7 @@ export class AuthService extends BaseService {
       24 * 60 * 60, // 1 day
     );
 
-    this.mailService.sendUserAccountSetupEmail(email, otp);
+    this.mailService.sendUserAccountSetupEmail(email, otp, user);
 
     return { token };
   }

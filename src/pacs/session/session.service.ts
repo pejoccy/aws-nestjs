@@ -190,6 +190,14 @@ export class SessionService extends BaseService {
     }
     const invitation = await this.sessionInviteRepository.findOne({
       where: { sessionId, inviteeEmail: item.email },
+      relations: [
+        'session',
+        'session.createdBy',
+        'session.createdBy.patient',
+        'session.createdBy.specialist',
+        'session.createdBy.businessContact',
+        'session.createdBy.businessContact.business',
+      ],
     });
     if (
       !!invitation &&
@@ -228,7 +236,7 @@ export class SessionService extends BaseService {
     this.mailService.sendInviteCollaboratorEmail(
       item.email,
       inviteHash,
-      sessionId,
+      invitation,
     );
   }
 
@@ -278,7 +286,11 @@ export class SessionService extends BaseService {
     )}/folder/share?sessionID=${sessionId}&shareToken=${sessionCacheKey}`;
     // send email
     if (email) {
-      this.mailService.sendSessionShareLinkEmail(email, sessionShareLink);
+      this.mailService.sendSessionShareLinkEmail(
+        email,
+        sessionShareLink,
+        account,
+      );
     }
 
     return sessionShareLink;
