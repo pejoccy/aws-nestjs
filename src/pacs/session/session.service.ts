@@ -180,7 +180,15 @@ export class SessionService extends BaseService {
   ) {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
-      relations: ['collaborators', 'patient'],
+      relations: [
+        'collaborators',
+        'patient',
+        'createdBy',
+        'createdBy.patient',
+        'createdBy.specialist',
+        'createdBy.businessContact',
+        'createdBy.businessContact.business',
+      ],
     });
     if (
       !session ||
@@ -188,16 +196,8 @@ export class SessionService extends BaseService {
     ) {
       throw new NotAcceptableException('Unauthorized/Invalid session!');
     }
-    const invitation = await this.sessionInviteRepository.findOne({
+    let invitation = await this.sessionInviteRepository.findOne({
       where: { sessionId, inviteeEmail: item.email },
-      relations: [
-        'session',
-        'session.createdBy',
-        'session.createdBy.patient',
-        'session.createdBy.specialist',
-        'session.createdBy.businessContact',
-        'session.createdBy.businessContact.business',
-      ],
     });
     if (
       !!invitation &&
@@ -211,7 +211,9 @@ export class SessionService extends BaseService {
     const expiresAt = moment().add(invitationWindowMins, 'seconds').toDate();
     const inviteHash = this.appUtilities.generateShortCode();
 
-    await this.sessionInviteRepository.manager
+    ({
+      raw: [invitation],
+    } = await this.sessionInviteRepository.manager
       .createQueryBuilder()
       .insert()
       .into(SessionInvite)
@@ -225,12 +227,17 @@ export class SessionService extends BaseService {
         status: InviteStatus.PENDING,
       })
       .orUpdate(['token', 'status', 'expiresAt'], ['sessionId', 'inviteeEmail'])
-      .execute();
+      .returning('*')
+      .execute());
     await this.cacheService.set(
       inviteHash,
       { ...item, invitedBy: account.id, sessionId },
       invitationWindowMins,
     );
+    // prefill objects
+    invitation.session = session;
+    invitation.invitedBy = account;
+    invitation.invitedById = account.id;
 
     // send email
     this.mailService.sendInviteCollaboratorEmail(
@@ -290,6 +297,7 @@ export class SessionService extends BaseService {
         email,
         sessionShareLink,
         account,
+        session,
       );
     }
 

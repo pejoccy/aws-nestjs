@@ -62,7 +62,7 @@ export class AuthService extends BaseService {
     });
     const token = this.appUtilities.generateShortCode();
     if (user) {
-      const otp = this.appUtilities.generateOtp();
+      const otp = this.appUtilities.generateOtp(6);
       await this.cacheService.set(
         token,
         {

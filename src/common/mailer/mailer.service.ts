@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Account } from '../../account/account.entity';
 import { SessionInvite } from '../../pacs/session/session-invite/session-invite.entity';
+import { Session } from '../../pacs/session/session.entity';
 import { SendMailOptions } from './interfaces';
 import moment from 'moment';
 
@@ -90,8 +91,8 @@ export class MailerService {
     const inviter =
       invitedBy.businessContact?.business.name ||
       (invitedBy.specialist &&
-        `${invitedBy.specialist.firstName} ${invitedBy.specialist.firstName}`) ||
-      `${invitedBy.patient?.firstName} ${invitedBy.patient?.firstName}`;
+        `${invitedBy.specialist.firstName} ${invitedBy.specialist.lastName}`) ||
+      `${invitedBy.patient?.firstName} ${invitedBy.patient?.lastName}`;
 
     const html = await this.getFileTemplate('invite-collaborator', {
       inviter,
@@ -112,17 +113,18 @@ export class MailerService {
     email: string,
     sessionShareLink: string,
     account: Account,
+    session: Session,
   ) {
     const inviter =
       account.businessContact?.business.name ||
       (account.specialist &&
-        `${account.specialist.firstName} ${account.specialist.firstName}`) ||
-      `${account.patient?.firstName} ${account.patient?.firstName}`;
+        `${account.specialist.firstName} ${account.specialist.lastName}`) ||
+      `${account.patient?.firstName} ${account.patient?.lastName}`;
 
     const html = await this.getFileTemplate('share-session-link', {
       inviter,
       inviteDate: moment().format('llll'),
-      sessionName: 'Anonymous session',
+      sessionName: session.name,
       link: sessionShareLink,
       appLogo: this.appLogoURL,
     });
