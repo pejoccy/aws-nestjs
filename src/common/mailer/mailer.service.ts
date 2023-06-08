@@ -30,21 +30,8 @@ export class MailerService {
     });
   }
 
-  async sendUserAccountSetupEmail(
-    email: string,
-    otp: string,
-    account: Account,
-  ) {
-    const name =
-      (account.patient &&
-        `${account.patient.firstName} ${account.patient.lastName}`) ||
-      (account.businessContact &&
-        `${account.businessContact.firstName} ${account.businessContact.lastName}`) ||
-      (account.specialist &&
-        `${account.specialist.firstName} ${account.specialist.lastName}`);
-
+  async sendUserAccountSetupEmail(email: string, otp: string) {
     const html = await this.getFileTemplate('account-setup', {
-      name,
       otp,
       appLogo: this.appLogoURL,
     });
