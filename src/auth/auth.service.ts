@@ -160,7 +160,7 @@ export class AuthService extends BaseService {
       24 * 60 * 60, // 1 day
     );
 
-    this.mailService.sendUserAccountSetupEmail(email, otp, user);
+    this.mailService.sendUserAccountSetupEmail(email, otp);
 
     return { token };
   }
