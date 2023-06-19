@@ -9,7 +9,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Response } from 'express';
 import { readFileSync, unlink } from 'fs';
-import mime from 'mime-types';
 import moment from 'moment';
 import { v4 } from 'uuid';
 import { In, IsNull, Not, Repository } from 'typeorm';
@@ -125,7 +124,7 @@ export class PacsService extends BaseService {
       patientId: item.patientId,
       modality: item.modality,
       modalitySection: item.modalitySection,
-      ext: mime.extension(item.file.mimetype) || undefined,
+      ext: AppUtilities.getFileExt(item.file),
       provider: FileStorageProviders.LOCAL,
     });
 
@@ -190,7 +189,7 @@ export class PacsService extends BaseService {
           patientId: item.patientId,
           modality: item.modality,
           modalitySection: item.modalitySection,
-          ext: mime.extension(file.mimetype) || undefined,
+          ext: AppUtilities.getFileExt(file),
           provider: FileStorageProviders.LOCAL,
         })),
       )

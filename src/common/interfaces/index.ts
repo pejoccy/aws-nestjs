@@ -2,9 +2,15 @@ import { NotAcceptableException } from '@nestjs/common';
 
 export const imageFileFilter = (req, file, callback) => {
   if (
-    !String(file.originalname)
-      .toLowerCase()
-      .match(/\.(png|jpeg|jpg|bmp)$/)
+    ![
+      'image/jpeg',
+      'image/png',
+      'image/x-png',
+      'image/bmp',
+      // 'image/gif',
+      'application/dicom',
+      'application/octet-stream',
+    ].includes(String(file.mimetype))
   ) {
     return callback(
       new NotAcceptableException('Only image files are allowed!'),
