@@ -1,11 +1,17 @@
 import { NotAcceptableException } from '@nestjs/common';
 
+export const CT_SCAN_MIMES = ['application/dicom', 'application/octet-stream'];
+
+export const IMG_MIMES = [
+  'image/jpeg',
+  'image/png',
+  'image/x-png',
+  'image/bmp',
+  // 'image/gif',
+];
+
 export const imageFileFilter = (req, file, callback) => {
-  if (
-    !String(file.originalname)
-      .toLowerCase()
-      .match(/\.(png|jpeg|jpg|bmp)$/)
-  ) {
+  if (![...CT_SCAN_MIMES, ...IMG_MIMES].includes(String(file.mimetype))) {
     return callback(
       new NotAcceptableException('Only image files are allowed!'),
       false,

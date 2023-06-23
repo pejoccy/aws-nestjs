@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import sha256 from 'crypto-js/sha256';
 import Base64 from 'crypto-js/enc-base64';
 import { customAlphabet } from 'nanoid';
+import mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
 
 const CUSTOM_CHARS =
@@ -59,5 +60,16 @@ export class AppUtilities {
     encoding: BufferEncoding = 'base64',
   ): string {
     return Buffer.from(data, encoding).toString();
+  }
+
+  public static getFileExt(file: Express.Multer.File) {
+    const [, ...fileExtFromNameArr] = String(file.originalname).split('.');
+
+    return (
+      mime.extension(file.mimetype) ||
+      (fileExtFromNameArr.length &&
+        fileExtFromNameArr[fileExtFromNameArr.length - 1]) ||
+      undefined
+    );
   }
 }
