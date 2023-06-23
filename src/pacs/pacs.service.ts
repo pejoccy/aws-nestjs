@@ -15,7 +15,13 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { AppUtilities } from '../app.utilities';
 import { BaseService } from '../common/base/service';
-import { CommsProviders, ShareOptions } from '../common/interfaces';
+import {
+  CT_SCAN_MIMES,
+  CommsProviders,
+  FileModality,
+  ShareOptions,
+  X_RAY_MIMES,
+} from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
 import { File } from './file/file.entity';
@@ -83,6 +89,13 @@ export class PacsService extends BaseService {
       throw new UnauthorizedException(
         'Access Denied! Account does not have permission to upload file(s)',
       );
+    } else if (
+      (item.modality === FileModality.CT_SCAN &&
+        !CT_SCAN_MIMES.includes(item.file.mimetype)) ||
+      (item.modality === FileModality.CT_SCAN &&
+        !X_RAY_MIMES.includes(item.file.mimetype))
+    ) {
+      throw new BadRequestException('Invalid file type uploaded!');
     }
     const sessionName = moment().format('YYYYMMDDHHmmss');
     const template = await this.reportTemplateRepository.findOne({
@@ -173,6 +186,20 @@ export class PacsService extends BaseService {
     if (item.files.length <= 0) {
       throw new BadRequestException('No file(s) attached!');
     }
+
+    for (const file of item.files) {
+      if (
+        (item.modality === FileModality.CT_SCAN &&
+          !CT_SCAN_MIMES.includes(file.mimetype)) ||
+        (item.modality === FileModality.CT_SCAN &&
+          !X_RAY_MIMES.includes(file.mimetype))
+      ) {
+        throw new BadRequestException(
+          `Invalid file type uploaded for file ${file.originalname}!`,
+        );
+      }
+    }
+
     const { raw } = await this.fileRepository
       .createQueryBuilder()
       .insert()
