@@ -9,7 +9,7 @@ metadata:
   
 spec:
   rules:
-  - host: test.api.orysx.com
+  - host: sample.api.orysx.com
     http:
       paths:
       - path: /

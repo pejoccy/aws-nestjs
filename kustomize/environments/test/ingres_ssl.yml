@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - test2.api.orysx.com
+    - test.api.orysx.com
     secretName: orysx-tls
   rules:
-    - host: test2.api.orysx.com
+    - host: test.api.orysx.com
       http:
         paths:
           - pathType: Prefix
