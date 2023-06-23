@@ -10,7 +10,7 @@ spec:
   tls:
   - hosts:
     - test.api.orysx.com
-    secretName: orysx-tls
+    secretName: orysx-tls-test
   rules:
     - host: test.api.orysx.com
       http:
