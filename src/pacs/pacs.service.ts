@@ -20,7 +20,7 @@ import {
   CommsProviders,
   FileModality,
   ShareOptions,
-  X_RAY_MIMES,
+  IMG_MIMES,
 } from '../common/interfaces';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { UploadFolderDto } from './dto/upload-folder.dto';
@@ -92,8 +92,8 @@ export class PacsService extends BaseService {
     } else if (
       (item.modality === FileModality.CT_SCAN &&
         !CT_SCAN_MIMES.includes(item.file.mimetype)) ||
-      (item.modality === FileModality.CT_SCAN &&
-        !X_RAY_MIMES.includes(item.file.mimetype))
+      (item.modality !== FileModality.CT_SCAN &&
+        !IMG_MIMES.includes(item.file.mimetype))
     ) {
       throw new BadRequestException('Invalid file type uploaded!');
     }
@@ -191,11 +191,11 @@ export class PacsService extends BaseService {
       if (
         (item.modality === FileModality.CT_SCAN &&
           !CT_SCAN_MIMES.includes(file.mimetype)) ||
-        (item.modality === FileModality.CT_SCAN &&
-          !X_RAY_MIMES.includes(file.mimetype))
+        (item.modality !== FileModality.CT_SCAN &&
+          !IMG_MIMES.includes(file.mimetype))
       ) {
         throw new BadRequestException(
-          `Invalid file type uploaded for file ${file.originalname}!`,
+          `Invalid file type uploaded for file '${file.originalname}'!`,
         );
       }
     }
