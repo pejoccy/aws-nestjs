@@ -50,8 +50,9 @@ export class SessionController {
   async getSession(
     @Param('id', ParseIntPipe) id: number,
     @GetAccount() account: Account,
+    @Query('session') session?: string,
   ): Promise<Session> {
-    return this.sessionService.getSession(id, account);
+    return this.sessionService.getSession(Number(session) || id, account);
   }
 
   @Get('/:id/chat')
