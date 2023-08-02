@@ -1,8 +1,8 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BusinessContactService } from '../business-contact/business-contact.service';
-import { CreateBusinessContactDto } from '../business-contact/dto/create-business-contact-dto';
+import { BusinessContactService } from './business-contact/business-contact.service';
+import { CreateBusinessContactDto } from './business-contact/dto/create-business-contact-dto';
 import { Business } from './business.entity';
 import { CreateBusinessDto } from './dto/create-business-dto';
 

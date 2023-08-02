@@ -11,7 +11,7 @@ import {
 import { Country } from '../../common/country/country.entity';
 import { BusinessCategories } from '../../common/interfaces';
 import { Account } from '../account.entity';
-import { BusinessContact } from '../business-contact/business-contact.entity';
+import { BusinessContact } from './business-contact/business-contact.entity';
 
 @Entity()
 export class Business {

@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Gender } from '../../../common/interfaces';
+import { Gender } from '../../../../common/interfaces';
 
 export class CreateBusinessContactDto {
   @ApiProperty()

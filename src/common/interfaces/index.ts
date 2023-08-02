@@ -50,6 +50,11 @@ export enum AccountTypes {
   BUSINESS = 'business',
 }
 
+export enum BusinessContactRoles {
+  FRONT_DESK_OFFICER = 'Front Desk Officer',
+  ADMIN = 'Admin',
+}
+
 // eslint-disable-next-line  @typescript-eslint/naming-convention
 export enum PG_DB_ERROR_CODES {
   CONFLICT = '23505',

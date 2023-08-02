@@ -121,7 +121,7 @@ export class AuthService extends BaseService {
       expiresIn,
       user: {
         id: account.id,
-        role: account.role,
+        role: account.type,
         ...account.patient,
         ...account.specialist,
         ...account.businessContact,
