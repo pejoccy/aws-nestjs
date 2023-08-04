@@ -4,9 +4,14 @@ import { BusinessController } from './business.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BusinessContactModule } from './business-contact/business-contact.module';
 import { Business } from './business.entity';
+import { BusinessBranchModule } from './business-branch/business-branch.module';
 
 @Module({
-  imports: [BusinessContactModule, TypeOrmModule.forFeature([Business])],
+  imports: [
+    BusinessContactModule,
+    BusinessBranchModule,
+    TypeOrmModule.forFeature([Business]),
+  ],
   providers: [BusinessService],
   controllers: [BusinessController],
   exports: [BusinessService, TypeOrmModule],

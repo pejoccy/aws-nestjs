@@ -46,6 +46,9 @@ export class BusinessContact {
   @Column()
   businessId: number;
 
+  @Column({ default: true })
+  status?: boolean;
+
   @ManyToOne(() => Business, (business) => business.contacts)
   business: Business;
 

@@ -2,13 +2,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { Country } from '../../../common/country/country.entity';
-import { Gender } from '../../../common/interfaces';
-import { Account } from '../../account.entity';
+import { State } from '../../../common/state/state.entity';
 import { Business } from '../../business/business.entity';
 
 @Entity()
@@ -17,40 +14,33 @@ export class BusinessBranch {
   id: number;
 
   @Column()
-  firstName: string;
+  name: string;
 
   @Column()
-  lastName: string;
+  address: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column({ nullable: true })
-  public gender?: Gender;
+  stateId?: number;
 
   @Column()
-  contactAddress: string;
+  city: string;
 
   @Column({ nullable: true })
-  countryId?: number;
+  phoneNumber?: string;
 
-  @Column()
-  mobilePhone: string;
-
-  @Column()
-  accountId?: number;
+  @Column({ default: true })
+  status: boolean;
 
   @Column()
   businessId: number;
 
-  @ManyToOne(() => Business, (business) => business.contacts)
+  @ManyToOne(() => Business, (business) => business.branches)
   business: Business;
 
-  @OneToOne(() => Account)
+  @ManyToOne(() => State)
   @JoinColumn()
-  account?: Account;
-
-  @ManyToOne(() => Country)
-  @JoinColumn()
-  country?: Country;
+  state?: State;
 }

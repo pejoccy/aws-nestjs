@@ -21,7 +21,7 @@ export class CreateBusinessBranchDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  stateId: string;
+  stateId: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -34,5 +34,5 @@ export class CreateBusinessBranchDto {
 
   @ApiProperty()
   @IsMobilePhone()
-  mobilePhone: string;
+  phoneNumber: string;
 }
