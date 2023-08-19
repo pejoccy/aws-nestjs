@@ -4,9 +4,11 @@ import {
   Column,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { State } from '../../../common/state/state.entity';
 import { Business } from '../../business/business.entity';
+import { BusinessSessionBooking } from '../business-session-booking/business-session-booking.entity';
 
 @Entity()
 export class BusinessBranch {
@@ -22,8 +24,8 @@ export class BusinessBranch {
   @Column()
   email: string;
 
-  @Column({ nullable: true })
-  stateId?: number;
+  @Column()
+  stateId: number;
 
   @Column()
   city: string;
@@ -43,4 +45,10 @@ export class BusinessBranch {
   @ManyToOne(() => State)
   @JoinColumn()
   state?: State;
+
+  @OneToMany(
+    () => BusinessSessionBooking,
+    (booking) => booking.referredToBizBranch,
+  )
+  bookings?: BusinessSessionBooking[];
 }

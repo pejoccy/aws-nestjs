@@ -13,6 +13,8 @@ import { BusinessCategories } from '../../common/interfaces';
 import { Account } from '../account.entity';
 import { BusinessContact } from './business-contact/business-contact.entity';
 import { BusinessBranch } from './business-branch/business-branch.entity';
+import { BusinessContractor } from './business-contractor/business-contractor.entity';
+import { BusinessSessionBooking } from './business-session-booking/business-session-booking.entity';
 
 @Entity()
 export class Business {
@@ -48,6 +50,15 @@ export class Business {
 
   @OneToMany(() => BusinessBranch, (branch) => branch.business)
   branches: BusinessBranch[];
+
+  @OneToMany(() => BusinessContractor, (contractor) => contractor.business)
+  contractors: BusinessContractor[];
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.business)
+  bookings?: BusinessSessionBooking[];
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.referredToBiz)
+  referredBookings?: BusinessSessionBooking[];
 
   @ManyToMany(() => Account, (account) => account.business)
   @JoinTable({ name: 'business_contact' })

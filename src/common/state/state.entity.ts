@@ -5,11 +5,11 @@ export class State {
   id: number;
 
   @Column()
-  countryId: string;
-
-  @Column()
   name: string;
 
   @Column()
   code: string;
+
+  @Column()
+  countryId: string;
 }

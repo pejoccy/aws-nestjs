@@ -1,9 +1,11 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { BaseService } from '../../common/base/service';
-import { CreatePatientDto } from './dto/create-patient-dto';
 import { Patient } from './patient.entity';
+import { SearchPatientDto } from './dto/search-patient.dto';
+import { CreateBusinessPatientDto } from './dto/create-business-patient-dto';
+import { UpdateBusinessPatientDto } from './dto/update-business-patient-dto';
 
 @Injectable()
 export class PatientService extends BaseService {
@@ -14,7 +16,26 @@ export class PatientService extends BaseService {
     super();
   }
 
-  async create(item: CreatePatientDto) {
+  async getPatients({
+    searchText,
+    limit,
+    page,
+    where,
+  }: SearchPatientDto & Pick<FindManyOptions<Patient>, 'where'>) {
+    return this.search(
+      this.patientRepository,
+      ['email', 'firstName', 'lastName', 'mobilePhone'],
+      searchText,
+      { limit, page },
+      { where },
+    );
+  }
+
+  async updatePatient(id: number, dto: UpdateBusinessPatientDto) {
+    return this.patientRepository.update(id, dto);
+  }
+
+  async create(item: CreateBusinessPatientDto) {
     const patient = await this.patientRepository
       .createQueryBuilder('patient')
       .where(

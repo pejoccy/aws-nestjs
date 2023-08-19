@@ -1,6 +1,7 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BusinessContactRoles } from '../../common/interfaces';
 import { Account } from '../account.entity';
 import { BusinessContact } from './business-contact/business-contact.entity';
 import { CreateBusinessContactDto } from './business-contact/dto/create-business-contact-dto';
@@ -36,6 +37,7 @@ export class BusinessService {
     business = await this.businessRepository.save(item);
     await this.businessContactRepository.save({
       ...contact,
+      role: BusinessContactRoles.ADMIN,
       businessId: business.id,
     });
 

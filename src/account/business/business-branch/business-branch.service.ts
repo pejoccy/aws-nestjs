@@ -44,9 +44,10 @@ export class BusinessBranchService extends BaseService {
   async createBranch(item: CreateBusinessBranchDto, account: Account) {
     const branch = await this.businessBranchRepository
       .createQueryBuilder('branch')
-      .where('LOWER(branch.name) = LOWER(:name) AND status = 1', {
-        name: item.name,
-      })
+      .where(
+        'LOWER(branch.name) = LOWER(:name) "businessId" = :businessId AND status = 1',
+        { name: item.name, businessId: account.businessContact.businessId },
+      )
       .getOne();
     if (branch) {
       throw new NotAcceptableException('Business branch name already exists!');

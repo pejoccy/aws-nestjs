@@ -109,7 +109,9 @@ export class BaseService {
     searchOptions?: FindManyOptions<T>,
   ): Promise<Pagination<T, CustomMetaType>> {
     options.limit =
-      (options.limit && (options.limit > 100 ? 100 : options.limit)) || 10;
+      (typeof options.limit === 'number' &&
+        (options.limit > 100 ? 100 : options.limit)) ||
+      10;
     options.page = options.page ?? 1;
 
     const query: FindManyOptions = {};

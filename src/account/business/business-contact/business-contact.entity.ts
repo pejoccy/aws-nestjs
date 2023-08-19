@@ -6,13 +6,14 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/base/_entity';
 import { Country } from '../../../common/country/country.entity';
 import { Account } from '../../account.entity';
 import { Business } from '../business.entity';
 import { BusinessContactRoles, Gender } from 'src/common/interfaces';
 
 @Entity()
-export class BusinessContact {
+export class BusinessContact extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

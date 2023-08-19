@@ -52,6 +52,13 @@ import { PacsModule } from './pacs/pacs.module';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     PermissionGuard,
   ],
-  exports: [AppUtilities, AuthModule, CacheModule, JwtStrategy, PassportModule],
+  exports: [
+    AppUtilities,
+    AuthModule,
+    CacheModule,
+    JwtStrategy,
+    PacsModule,
+    PassportModule,
+  ],
 })
 export class AppModule {}

@@ -51,7 +51,12 @@ export enum AccountTypes {
 }
 
 export enum BusinessContactRoles {
-  FRONT_DESK_OFFICER = 'Front Desk Officer',
+  DESK_OFFICER = 'Desk Officer',
+  ADMIN = 'Admin',
+}
+
+export enum BusinessContractorRoles {
+  DESK_OFFICER = 'Desk Officer',
   ADMIN = 'Admin',
 }
 
