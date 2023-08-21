@@ -12,10 +12,14 @@ import { ReportTemplateModule } from './report-template/report-template.module';
 import { SessionModule } from './session/session.module';
 import { S3Service } from './s3.service';
 import { CommsModule } from 'src/comms/comms.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { File } from './file/file.entity';
+import { ReportTemplate } from './report-template/report-template.entity';
 
 @Module({
   controllers: [PacsController],
   imports: [
+    TypeOrmModule.forFeature([File, ReportTemplate]),
     BullModule.registerQueue({ name: FILE_QUEUE }),
     BullModule.forRootAsync({
       inject: [ConfigService],
@@ -30,6 +34,6 @@ import { CommsModule } from 'src/comms/comms.module';
     MulterModule.register({}),
   ],
   providers: [PacsService, FileQueueConsumer, FileQueueProducer, S3Service],
-  exports: [PacsService],
+  exports: [PacsService, TypeOrmModule],
 })
 export class PacsModule {}

@@ -86,5 +86,5 @@ const config = {
     },
   },
 };
-console.log('******************* app config: ........', config.app);
+
 export default () => config;

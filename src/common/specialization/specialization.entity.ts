@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { BusinessContractor } from 'src/account/business/business-contractor/business-contractor.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Specialization {
@@ -16,4 +17,10 @@ export class Specialization {
 
   @Column({ default: false })
   isAnonymous: boolean;
+
+  @OneToMany(
+    () => BusinessContractor,
+    (contractor) => contractor.specialization,
+  )
+  contractors: BusinessContractor[];
 }
