@@ -193,7 +193,7 @@ export class AuthService extends BaseService {
         email,
         alias,
         password,
-        role: userRole,
+        type: userRole,
         isVerified: true,
         comms: {
           [CommsProviders.AWS_CHIME]: {
