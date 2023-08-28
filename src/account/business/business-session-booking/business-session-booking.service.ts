@@ -22,13 +22,28 @@ export class BusinessSessionBookingService extends BaseService {
   async getBookings(options: PaginationOptionsDto, account: Account) {
     return this.paginate(this.businessBookingRepository, options, {
       where: { businessId: account.businessContact?.businessId },
-      // relations: ['permissions'],
+      relations: [
+        'patient',
+        'session',
+        'referredBy',
+        'referredBy.businessContact',
+        'createdBy',
+        'createdBy.businessContact',
+      ],
     });
   }
 
   async getBooking(id: number, account: Account) {
     return await this.businessBookingRepository.findOne({
       where: { id, businessId: account.businessContact?.businessId },
+      relations: [
+        'patient',
+        'session',
+        'referredBy',
+        'referredBy.businessContact',
+        'createdBy',
+        'createdBy.businessContact',
+      ],
     });
   }
 
@@ -56,7 +71,8 @@ export class BusinessSessionBookingService extends BaseService {
     return await this.businessBookingRepository.save({
       ...item,
       sessionId: session.id,
-      createdBy: account.businessContact.accountId,
+      businessId: account.businessContact.businessId,
+      createdById: account.businessContact.accountId,
     });
   }
 

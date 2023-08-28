@@ -183,7 +183,7 @@ export class PacsService extends BaseService {
       createdBy: account,
       reportTemplateId: template.id,
     });
-    if (item.files.length <= 0) {
+    if (!Array.isArray(item.files) || item.files?.length <= 0) {
       throw new BadRequestException('No file(s) attached!');
     }
 

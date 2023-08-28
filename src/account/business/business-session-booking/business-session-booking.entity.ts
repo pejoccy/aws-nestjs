@@ -1,5 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { BaseEntity } from '../../../common/base/_entity';
+import { Session } from '../../../pacs/session/session.entity';
+import { Account } from '../../account.entity';
 import { Patient } from '../../patient/patient.entity';
 import { BusinessBranch } from '../business-branch/business-branch.entity';
 import { Business } from '../business.entity';
@@ -28,13 +37,13 @@ export class BusinessSessionBooking extends BaseEntity {
   comment: string;
 
   @Column()
-  referredBy: number;
+  referredById: number;
 
   @Column()
   sessionId: number;
 
   @Column()
-  createdBy: number;
+  createdById: number;
 
   @Column({ nullable: true })
   referredToBizId?: number;
@@ -44,6 +53,16 @@ export class BusinessSessionBooking extends BaseEntity {
 
   @ManyToOne(() => Patient, (patient) => patient.bookings)
   patient: Patient;
+
+  @OneToOne(() => Session)
+  @JoinColumn()
+  session: Session;
+
+  @ManyToOne(() => Account, (account) => account.referredBookings)
+  referredBy: Account;
+
+  @ManyToOne(() => Account, (account) => account.createdBookings)
+  createdBy: Account;
 
   @ManyToOne(() => Business, (business) => business.bookings)
   business: Business;

@@ -17,6 +17,7 @@ import { BusinessContact } from './business/business-contact/business-contact.en
 import { Business } from './business/business.entity';
 import { Patient } from './patient/patient.entity';
 import { Specialist } from './specialist/specialist.entity';
+import { BusinessSessionBooking } from './business/business-session-booking/business-session-booking.entity';
 
 export interface AccountCommsOptions {
   [CommsProviders.AWS_CHIME]: {
@@ -85,6 +86,12 @@ export class Account {
     (fileToCollaborator) => fileToCollaborator.account,
   )
   public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.referredBy)
+  public referredBookings!: BusinessSessionBooking;
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.createdBy)
+  public createdBookings!: BusinessSessionBooking;
 
   @ManyToMany(() => Session, (session) => session.collaborators)
   @JoinTable({ name: 'session_collaborator' })

@@ -21,11 +21,11 @@ export class CreateBusinessSessionBookingTable1876985916840
           },
           {
             name: 'patientId',
-            type: 'number',
+            type: 'integer',
           },
           {
             name: 'businessId',
-            type: 'number',
+            type: 'integer',
           },
           {
             name: 'clinicalSummary',
@@ -40,8 +40,8 @@ export class CreateBusinessSessionBookingTable1876985916840
             type: 'varchar',
           },
           {
-            name: 'referredBy',
-            type: 'number',
+            name: 'referredById',
+            type: 'integer',
             isNullable: true,
           },
           {
@@ -64,7 +64,7 @@ export class CreateBusinessSessionBookingTable1876985916840
             isNullable: true,
           },
           {
-            name: 'createdBy',
+            name: 'createdById',
             type: 'integer',
             isNullable: true,
           },
@@ -122,6 +122,6 @@ export class CreateBusinessSessionBookingTable1876985916840
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('business_branch');
+    await queryRunner.dropTable('business_session_booking');
   }
 }

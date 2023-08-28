@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Account } from '../../account.entity';
 import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
@@ -17,6 +17,7 @@ import { BusinessContractorService } from './business-contractor.service';
 import { SetupBusinessContractorDto } from './dto/setup-business-contractor-dto';
 import { UpdateBusinessContractorDto } from './dto/update-business-contractor-dto';
 
+@ApiBearerAuth()
 @ApiTags('Business Contractors')
 @Controller('businesses/contractors')
 export class BusinessContractorController {

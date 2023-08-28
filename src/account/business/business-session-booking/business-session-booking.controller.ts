@@ -10,7 +10,7 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Account } from '../../account.entity';
 import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
@@ -22,6 +22,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
 import { imageFileFilter } from 'src/common/interfaces';
 
+@ApiBearerAuth()
 @ApiTags('Business Bookings')
 @Controller('businesses/bookings')
 export class BusinessSessionBookingController {

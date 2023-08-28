@@ -4,6 +4,9 @@ import {
   Table,
   TableForeignKey,
 } from 'typeorm';
+import { Country } from '../../country/country.entity';
+import { State } from '../../state/state.entity';
+import { statesData } from '../seeders/states';
 
 export class CreateStateTable1875961459768 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -53,6 +56,23 @@ export class CreateStateTable1875961459768 implements MigrationInterface {
       }),
     );
 
+    const countryNG = await queryRunner.manager
+      .createQueryBuilder()
+      .select()
+      .from('country', 'c')
+      .where({ code: 'NG' })
+      .getRawOne<Country>();
+    console.log('***********', countryNG);
+
+    await queryRunner.manager
+      .createQueryBuilder()
+      .insert()
+      .into(State)
+      .values(
+        statesData.map((state) => ({ countryId: countryNG.id, ...state })),
+      )
+      .execute();
+
     await queryRunner.createForeignKeys('state', [
       new TableForeignKey({
         name: 'fk_state_countryId_country_id',
@@ -64,6 +84,6 @@ export class CreateStateTable1875961459768 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('business_branch');
+    await queryRunner.dropTable('state');
   }
 }

@@ -42,7 +42,7 @@ export class CreateBusinessContractorTable1876996897145
           },
           {
             name: 'createdBy',
-            type: 'number',
+            type: 'integer',
             isNullable: true,
           },
           {
@@ -87,6 +87,6 @@ export class CreateBusinessContractorTable1876996897145
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('business_branch');
+    await queryRunner.dropTable('business_contractor');
   }
 }

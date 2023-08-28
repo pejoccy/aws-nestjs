@@ -2,10 +2,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ path: process.env.ENV_PATH });
 
-// let buff = new Buffer(process.env.DB_CA_CERT, 'base64');
-let buff = Buffer.from(process.env.DB_CA_CERT, 'base64');
-let cert = buff.toString('ascii');
-
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 const config: PostgresConnectionOptions = {
@@ -21,14 +17,13 @@ const config: PostgresConnectionOptions = {
   logging: false,
   logger: 'advanced-console',
   migrations: ['./src/common/database/migrations/*.ts'],
-  // ssl: ['staging', 'production'].includes(process.env.NODE_ENV)
-  //   ? {
-  //       ca: cert.toString(),
-  //     }
-  //   : false,
-  ssl: {
-    ca: cert.toString(),
-  },
+  ssl: ['staging', 'production'].includes(process.env.NODE_ENV)
+    ? {
+        ca: Buffer.from(process.env.DB_CA_CERT, 'base64')
+          .toString('ascii')
+          .toString(),
+      }
+    : false,
   cli: {
     migrationsDir: './migrations',
   },

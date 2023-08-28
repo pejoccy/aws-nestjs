@@ -25,6 +25,11 @@ export class CreateBusinessBranchDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsNumber()
+  countryId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   city: string;
 
