@@ -32,6 +32,10 @@ export class CreateBusinessBranchTable1876961684597
             type: 'varchar',
           },
           {
+            name: 'countryId',
+            type: 'integer',
+          },
+          {
             name: 'stateId',
             type: 'integer',
           },
@@ -55,7 +59,7 @@ export class CreateBusinessBranchTable1876961684597
           },
           {
             name: 'createdBy',
-            type: 'number',
+            type: 'integer',
             isNullable: true,
           },
           {
@@ -82,6 +86,12 @@ export class CreateBusinessBranchTable1876961684597
         name: 'fk_business_branch_businessId_business_id',
         columnNames: ['businessId'],
         referencedTableName: 'business',
+        referencedColumnNames: ['id'],
+      }),
+      new TableForeignKey({
+        name: 'fk_business_branch_countryId_country_id',
+        columnNames: ['countryId'],
+        referencedTableName: 'country',
         referencedColumnNames: ['id'],
       }),
       new TableForeignKey({

@@ -16,6 +16,19 @@ export class AlterPatientFileTables1877019875934 implements MigrationInterface {
       }),
     );
 
+    await queryRunner.addColumns('business_contact', [
+      new TableColumn({
+        name: 'role',
+        type: 'varchar',
+        isNullable: true,
+      }),
+      new TableColumn({
+        name: 'status',
+        type: 'boolean',
+        default: true,
+      }),
+    ]);
+
     await queryRunner.addColumns('patient', [
       new TableColumn({
         name: 'weight',
@@ -74,5 +87,6 @@ export class AlterPatientFileTables1877019875934 implements MigrationInterface {
       'city',
     ]);
     await queryRunner.dropColumn('file', 'tags');
+    await queryRunner.dropColumns('business_contact', ['role', 'status']);
   }
 }

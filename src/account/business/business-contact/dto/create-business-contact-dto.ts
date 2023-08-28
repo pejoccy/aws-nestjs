@@ -46,12 +46,12 @@ export class CreateBusinessContactDto {
   contactAddress?: string;
 
   @ApiPropertyOptional()
-  @IsInt()
-  @IsOptional()
-  businessId?: number;
-
-  @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
   accountId?: number;
+
+  // @ApiPropertyOptional()
+  // @IsInt()
+  // @IsOptional()
+  // businessId?: number;
 }

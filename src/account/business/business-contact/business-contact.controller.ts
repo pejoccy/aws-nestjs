@@ -24,7 +24,10 @@ export class BusinessContactController {
   constructor(private businessContactService: BusinessContactService) {}
 
   @Get()
-  async getContacts(@Query() dto: PaginationOptionsDto, account: Account) {
+  async getContacts(
+    @Query() dto: PaginationOptionsDto,
+    @GetAccount() account: Account,
+  ) {
     return this.businessContactService.getContacts(dto, account);
   }
 
