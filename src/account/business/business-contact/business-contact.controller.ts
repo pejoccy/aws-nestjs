@@ -16,6 +16,7 @@ import { Account } from '../../account.entity';
 import { BusinessContactService } from './business-contact.service';
 import { UpdateBusinessContactDto } from './dto/update-business-contact-dto';
 import { CreateBusinessContactDto } from './dto/create-business-contact-dto';
+import { AccountTypes } from 'src/common/interfaces';
 
 @ApiBearerAuth()
 @ApiTags('Business Contacts')
@@ -26,7 +27,7 @@ export class BusinessContactController {
   @Get()
   async getContacts(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessContactService.getContacts(dto, account);
   }
@@ -34,7 +35,7 @@ export class BusinessContactController {
   @Get('/:id')
   async getBranch(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessContactService.getContact(id, account);
   }
@@ -42,7 +43,7 @@ export class BusinessContactController {
   @Post()
   async createBranch(
     @Body() dto: CreateBusinessContactDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessContactService.createContact(dto, account);
   }
@@ -51,7 +52,7 @@ export class BusinessContactController {
   async updateBranch(
     @Param() { id }: EntityIdDto,
     @Body() dto: UpdateBusinessContactDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessContactService.updateContact(id, dto, account);
   }
@@ -59,7 +60,7 @@ export class BusinessContactController {
   @Delete('/:id')
   async deleteBranch(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessContactService.deleteContact(id, account);
   }
