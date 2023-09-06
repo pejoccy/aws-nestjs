@@ -60,7 +60,7 @@ export class BusinessBranchService extends BaseService {
     }
 
     const branch = await this.businessBranchRepository.findOne({
-      where: { id, businessId: account.businessContact?.businessId },
+      where: { id, businessId: account.businessContact.businessId },
     });
     if (!branch) {
       throw new NotAcceptableException('Invalid business branch!');
