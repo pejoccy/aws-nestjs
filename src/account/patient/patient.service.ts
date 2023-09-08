@@ -1,4 +1,8 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { BaseService } from '../../common/base/service';
@@ -31,6 +35,18 @@ export class PatientService extends BaseService {
     );
   }
 
+  async getPatient(id: number, businessId?: number) {
+    const patient = await this.patientRepository.findOne({
+      where: { id, ...(businessId && { businessId }) },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('No Patient record found!');
+    }
+
+    return patient;
+  }
+
   async updatePatient(id: number, dto: UpdateBusinessPatientDto) {
     return this.patientRepository.update(id, dto);
   }
@@ -50,5 +66,16 @@ export class PatientService extends BaseService {
     }
 
     return this.patientRepository.save(item);
+  }
+
+  async deletePatient(id: number, businessId: number) {
+    const { affected } = await this.patientRepository.update(
+      { id, businessId },
+      { businessId: null },
+    );
+
+    if (!affected) {
+      throw new NotFoundException('Patient record not found!');
+    }
   }
 }
