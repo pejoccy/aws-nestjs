@@ -1,13 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { ApiResponseMeta } from '../../common/decorators/response.decorator';
 import { EntityIdDto } from '../../common/dto/entity.dto';
@@ -20,6 +21,7 @@ import { BusinessService } from './business.service';
 import { UpdateBusinessDto } from './dto/update-business-dto';
 import { UpdateBusinessPatientDto } from '../patient/dto/update-business-patient-dto';
 
+@ApiBearerAuth()
 @ApiTags('Businesses')
 @Controller('businesses')
 export class BusinessController {
@@ -28,8 +30,19 @@ export class BusinessController {
     private patientService: PatientService,
   ) {}
 
+  @Get('/patients/:id')
+  async getPatients(
+    @Param() { id }: EntityIdDto,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+  ) {
+    return this.patientService.getPatient(
+      id,
+      account.businessContact.businessId,
+    );
+  }
+
   @Get('/patients')
-  async getContacts(
+  async getPatient(
     @Query() dto: SearchPatientDto,
     @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
@@ -66,5 +79,17 @@ export class BusinessController {
     @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessService.update(dto, account);
+  }
+
+  @ApiResponseMeta({ message: 'Patient deleted successfully!' })
+  @Delete('/patients/:id')
+  async deletePatient(
+    @Param() { id }: EntityIdDto,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+  ) {
+    await this.patientService.deletePatient(
+      id,
+      account.businessContact.businessId,
+    );
   }
 }
