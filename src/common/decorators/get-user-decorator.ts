@@ -17,11 +17,11 @@ export const GetAccount = createParamDecorator<AccountAuthOptions>(
     options = options || {};
     options.required = options?.required || true;
     options.accountTypes = options?.accountTypes || [];
-    if (options?.required && !req.user) {
+    if (options.required && !req.user) {
       throw new UnauthorizedException('Authorization token missing!');
     } else if (
-      options?.accountTypes.length &&
-      !options?.accountTypes.includes(req.user?.data?.type)
+      options.accountTypes.length &&
+      !options.accountTypes.includes(req.user?.data?.type)
     ) {
       throw new UnauthorizedException(
         `Authorized Access! Account type '${req.user?.data?.type}' not permitted.`,
