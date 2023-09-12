@@ -2,7 +2,7 @@ resources:
   - ../../application
 patchesStrategicMerge:
   - deployment.yml
-  - ingres.yml
+  # - ingres.yml
   - ingres_ssl.yml
 namespace: production
 images:
