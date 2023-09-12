@@ -16,7 +16,7 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: "/"
+            path: "/api"
             backend:
               service:
                 name: orysx-api-service
