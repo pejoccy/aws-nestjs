@@ -14,9 +14,10 @@ export interface AccountAuthOptions {
 export const GetAccount = createParamDecorator<AccountAuthOptions>(
   (options: AccountAuthOptions, ctx: ExecutionContext): Account => {
     const req = ctx.switchToHttp().getRequest();
-    options.required = options.required || true;
-    options.accountTypes = options.accountTypes || [];
-    if (options?.required && !req.user) {
+    options = options || {};
+    options.required = options?.required || true;
+    options.accountTypes = options?.accountTypes || [];
+    if (options.required && !req.user) {
       throw new UnauthorizedException('Authorization token missing!');
     } else if (
       options.accountTypes.length &&
