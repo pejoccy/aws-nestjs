@@ -121,7 +121,7 @@ export class AuthService extends BaseService {
       expiresIn,
       user: {
         id: account.id,
-        role: account.role,
+        role: account.type,
         ...account.patient,
         ...account.specialist,
         ...account.businessContact,
@@ -193,7 +193,7 @@ export class AuthService extends BaseService {
         email,
         alias,
         password,
-        role: userRole,
+        type: userRole,
         isVerified: true,
         comms: {
           [CommsProviders.AWS_CHIME]: {

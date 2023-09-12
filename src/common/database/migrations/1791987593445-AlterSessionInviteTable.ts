@@ -5,7 +5,6 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-
 export class AlterSessionInviteTable1791987593445
   implements MigrationInterface
 {

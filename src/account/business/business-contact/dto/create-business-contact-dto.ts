@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Gender } from '../../../common/interfaces';
+import { Gender } from '../../../../common/interfaces';
 
 export class CreateBusinessContactDto {
   @ApiProperty()
@@ -46,12 +46,12 @@ export class CreateBusinessContactDto {
   contactAddress?: string;
 
   @ApiPropertyOptional()
-  @IsInt()
-  @IsOptional()
-  businessId?: number;
-
-  @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
   accountId?: number;
+
+  // @ApiPropertyOptional()
+  // @IsInt()
+  // @IsOptional()
+  // businessId?: number;
 }

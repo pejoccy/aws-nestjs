@@ -4,10 +4,12 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Gender, SpecialistCategories } from '../../common/interfaces';
 import { Specialization } from '../../common/specialization/specialization.entity';
 import { Account } from '../account.entity';
+import { BusinessContractor } from '../business/business-contractor/business-contractor.entity';
 
 @Entity()
 export class Specialist {
@@ -24,7 +26,7 @@ export class Specialist {
   lastName: string;
 
   @Column({ nullable: true })
-  public gender?: Gender;
+  gender?: Gender;
 
   @Column()
   mobilePhone: string;
@@ -40,6 +42,9 @@ export class Specialist {
 
   @Column({ enum: SpecialistCategories })
   category: SpecialistCategories;
+
+  @OneToMany(() => BusinessContractor, (contractor) => contractor.specialist)
+  contractors: BusinessContractor[];
 
   @OneToOne(() => Account)
   @JoinColumn()

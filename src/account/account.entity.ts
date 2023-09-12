@@ -13,10 +13,11 @@ import { CommsProviders, AccountTypes } from '../common/interfaces';
 import { File } from '../pacs/file/file.entity';
 import { SessionToCollaborator } from '../pacs/session/session-collaborator/session-collaborator.entity';
 import { Session } from '../pacs/session/session.entity';
-import { BusinessContact } from './business-contact/business-contact.entity';
+import { BusinessContact } from './business/business-contact/business-contact.entity';
 import { Business } from './business/business.entity';
 import { Patient } from './patient/patient.entity';
 import { Specialist } from './specialist/specialist.entity';
+import { BusinessSessionBooking } from './business/business-session-booking/business-session-booking.entity';
 
 export interface AccountCommsOptions {
   [CommsProviders.AWS_CHIME]: {
@@ -50,8 +51,8 @@ export class Account {
   @Column({ nullable: true, select: true })
   lastLoginIp?: string;
 
-  @Column({ nullable: true, enum: AccountTypes })
-  role?: AccountTypes;
+  @Column({ nullable: true, enum: AccountTypes, name: 'role' })
+  type?: AccountTypes;
 
   @Column({ nullable: true, select: true })
   profilePhotoId?: string;
@@ -85,6 +86,12 @@ export class Account {
     (fileToCollaborator) => fileToCollaborator.account,
   )
   public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.referredBy)
+  public referredBookings!: BusinessSessionBooking;
+
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.createdBy)
+  public createdBookings!: BusinessSessionBooking;
 
   @ManyToMany(() => Session, (session) => session.collaborators)
   @JoinTable({ name: 'session_collaborator' })

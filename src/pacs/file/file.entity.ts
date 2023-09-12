@@ -21,6 +21,9 @@ export class File {
   name: string;
 
   @Column({ nullable: true })
+  tags?: string;
+
+  @Column({ nullable: true })
   ext?: string;
 
   @Column()

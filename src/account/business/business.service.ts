@@ -1,18 +1,29 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BusinessContactService } from '../business-contact/business-contact.service';
-import { CreateBusinessContactDto } from '../business-contact/dto/create-business-contact-dto';
+import { BusinessContactRoles } from '../../common/interfaces';
+import { Account } from '../account.entity';
+import { BusinessContact } from './business-contact/business-contact.entity';
+import { CreateBusinessContactDto } from './business-contact/dto/create-business-contact-dto';
 import { Business } from './business.entity';
 import { CreateBusinessDto } from './dto/create-business-dto';
+import { UpdateBusinessDto } from './dto/update-business-dto';
 
 @Injectable()
 export class BusinessService {
   constructor(
     @InjectRepository(Business)
     private businessRepository: Repository<Business>,
-    private businessContactService: BusinessContactService,
+    @InjectRepository(BusinessContact)
+    private businessContactRepository: Repository<BusinessContact>,
   ) {}
+
+  async update(dto: UpdateBusinessDto, account: Account) {
+    return await this.businessRepository.update(
+      { id: account.businessContact.businessId },
+      dto,
+    );
+  }
 
   async setup(item: CreateBusinessDto, contact: CreateBusinessContactDto) {
     let business = await this.businessRepository
@@ -22,9 +33,11 @@ export class BusinessService {
     if (business) {
       throw new NotAcceptableException('Business name already exists!');
     }
+
     business = await this.businessRepository.save(item);
-    await this.businessContactService.create({
+    await this.businessContactRepository.save({
       ...contact,
+      role: BusinessContactRoles.ADMIN,
       businessId: business.id,
     });
 

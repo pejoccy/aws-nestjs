@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { BusinessContactService } from './business-contact.service';
-import { BusinessContactController } from './business-contact.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BusinessContactController } from './business-contact.controller';
 import { BusinessContact } from './business-contact.entity';
+import { BusinessContactService } from './business-contact.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BusinessContact])],

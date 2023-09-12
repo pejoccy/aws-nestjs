@@ -48,6 +48,18 @@ export class CreatePatientDto {
   @IsInt()
   public countryId: number;
 
+  @ApiPropertyOptional({
+    description: 'This is the country id from GET /api/v1/countries',
+  })
+  @IsInt()
+  @IsOptional()
+  public stateId?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  public city?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
