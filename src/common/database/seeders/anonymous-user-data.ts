@@ -6,7 +6,7 @@ export const anonymousAccountSeedData = {
     isVerified: true,
     isAnonymous: true,
     status: true,
-    role: () => `'specialist'`,
+    type: () => `'specialist'`,
   },
   specialist: {
     email: 'anonymous@orysx.com',
