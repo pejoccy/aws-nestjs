@@ -18,6 +18,7 @@ import { BusinessBranchService } from './business-branch.service';
 import { CreateBusinessBranchDto } from './dto/create-business-branch-dto';
 import { UpdateBusinessBranchDto } from './dto/update-business-branch-dto';
 import { SetActiveBusinessBranchDto } from './dto/set-active-business-branch-dto';
+import { AccountTypes } from 'src/common/interfaces';
 
 @ApiBearerAuth()
 @ApiTags('Business Branches')
@@ -28,7 +29,7 @@ export class BusinessBranchController {
   @Get()
   async getBranches(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.getBranches(dto, account);
   }
@@ -36,7 +37,7 @@ export class BusinessBranchController {
   @Get('/:id')
   async getBranch(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.getBranch(id, account);
   }
@@ -44,7 +45,7 @@ export class BusinessBranchController {
   @Post()
   async createBranch(
     @Body() dto: CreateBusinessBranchDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.createBranch(dto, account);
   }
@@ -53,7 +54,7 @@ export class BusinessBranchController {
   async updateBranch(
     @Param() { id }: EntityIdDto,
     @Body() dto: UpdateBusinessBranchDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.updateBranch(id, dto, account);
   }
@@ -61,7 +62,7 @@ export class BusinessBranchController {
   @Put('/active-branch')
   async setActiveBranch(
     @Body() { branchId }: SetActiveBusinessBranchDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.setActiveBranch(account, branchId);
   }
@@ -69,7 +70,7 @@ export class BusinessBranchController {
   @Delete('/:id')
   async deleteBranch(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBranchService.deleteBranch(id, account);
   }

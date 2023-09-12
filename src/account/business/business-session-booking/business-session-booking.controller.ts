@@ -15,12 +15,12 @@ import { Account } from '../../account.entity';
 import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
+import { AccountTypes, imageFileFilter } from '../../../common/interfaces';
 import { BusinessSessionBookingService } from './business-session-booking.service';
 import { CreateBusinessBookingDto } from './dto/create-business-booking-dto';
 import { UpdateBusinessBookingDto } from './dto/update-business-booking-dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
-import { imageFileFilter } from 'src/common/interfaces';
 
 @ApiBearerAuth()
 @ApiTags('Business Bookings')
@@ -31,7 +31,7 @@ export class BusinessSessionBookingController {
   @Get()
   async getBookings(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBookingService.getBookings(dto, account);
   }
@@ -39,7 +39,7 @@ export class BusinessSessionBookingController {
   @Get('/:id')
   async getBooking(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBookingService.getBooking(id, account);
   }
@@ -56,7 +56,7 @@ export class BusinessSessionBookingController {
   )
   async createBooking(
     @Body() dto: CreateBusinessBookingDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.businessBookingService.createBooking(dto, files, account);
@@ -74,7 +74,7 @@ export class BusinessSessionBookingController {
   @Delete('/:id')
   async deleteBooking(
     @Param() { id }: EntityIdDto,
-    @GetAccount() account: Account,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
   ) {
     return this.businessBookingService.deleteBooking(id, account);
   }
