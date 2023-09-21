@@ -13,6 +13,7 @@ const config = {
     },
     environment: env('NODE_ENV'),
     port: Number(env('APP_PORT', 3001)),
+    adminEmail: env('ADMIN_EMAIL_ADDRESS'),
   },
   awsChime: {
     config: {
