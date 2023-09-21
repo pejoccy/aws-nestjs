@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
   ApiInternalServerErrorResponse,
   ApiTags,
@@ -17,11 +17,15 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { InitAccountDto } from './dto/init-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { CacheService } from 'src/common/cache/cache.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private cacheService: CacheService,
+  ) {}
 
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({
@@ -106,5 +110,11 @@ export class AuthController {
   @PublicRoute()
   async resetPassword(@Body() item: ResetPasswordDto) {
     await this.authService.resetPassword(item);
+  }
+
+  @Get('/cache')
+  @PublicRoute()
+  async getOTPData(@Query('token') token: string) {
+    return await this.cacheService.get(token);
   }
 }
