@@ -49,9 +49,4 @@ export class CreateBusinessContactDto {
   @IsOptional()
   @IsInt()
   accountId?: number;
-
-  // @ApiPropertyOptional()
-  // @IsInt()
-  // @IsOptional()
-  // businessId?: number;
 }

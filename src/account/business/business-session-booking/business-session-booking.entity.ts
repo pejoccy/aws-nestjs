@@ -27,6 +27,9 @@ export class BusinessSessionBooking extends BaseEntity {
   @Column()
   businessId: number;
 
+  // @Column()
+  // businessBranchId: number;
+
   @Column()
   clinicalSummary: string;
 
@@ -36,8 +39,8 @@ export class BusinessSessionBooking extends BaseEntity {
   @Column()
   comment: string;
 
-  @Column()
-  referredById: number;
+  @Column({ nullable: true })
+  referredById?: number;
 
   @Column()
   sessionId: number;
@@ -59,7 +62,7 @@ export class BusinessSessionBooking extends BaseEntity {
   session: Session;
 
   @ManyToOne(() => Account, (account) => account.referredBookings)
-  referredBy: Account;
+  referredBy?: Account;
 
   @ManyToOne(() => Account, (account) => account.createdBookings)
   createdBy: Account;
@@ -68,8 +71,8 @@ export class BusinessSessionBooking extends BaseEntity {
   business: Business;
 
   @ManyToOne(() => Business, (business) => business.referredBookings)
-  referredToBiz: Business;
+  referredToBiz?: Business;
 
   @ManyToOne(() => BusinessBranch, (branch) => branch.bookings)
-  referredToBizBranch: BusinessBranch;
+  referredToBizBranch?: BusinessBranch;
 }

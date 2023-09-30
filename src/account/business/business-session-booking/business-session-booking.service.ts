@@ -20,8 +20,12 @@ export class BusinessSessionBookingService extends BaseService {
   }
 
   async getBookings(options: PaginationOptionsDto, account: Account) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
     return this.paginate(this.businessBookingRepository, options, {
-      where: { businessId: account.businessContact?.businessId },
+      where: { businessId },
       relations: [
         'patient',
         'session',
@@ -29,13 +33,19 @@ export class BusinessSessionBookingService extends BaseService {
         'referredBy.businessContact',
         'createdBy',
         'createdBy.businessContact',
+        'createdBy.specialist',
+        // 'createdBy.specialist.',
       ],
     });
   }
 
   async getBooking(id: number, account: Account) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
     return await this.businessBookingRepository.findOne({
-      where: { id, businessId: account.businessContact?.businessId },
+      where: { id, businessId },
       relations: [
         'patient',
         'session',
@@ -63,22 +73,30 @@ export class BusinessSessionBookingService extends BaseService {
     files: Express.Multer.File[],
     account: Account,
   ) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
     const session = await this.pacsService.uploadBulk(
-      { ...item, files },
+      { ...item, businessId, files },
       account,
     );
 
     return await this.businessBookingRepository.save({
       ...item,
+      businessId,
       sessionId: session.id,
-      businessId: account.businessContact.businessId,
-      createdById: account.businessContact.accountId,
+      createdById: account.id,
     });
   }
 
   async deleteBooking(id: number, account: Account) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
     return await this.businessBookingRepository.update(
-      { id, businessId: account.businessContact?.businessId },
+      { id, businessId },
       { status: false },
     );
   }

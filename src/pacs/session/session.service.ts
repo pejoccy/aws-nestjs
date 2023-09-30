@@ -53,7 +53,6 @@ export class SessionService extends BaseService {
     private specialistRepository: Repository<Specialist>,
     @InjectRepository(SessionInvite)
     private sessionInviteRepository: Repository<SessionInvite>,
-    private appUtilities: AppUtilities,
     private mailService: MailerService,
     private cacheService: CacheService,
     private configService: ConfigService,
@@ -209,7 +208,7 @@ export class SessionService extends BaseService {
     }
     const invitationWindowMins = 2 * 60 * 60;
     const expiresAt = moment().add(invitationWindowMins, 'seconds').toDate();
-    const inviteHash = this.appUtilities.generateShortCode();
+    const inviteHash = AppUtilities.generateShortCode();
 
     ({
       raw: [invitation],

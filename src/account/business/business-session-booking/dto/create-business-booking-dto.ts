@@ -1,17 +1,22 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
-import { UploadFileDto } from '../../../../pacs/dto/upload-file.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { UploadFolderDto } from '../../../../pacs/dto/upload-folder.dto';
 
-export class CreateBusinessBookingDto extends UploadFileDto {
+export class CreateBusinessBookingDto extends UploadFolderDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumberString()
   branchId: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumberString()
-  referredById: number;
+  referredById?: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -28,13 +33,13 @@ export class CreateBusinessBookingDto extends UploadFileDto {
   @IsString()
   comment: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumberString()
   referredToBizId?: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumberString()
   referredToBizBranchId?: number;
 }

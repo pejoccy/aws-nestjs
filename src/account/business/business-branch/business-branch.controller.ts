@@ -14,11 +14,14 @@ import { Account } from '../../../account/account.entity';
 import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
+import {
+  AccountTypes,
+  BusinessContractorRoles,
+} from '../../../common/interfaces';
 import { BusinessBranchService } from './business-branch.service';
 import { CreateBusinessBranchDto } from './dto/create-business-branch-dto';
 import { UpdateBusinessBranchDto } from './dto/update-business-branch-dto';
 import { SetActiveBusinessBranchDto } from './dto/set-active-business-branch-dto';
-import { AccountTypes } from 'src/common/interfaces';
 
 @ApiBearerAuth()
 @ApiTags('Business Branches')
@@ -29,7 +32,11 @@ export class BusinessBranchController {
   @Get()
   async getBranches(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessBranchService.getBranches(dto, account);
   }
@@ -37,7 +44,11 @@ export class BusinessBranchController {
   @Get('/:id')
   async getBranch(
     @Param() { id }: EntityIdDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessBranchService.getBranch(id, account);
   }
