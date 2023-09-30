@@ -18,7 +18,7 @@ export class SpecialistService {
     private specialistRepository: Repository<Specialist>,
   ) {}
 
-  async create(item: CreateSpecialistDto) {
+  async setup(item: CreateSpecialistDto) {
     const specialist = await this.specialistRepository
       .createQueryBuilder('specialist')
       .where('LOWER(specialist.email) = LOWER(:email)', { email: item.email })

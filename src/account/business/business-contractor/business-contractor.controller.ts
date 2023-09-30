@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -12,7 +13,10 @@ import { Account } from '../../account.entity';
 import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
-import { AccountTypes } from '../../../common/interfaces';
+import {
+  AccountTypes,
+  BusinessContractorRoles,
+} from '../../../common/interfaces';
 import { BusinessContractorService } from './business-contractor.service';
 import { SetupBusinessContractorDto } from './dto/setup-business-contractor-dto';
 import { UpdateBusinessContractorDto } from './dto/update-business-contractor-dto';
@@ -26,7 +30,11 @@ export class BusinessContractorController {
   @Get()
   async getContractors(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessContractorService.getContractors(dto, account);
   }
@@ -34,7 +42,11 @@ export class BusinessContractorController {
   @Get('/:id')
   async getContractor(
     @Param() { id }: EntityIdDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessContractorService.getContractor(id, account);
   }
@@ -47,14 +59,14 @@ export class BusinessContractorController {
     return this.businessContractorService.setupContractor(dto, account);
   }
 
-  // @Patch('/:id')
-  // async updateContractor(
-  //   @Param() { id }: EntityIdDto,
-  //   @Body() dto: UpdateBusinessContractorDto,
-  //   @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
-  // ) {
-  //   return this.businessContractorService.updateContractor(id, dto, account);
-  // }
+  @Patch('/:id')
+  async updateContractor(
+    @Param() { id }: EntityIdDto,
+    @Body() dto: UpdateBusinessContractorDto,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+  ) {
+    return this.businessContractorService.updateContractor(id, dto, account);
+  }
 
   @Delete('/:id')
   async deleteContractor(

@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { CommsModule } from 'src/comms/comms.module';
-import { AccountModule } from '../account/account.module';
 import { BusinessModule } from '../account/business/business.module';
 import { PatientModule } from '../account/patient/patient.module';
 import { SpecialistModule } from '../account/specialist/specialist.module';
@@ -12,11 +11,11 @@ import { SubscriptionModule } from '../common/subscription/subscription.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+@Global()
 @Module({
   providers: [AuthService, JwtService],
   controllers: [AuthController],
   imports: [
-    AccountModule,
     BusinessModule,
     CommsModule,
     JwtModule.registerAsync({
@@ -29,6 +28,6 @@ import { AuthService } from './auth.service';
     SpecializationModule,
     SubscriptionModule,
   ],
-  exports: [AccountModule, AuthService, JwtService],
+  exports: [AuthService, JwtService],
 })
 export class AuthModule {}
