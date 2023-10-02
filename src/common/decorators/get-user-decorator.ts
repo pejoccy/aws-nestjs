@@ -25,7 +25,10 @@ export const GetAccount = createParamDecorator<AccountAuthOptions>(
     } else if (
       (!options.accountTypes.length && !options.roles.length) ||
       options.accountTypes.includes(req.user?.data?.type) ||
-      options.roles.includes(req.user?.data?.specialist?.contractors[0]?.role)
+      (options.roles.includes(
+        req.user?.data?.specialist?.contractors[0]?.role,
+      ) &&
+        req.user?.data?.specialist?.contractors[0]?.status)
     ) {
       return req.user?.data;
     }
