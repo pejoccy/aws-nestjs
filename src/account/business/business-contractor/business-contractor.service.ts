@@ -32,7 +32,9 @@ export class BusinessContractorService extends BaseService {
     return this.paginate(this.businessContractorRepository, options, {
       where: {
         businessId: account.businessContact?.businessId,
-        ...(options.status && { status: options.status }),
+        ...(options.status && {
+          status: options.status !== undefined ? options.status : true,
+        }),
       },
       relations: ['specialist', 'specialization', 'business'],
     });
