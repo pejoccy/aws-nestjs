@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Account } from '../../account.entity';
-import { PaginationOptionsDto } from '../../../common/dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
 import {
@@ -20,6 +19,7 @@ import {
 import { BusinessContractorService } from './business-contractor.service';
 import { SetupBusinessContractorDto } from './dto/setup-business-contractor-dto';
 import { UpdateBusinessContractorDto } from './dto/update-business-contractor-dto';
+import { GetBusinessContractorDto } from './dto/get-business-contractor.dto';
 
 @ApiBearerAuth()
 @ApiTags('Business Contractors')
@@ -29,7 +29,7 @@ export class BusinessContractorController {
 
   @Get()
   async getContractors(
-    @Query() dto: PaginationOptionsDto,
+    @Query() dto: GetBusinessContractorDto,
     @GetAccount({
       accountTypes: [AccountTypes.BUSINESS],
       roles: [BusinessContractorRoles.PRACTITIONER],
@@ -68,11 +68,11 @@ export class BusinessContractorController {
     return this.businessContractorService.updateContractor(id, dto, account);
   }
 
-  @Delete('/:id')
-  async deleteContractor(
-    @Param() { id }: EntityIdDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
-  ) {
-    return this.businessContractorService.deleteContractor(id, account);
-  }
+  // @Delete('/:id')
+  // async deleteContractor(
+  //   @Param() { id }: EntityIdDto,
+  //   @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+  // ) {
+  //   return this.businessContractorService.deleteContractor(id, account);
+  // }
 }

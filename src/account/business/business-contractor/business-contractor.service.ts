@@ -2,16 +2,16 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AccountService } from '../../../account/account.service';
+import { AppUtilities } from '../../../app.utilities';
 import { BaseService } from '../../../common/base/service';
-import { PaginationOptionsDto } from '../../../common/dto';
 import { AccountTypes, SpecialistCategories } from '../../../common/interfaces';
 import { MailerService } from '../../../common/mailer/mailer.service';
+import { Specialization } from '../../../common/specialization/specialization.entity';
 import { Account } from '../../account.entity';
 import { BusinessContractor } from './business-contractor.entity';
 import { SetupBusinessContractorDto } from './dto/setup-business-contractor-dto';
 import { UpdateBusinessContractorDto } from './dto/update-business-contractor-dto';
-import { AppUtilities } from 'src/app.utilities';
-import { Specialization } from 'src/common/specialization/specialization.entity';
+import { GetBusinessContractorDto } from './dto/get-business-contractor.dto';
 
 @Injectable()
 export class BusinessContractorService extends BaseService {
@@ -28,16 +28,25 @@ export class BusinessContractorService extends BaseService {
     super();
   }
 
-  async getContractors(options: PaginationOptionsDto, account: Account) {
+  async getContractors(options: GetBusinessContractorDto, account: Account) {
     return this.paginate(this.businessContractorRepository, options, {
-      where: { businessId: account.businessContact?.businessId },
+      where: {
+        businessId: account.businessContact?.businessId,
+        ...(options.status && {
+          status: options.status !== undefined ? options.status : true,
+        }),
+      },
       relations: ['specialist', 'specialization', 'business'],
     });
   }
 
   async getContractor(id: number, account: Account) {
     return await this.businessContractorRepository.findOne({
-      where: { id, businessId: account.businessContact?.businessId },
+      where: {
+        id,
+        businessId: account.businessContact?.businessId,
+        status: true,
+      },
       relations: ['specialist', 'specialization', 'business'],
     });
   }
@@ -47,7 +56,7 @@ export class BusinessContractorService extends BaseService {
     dto: UpdateBusinessContractorDto,
     account: Account,
   ) {
-    return await this.businessContractorRepository.update(
+    await this.businessContractorRepository.update(
       { id, businessId: account.businessContact?.businessId },
       dto,
     );
