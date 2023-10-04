@@ -13,7 +13,6 @@ import { useContainer } from 'typeorm';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
-
 const initSwagger = (app: INestApplication, serverUrl: string) => {
   const config = new DocumentBuilder()
     .setTitle('Orysx App')
@@ -69,9 +68,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-
-
-console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-console.log(process.env.NODE_ENV)
-console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
