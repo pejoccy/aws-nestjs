@@ -3,7 +3,9 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: process.env.ENV_PATH });
 
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+console.log(process.env.NODE_ENV)
+console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 const config: PostgresConnectionOptions = {
   type: 'postgres',
   host: process.env.DATABASE_HOST,
