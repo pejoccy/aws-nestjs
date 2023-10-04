@@ -7,10 +7,7 @@ import { AppUtilities } from '../app.utilities';
 export class S3Service {
   private s3Sdk: S3;
 
-  constructor(
-    configService: ConfigService,
-    private appUtilities: AppUtilities,
-  ) {
+  constructor(configService: ConfigService) {
     config.update(configService.get('storage.s3'));
     this.s3Sdk = new S3();
   }
@@ -20,7 +17,7 @@ export class S3Service {
       .upload({
         Bucket: process.env.AWS_S3_BUCKET,
         Body: dataBuffer,
-        Key: fileHash || this.appUtilities.generateUniqueKey(),
+        Key: fileHash || AppUtilities.generateUniqueKey(),
       })
       .promise();
 

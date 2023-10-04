@@ -105,6 +105,28 @@ export class MailerService {
     }).catch(console.error);
   }
 
+  async sendContractorAccountSetupEmail(data: {
+    email: string;
+    name: string;
+    businessName: string;
+    specialization: string;
+    password: string;
+  }) {
+    const html = await this.getFileTemplate('contractor-onboard-email', {
+      businessName: data.businessName,
+      name: data.name,
+      specialization: data.specialization,
+      password: data.password,
+      appLogo: this.appLogoURL,
+    });
+
+    return this.send({
+      to: data.email,
+      subject: `You're now a Contractor`,
+      html,
+    }).catch(console.error);
+  }
+
   async sendSessionShareLinkEmail(
     email: string,
     sessionShareLink: string,

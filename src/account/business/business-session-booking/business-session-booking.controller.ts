@@ -10,17 +10,22 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import multer from 'multer';
 import { Account } from '../../account.entity';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { GetPacsStatsDto } from '../../patient/dto/get-pacs-stats.dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
+import { PaginationOptionsDto } from '../../../common/dto';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
-import { AccountTypes, imageFileFilter } from '../../../common/interfaces';
+import {
+  AccountTypes,
+  BusinessContractorRoles,
+  imageFileFilter,
+} from '../../../common/interfaces';
 import { BusinessSessionBookingService } from './business-session-booking.service';
 import { CreateBusinessBookingDto } from './dto/create-business-booking-dto';
 import { UpdateBusinessBookingDto } from './dto/update-business-booking-dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import multer from 'multer';
 
 @ApiBearerAuth()
 @ApiTags('Business Bookings')
@@ -31,19 +36,36 @@ export class BusinessSessionBookingController {
   @Get()
   async getBookings(
     @Query() dto: PaginationOptionsDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessBookingService.getBookings(dto, account);
   }
 
-  @Get('/:id')
+  @Get('/:id/info')
   async getBooking(
     @Param() { id }: EntityIdDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessBookingService.getBooking(id, account);
   }
 
+  @Get('/stats')
+  async getPacsStats(
+    @Query() dto: GetPacsStatsDto,
+    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+  ) {
+    return this.businessBookingService.getBookingsStats(dto, account);
+  }
+
+  @ApiConsumes('multipart/form-data')
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 20, {
@@ -56,7 +78,11 @@ export class BusinessSessionBookingController {
   )
   async createBooking(
     @Body() dto: CreateBusinessBookingDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.businessBookingService.createBooking(dto, files, account);
@@ -74,7 +100,11 @@ export class BusinessSessionBookingController {
   @Delete('/:id')
   async deleteBooking(
     @Param() { id }: EntityIdDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
   ) {
     return this.businessBookingService.deleteBooking(id, account);
   }

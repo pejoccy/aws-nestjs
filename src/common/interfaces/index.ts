@@ -56,8 +56,7 @@ export enum BusinessContactRoles {
 }
 
 export enum BusinessContractorRoles {
-  DESK_OFFICER = 'Desk Officer',
-  ADMIN = 'Admin',
+  PRACTITIONER = 'Practitioner',
 }
 
 // eslint-disable-next-line  @typescript-eslint/naming-convention
