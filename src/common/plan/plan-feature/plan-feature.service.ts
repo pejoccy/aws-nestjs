@@ -2,7 +2,7 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../base/service';
-import { PaginationOptionsDto } from '../../dto';
+import { PaginationOptionsDto } from '../../dto/pagination-options.dto';
 import { PG_DB_ERROR_CODES } from '../../interfaces';
 import { PlanFeature } from './plan-feature.entity';
 

@@ -3,7 +3,7 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PublicRoute } from '../decorators/public-route-decorator';
-import { PaginationOptionsDto } from '../dto';
+import { PaginationOptionsDto } from '../dto/pagination-options.dto';
 import { Specialization } from './specialization.entity';
 import { SpecializationService } from './specialization.service';
 

@@ -1,4 +1,4 @@
-import { PaginationCursorOptionsDto } from '../../common/dto';
+import { PaginationCursorOptionsDto } from '../../common/dto/pagination-cursor-options.dto';
 
 export enum ActivityType {
   JOINED = 'joined',

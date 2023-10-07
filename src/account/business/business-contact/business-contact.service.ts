@@ -2,7 +2,7 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../../common/base/service';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { PaginationOptionsDto } from '../../../common/dto/pagination-options.dto';
 import { BusinessContactRoles } from '../../../common/interfaces';
 import { Account } from '../../account.entity';
 import { BusinessContact } from './business-contact.entity';

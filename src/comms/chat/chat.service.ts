@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { PaginationCursorOptionsDto } from '../../common/dto';
+import { PaginationCursorOptionsDto } from '../../common/dto/pagination-cursor-options.dto';
 import { CommsBase } from '../interface';
 import { ChimeCommsProvider } from '../providers/chime';
 

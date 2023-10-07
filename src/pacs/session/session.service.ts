@@ -15,7 +15,7 @@ import { AppUtilities } from '../../app.utilities';
 import { AuthService } from '../../auth/auth.service';
 import { BaseService } from '../../common/base/service';
 import { CacheService } from '../../common/cache/cache.service';
-import { PaginationCursorOptionsDto } from '../../common/dto';
+import { PaginationCursorOptionsDto } from '../../common/dto/pagination-cursor-options.dto';
 import {
   AuthTokenTypes,
   CommsProviders,

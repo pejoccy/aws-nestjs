@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { PaginationOptionsDto } from '../../../common/dto/pagination-options.dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
 import {

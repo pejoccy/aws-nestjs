@@ -15,7 +15,7 @@ import { ApiResponseMeta } from 'src/common/decorators/response.decorator';
 import { Account } from '../../account/account.entity';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { PublicRoute } from '../../common/decorators/public-route-decorator';
-import { PaginationCursorOptionsDto } from '../../common/dto';
+import { PaginationCursorOptionsDto } from '../../common/dto/pagination-cursor-options.dto';
 import { AcceptCollaboratorDto } from './dto/accept-collaborator.dto';
 import { AddSessionReportDto } from './dto/add-session-report.dto';
 import { InviteCollaboratorDto } from './dto/invite-collaborator.dto';

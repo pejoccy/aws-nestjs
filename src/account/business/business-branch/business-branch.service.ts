@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../../common/base/service';
 import { CacheService } from '../../../common/cache/cache.service';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { PaginationOptionsDto } from '../../../common/dto/pagination-options.dto';
 import { Account } from '../../account.entity';
 import { BusinessBranch } from './business-branch.entity';
 import { CreateBusinessBranchDto } from './dto/create-business-branch-dto';

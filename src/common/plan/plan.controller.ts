@@ -12,7 +12,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { PermissionGuard } from '../../auth/guards/permission.guard';
 import { FeatureLimitCheck } from '../decorators/feature-limit-check.decorator';
 import { PublicRoute } from '../decorators/public-route-decorator';
-import { PaginationOptionsDto } from '../dto';
+import { PaginationOptionsDto } from '../dto/pagination-options.dto';
 import { EntityIdDto, PermissionIdDto } from '../dto/entity.dto';
 import { FeatureSlugs } from '../interfaces';
 import { Plan } from './plan.entity';

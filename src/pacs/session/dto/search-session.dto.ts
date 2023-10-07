@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsISO8601, IsOptional, IsString } from 'class-validator';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { PaginationOptionsDto } from '../../../common/dto/pagination-options.dto';
 import {
   FileModality,
   SessionStatus,

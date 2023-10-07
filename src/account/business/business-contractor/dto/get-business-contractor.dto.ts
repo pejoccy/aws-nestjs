@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBooleanString, IsOptional, IsString } from 'class-validator';
-import { PaginationOptionsDto } from '../../../../common/dto';
+import { PaginationOptionsDto } from '../../../../common/dto/pagination-options.dto';
 
 export class GetBusinessContractorDto extends PaginationOptionsDto {
   // @ApiPropertyOptional()

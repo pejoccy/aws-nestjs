@@ -9,22 +9,6 @@ import {
   Min,
 } from 'class-validator';
 
-export class PaginationOptionsDto {
-  @ApiPropertyOptional()
-  @IsInt()
-  @IsOptional()
-  @Min(1)
-  @Type(() => Number)
-  public page = 1;
-
-  @ApiPropertyOptional()
-  @IsInt()
-  @IsOptional()
-  @Min(1)
-  @Type(() => Number)
-  public limit = 10;
-}
-
 export class PaginationCursorOptionsDto {
   @ApiPropertyOptional()
   @IsNotEmpty()

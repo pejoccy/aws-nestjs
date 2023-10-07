@@ -10,7 +10,7 @@ import AWS, {
 import crypto from 'crypto-js';
 import moment from 'moment';
 import { v4 } from 'uuid';
-import { PaginationCursorOptionsDto } from '../../common/dto';
+import { PaginationCursorOptionsDto } from '../../common/dto/pagination-cursor-options.dto';
 import { ChatServer, MeetingServer } from '../interface';
 
 @Injectable()
