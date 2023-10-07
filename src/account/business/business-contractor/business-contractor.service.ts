@@ -56,7 +56,7 @@ export class BusinessContractorService extends BaseService {
     const qb = this.businessContractorRepository
       .createQueryBuilder("contractor")
       .leftJoin('contractor.specialist', 'specialist')
-      .leftJoin('specialist.assignedBookings', 'bookings')
+      .leftJoin('contractor.assignedBookings', 'bookings')
       .leftJoin('specialist.specialization', 'specialization')
       .select([
         'contractor.id as "id"',

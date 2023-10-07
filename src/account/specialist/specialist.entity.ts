@@ -54,8 +54,4 @@ export class Specialist {
   @OneToOne(() => Specialization)
   @JoinColumn()
   specialization: Specialization;
-  
-  @OneToMany(() => BusinessSessionBooking, (booking) => booking.assignedTo)
-  public assignedBookings!: BusinessSessionBooking;
-
 }

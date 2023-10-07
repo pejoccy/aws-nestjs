@@ -10,9 +10,9 @@ import { BaseEntity } from '../../../common/base/_entity';
 import { Session } from '../../../pacs/session/session.entity';
 import { Account } from '../../account.entity';
 import { Patient } from '../../patient/patient.entity';
-import { Specialist } from '../../specialist/specialist.entity';
 import { BusinessBranch } from '../business-branch/business-branch.entity';
 import { Business } from '../business.entity';
+import { BusinessContractor } from '../business-contractor/business-contractor.entity';
 
 @Entity()
 export class BusinessSessionBooking extends BaseEntity {
@@ -68,8 +68,8 @@ export class BusinessSessionBooking extends BaseEntity {
   @ManyToOne(() => Account, (account) => account.assignedBookings)
   assignedBy?: Account;
 
-  @ManyToOne(() => Specialist, (specialist) => specialist.assignedBookings)
-  assignedTo?: Specialist;
+  @ManyToOne(() => BusinessContractor, (contractor) => contractor.assignedBookings)
+  assignedTo?: BusinessContractor;
 
   @ManyToOne(() => Account, (account) => account.createdBookings)
   createdBy: Account;

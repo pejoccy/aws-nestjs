@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../../common/base/service';
@@ -28,8 +28,9 @@ export class BusinessSessionBookingService extends BaseService {
       .createQueryBuilder('bookings')
       .leftJoinAndSelect('bookings.patient', 'patient')
       .leftJoinAndSelect('bookings.session', 'session')
-      .leftJoinAndSelect('bookings.assignedTo', 'assignedTo')
-      .leftJoin('assignedTo.contractors', 'contractors')
+      .leftJoinAndSelect('bookings.assignedTo', 'contractor')
+      .leftJoinAndSelect('contractor.specialist', 'assignedTo')
+      .leftJoinAndSelect('contractor.specialization', 'specialization')
       .leftJoinAndSelect('bookings.assignedBy', 'assignedBy')
       .leftJoinAndSelect('assignedBy.businessContact', 'byBusinessContact')
       .leftJoinAndSelect('assignedBy.specialist', 'bySpecialist')
@@ -40,7 +41,7 @@ export class BusinessSessionBookingService extends BaseService {
 
     options.contractorId &&
       qb.andWhere(
-        'contractors.id = :contractorId',
+        'bookings.assignedToId = :contractorId',
         { contractorId: options.contractorId }
       );
     
@@ -68,6 +69,8 @@ export class BusinessSessionBookingService extends BaseService {
         'patient',
         'session',
         'assignedTo',
+        'assignedTo.specialist',
+        'assignedTo.specialization',
         'assignedBy',
         'assignedBy.businessContact',
         'assignedBy.specialist',
@@ -108,7 +111,8 @@ export class BusinessSessionBookingService extends BaseService {
       businessId,
       sessionId: session.id,
       businessBranchId: item.branchId,
-      assignedToId: item.assignedToId || account.specialist?.id,
+      assignedToId: item.assignedToId || account.specialist?.contractors[0]?.id,
+      assignedById: item.assignedToId && account.id,
       createdById: account.id,
     });
   }
@@ -118,9 +122,12 @@ export class BusinessSessionBookingService extends BaseService {
       account.businessContact?.businessId ||
       account.specialist?.contractors[0]?.businessId;
 
-    return await this.businessBookingRepository.update(
+    const { affected } = await this.businessBookingRepository.update(
       { id, businessId },
       { status: false },
     );
+    if (!affected) {
+      throw new NotFoundException('Booking not found!');
+    }
   }
 }
