@@ -86,9 +86,9 @@ export class Account {
     (fileToCollaborator) => fileToCollaborator.account,
   )
   public sessionToCollaborators!: Promise<SessionToCollaborator[]>;
-
-  @OneToMany(() => BusinessSessionBooking, (booking) => booking.referredBy)
-  public referredBookings!: BusinessSessionBooking;
+  
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.assignedBy)
+  public assignedBookings!: BusinessSessionBooking;
 
   @OneToMany(() => BusinessSessionBooking, (booking) => booking.createdBy)
   public createdBookings!: BusinessSessionBooking;

@@ -14,9 +14,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import multer from 'multer';
 import { Account } from '../../account.entity';
-import { GetPacsStatsDto } from '../../patient/dto/get-pacs-stats.dto';
 import { GetAccount } from '../../../common/decorators/get-user-decorator';
-import { PaginationOptionsDto } from '../../../common/dto';
+import { PaginationOptionsDto } from '../../../common/dto/pagination-options.dto';
 import { EntityIdDto } from '../../../common/dto/entity.dto';
 import {
   AccountTypes,
@@ -55,14 +54,6 @@ export class BusinessSessionBookingController {
     account: Account,
   ) {
     return this.businessBookingService.getBooking(id, account);
-  }
-
-  @Get('/stats')
-  async getPacsStats(
-    @Query() dto: GetPacsStatsDto,
-    @GetAccount({ accountTypes: [AccountTypes.BUSINESS] }) account: Account,
-  ) {
-    return this.businessBookingService.getBookingsStats(dto, account);
   }
 
   @ApiConsumes('multipart/form-data')

@@ -15,11 +15,12 @@ import {
   IPaginationMeta,
   IPaginationOptions,
   paginate,
+  paginateRaw,
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { Account } from '../../account/account.entity';
 import { Session } from '../../pacs/session/session.entity';
-import { PaginationOptionsDto } from '../dto';
+import { PaginationOptionsDto } from '../dto/pagination-options.dto';
 
 export enum OrderType {
   asc = 'ASC',
@@ -96,16 +97,16 @@ export class BaseService {
 
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilder: SelectQueryBuilder<T>,
-    options: IPaginationOptions<CustomMetaType>,
+    options: IPaginationOptions<CustomMetaType> & { isRaw?: boolean },
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     repository: Repository<T>,
-    options: IPaginationOptions<CustomMetaType>,
+    options: IPaginationOptions<CustomMetaType> & { isRaw?: boolean },
     searchOptions?: FindManyOptions<T>,
   ): Promise<Pagination<T, CustomMetaType>>;
   public async paginate<T, CustomMetaType = IPaginationMeta>(
     queryBuilderOrRepository: Repository<T> | SelectQueryBuilder<T>,
-    options: IPaginationOptions<CustomMetaType>,
+    options: IPaginationOptions<CustomMetaType> & { isRaw?: boolean },
     searchOptions?: FindManyOptions<T>,
   ): Promise<Pagination<T, CustomMetaType>> {
     options.limit =
@@ -188,7 +189,9 @@ export class BaseService {
     }
 
     return queryBuilderOrRepository instanceof SelectQueryBuilder
-      ? paginate<T, CustomMetaType>(queryBuilderOrRepository, options)
+      ? options.isRaw
+        ? paginateRaw<T, CustomMetaType>(queryBuilderOrRepository, options)
+        : paginate<T, CustomMetaType>(queryBuilderOrRepository, options)
       : paginate<T, CustomMetaType>(queryBuilderOrRepository, options, {
           ...searchOptions,
           ...query,

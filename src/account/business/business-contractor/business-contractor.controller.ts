@@ -39,7 +39,7 @@ export class BusinessContractorController {
     return this.businessContractorService.getContractors(dto, account);
   }
 
-  @Get('/:id')
+  @Get('/:id/info')
   async getContractor(
     @Param() { id }: EntityIdDto,
     @GetAccount({

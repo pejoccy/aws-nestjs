@@ -10,6 +10,7 @@ import { Gender, SpecialistCategories } from '../../common/interfaces';
 import { Specialization } from '../../common/specialization/specialization.entity';
 import { Account } from '../account.entity';
 import { BusinessContractor } from '../business/business-contractor/business-contractor.entity';
+import { BusinessSessionBooking } from '../business/business-session-booking/business-session-booking.entity';
 
 @Entity()
 export class Specialist {
@@ -53,4 +54,8 @@ export class Specialist {
   @OneToOne(() => Specialization)
   @JoinColumn()
   specialization: Specialization;
+  
+  @OneToMany(() => BusinessSessionBooking, (booking) => booking.assignedTo)
+  public assignedBookings!: BusinessSessionBooking;
+
 }

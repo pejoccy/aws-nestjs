@@ -13,10 +13,10 @@ export class CreateBusinessBookingDto extends UploadFolderDto {
   @IsNumberString()
   branchId: number;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
   @IsNumberString()
-  referredById?: number;
+  assignedToId: number;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -12,14 +12,17 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetAccount } from '../../common/decorators/get-user-decorator';
 import { ApiResponseMeta } from '../../common/decorators/response.decorator';
 import { EntityIdDto } from '../../common/dto/entity.dto';
-import { AccountTypes } from '../../common/interfaces';
+import { AccountTypes, BusinessContractorRoles } from '../../common/interfaces';
 import { Account } from '../account.entity';
 import { CreateBusinessPatientDto } from '../patient/dto/create-business-patient-dto';
 import { SearchPatientDto } from '../patient/dto/search-patient.dto';
+import { UpdateBusinessPatientDto } from '../patient/dto/update-business-patient-dto';
 import { PatientService } from '../patient/patient.service';
 import { BusinessService } from './business.service';
 import { UpdateBusinessDto } from './dto/update-business-dto';
-import { UpdateBusinessPatientDto } from '../patient/dto/update-business-patient-dto';
+import { BusinessContractorService } from './business-contractor/business-contractor.service';
+import { GetBusinessContractorBookingsDto } from './business-contractor/dto/get-business-contractor-bookings.dto';
+import { BusinessSessionBookingService } from './business-session-booking/business-session-booking.service';
 
 @ApiBearerAuth()
 @ApiTags('Businesses')
@@ -27,8 +30,39 @@ import { UpdateBusinessPatientDto } from '../patient/dto/update-business-patient
 export class BusinessController {
   constructor(
     private businessService: BusinessService,
+    private businessContractorService: BusinessContractorService,
+    private businessBookingService: BusinessSessionBookingService,
     private patientService: PatientService,
   ) {}
+  
+  @Get('/contractors/bookings-stats')
+  async getContractorsBookingSummary(
+    @Query() dto: GetBusinessContractorBookingsDto,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
+  ) {
+    return this.businessContractorService.getContractorBookingsSummary(dto, account);
+  }
+
+  @Get('/contractors/:id/bookings')
+  async getContractorsBookings(
+    @Query() dto: GetBusinessContractorBookingsDto,
+    @Param() { id }: EntityIdDto,
+    @GetAccount({
+      accountTypes: [AccountTypes.BUSINESS],
+      roles: [BusinessContractorRoles.PRACTITIONER],
+    })
+    account: Account,
+  ) {
+    return this.businessBookingService.getBookings(
+      { ...dto, contractorId: id },
+      account
+    );
+  }
+
 
   @Get('/patients/:id')
   async getPatients(

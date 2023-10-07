@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../../common/base/service';
-import { PaginationOptionsDto } from '../../../common/dto';
 import { PacsService } from '../../../pacs/pacs.service';
 import { Account } from '../../account.entity';
-import { GetPacsStatsDto } from '../../patient/dto/get-pacs-stats.dto';
+import { GetBusinessContractorBookingsDto } from '../business-contractor/dto/get-business-contractor-bookings.dto';
 import { BusinessSessionBooking } from './business-session-booking.entity';
 import { CreateBusinessBookingDto } from './dto/create-business-booking-dto';
-import { BusinessContractor } from '../business-contractor/business-contractor.entity';
 // import { UpdateBusinessBookingDto } from './dto/update-business-booking-dto';
 
 @Injectable()
@@ -16,31 +14,47 @@ export class BusinessSessionBookingService extends BaseService {
   constructor(
     @InjectRepository(BusinessSessionBooking)
     private businessBookingRepository: Repository<BusinessSessionBooking>,
-    @InjectRepository(BusinessContractor)
-    private businessContractorRepository: Repository<BusinessContractor>,
     private pacsService: PacsService,
   ) {
     super();
   }
 
-  async getBookings(options: PaginationOptionsDto, account: Account) {
+  async getBookings(options: GetBusinessContractorBookingsDto, account: Account) {
     const businessId =
       account.businessContact?.businessId ||
       account.specialist?.contractors[0]?.businessId;
 
-    return this.paginate(this.businessBookingRepository, options, {
-      where: { businessId },
-      relations: [
-        'patient',
-        'session',
-        'referredBy',
-        'referredBy.businessContact',
-        'createdBy',
-        'createdBy.businessContact',
-        'createdBy.specialist',
-        // 'createdBy.specialist.',
-      ],
-    });
+    const qb = this.businessBookingRepository
+      .createQueryBuilder('bookings')
+      .leftJoinAndSelect('bookings.patient', 'patient')
+      .leftJoinAndSelect('bookings.session', 'session')
+      .leftJoinAndSelect('bookings.assignedTo', 'assignedTo')
+      .leftJoin('assignedTo.contractors', 'contractors')
+      .leftJoinAndSelect('bookings.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('assignedBy.businessContact', 'byBusinessContact')
+      .leftJoinAndSelect('assignedBy.specialist', 'bySpecialist')
+      .leftJoinAndSelect('bookings.createdBy', 'createdBy')
+      .leftJoinAndSelect('createdBy.businessContact', 'businessContact')
+      .leftJoinAndSelect('createdBy.specialist', 'specialist')
+      .where('bookings.businessId = :businessId', { businessId })
+
+    options.contractorId &&
+      qb.andWhere(
+        'contractors.id = :contractorId',
+        { contractorId: options.contractorId }
+      );
+    
+    options.startDate &&
+      qb.andWhere(
+        "bookings.createdAt >= :startDate",
+        { startDate: options.startDate }
+      );
+    
+    options.endDate &&
+      qb.andWhere('bookings.createdAt <= :endDate', { endDate: options.endDate });
+
+
+    return this.paginate(qb, options);
   }
 
   async getBooking(id: number, account: Account) {
@@ -53,39 +67,15 @@ export class BusinessSessionBookingService extends BaseService {
       relations: [
         'patient',
         'session',
-        'referredBy',
-        'referredBy.businessContact',
+        'assignedTo',
+        'assignedBy',
+        'assignedBy.businessContact',
+        'assignedBy.specialist',
         'createdBy',
         'createdBy.businessContact',
+        'createdBy.specialist',
       ],
     });
-  }
-
-  async getBookingsStats({ contractorId }: GetPacsStatsDto, account: Account) {
-    const businessId =
-      account.businessContact?.businessId ||
-      account.specialist?.contractors[0]?.businessId;
-    let specialistId;
-
-    if (contractorId) {
-      const contractor = await this.businessContractorRepository.findOne({
-        where: { id: contractorId, businessId },
-      });
-      if (!contractor) return { count: 0 };
-
-      specialistId = contractor.specialistId;
-    }
-    const count = await this.businessBookingRepository.count({
-      where: {
-        businessId,
-        ...(specialistId && {
-          createdBy: { specialist: { id: specialistId } },
-        }),
-      },
-      relations: ['createdBy', 'createdBy.specialist'],
-    });
-
-    return { count };
   }
 
   // async updateBooking(
@@ -117,6 +107,8 @@ export class BusinessSessionBookingService extends BaseService {
       ...item,
       businessId,
       sessionId: session.id,
+      businessBranchId: item.branchId,
+      assignedToId: item.assignedToId || account.specialist?.id,
       createdById: account.id,
     });
   }

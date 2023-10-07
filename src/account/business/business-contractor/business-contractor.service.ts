@@ -12,6 +12,7 @@ import { BusinessContractor } from './business-contractor.entity';
 import { SetupBusinessContractorDto } from './dto/setup-business-contractor-dto';
 import { UpdateBusinessContractorDto } from './dto/update-business-contractor-dto';
 import { GetBusinessContractorDto } from './dto/get-business-contractor.dto';
+import { GetBusinessContractorBookingsDto } from './dto/get-business-contractor-bookings.dto';
 
 @Injectable()
 export class BusinessContractorService extends BaseService {
@@ -29,9 +30,13 @@ export class BusinessContractorService extends BaseService {
   }
 
   async getContractors(options: GetBusinessContractorDto, account: Account) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
     return this.paginate(this.businessContractorRepository, options, {
       where: {
-        businessId: account.businessContact?.businessId,
+        businessId,
         ...(options.status && {
           status: options.status !== undefined ? options.status : true,
         }),
@@ -40,11 +45,59 @@ export class BusinessContractorService extends BaseService {
     });
   }
 
+  async getContractorBookingsSummary(
+    options: GetBusinessContractorBookingsDto,
+    account: Account
+  ) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+
+    const qb = this.businessContractorRepository
+      .createQueryBuilder("contractor")
+      .leftJoin('contractor.specialist', 'specialist')
+      .leftJoin('specialist.assignedBookings', 'bookings')
+      .leftJoin('specialist.specialization', 'specialization')
+      .select([
+        'contractor.id as "id"',
+        'contractor.role as "role"',
+        'specialist.firstName as "firstName"',
+        'specialist.lastName as "lastName"',
+        'specialist.gender as "gender"',
+        'specialist.email as "email"',
+        'specialization.title as "specialization"',
+        'COUNT(bookings.id) as "totalBookings"'
+      ])
+      .where('contractor.businessId = :businessId', { businessId })
+      .groupBy('contractor.id')
+      .addGroupBy('contractor.role')
+      .addGroupBy('specialist.id')
+      .addGroupBy('specialist.firstName')
+      .addGroupBy('specialist.lastName')
+      .addGroupBy('specialist.email')
+      .addGroupBy('specialist.gender')
+      .addGroupBy('specialization.title');
+
+    options.startDate &&
+      qb.andWhere(
+        "bookings.createdAt >= :startDate",
+        { startDate: options.startDate }
+      );
+    options.endDate &&
+      qb.andWhere('bookings.createdAt <= :endDate', { endDate: options.endDate });
+
+    return this.paginate(qb, { ...options, isRaw: true });
+  }
+
   async getContractor(id: number, account: Account) {
+    const businessId =
+      account.businessContact?.businessId ||
+      account.specialist?.contractors[0]?.businessId;
+    
     return await this.businessContractorRepository.findOne({
       where: {
         id,
-        businessId: account.businessContact?.businessId,
+        businessId,
         status: true,
       },
       relations: ['specialist', 'specialization', 'business'],
