@@ -10,6 +10,13 @@ export class AppController {
   @Get()
   @PublicRoute()
   getStatus() {
-    return { status: 'API status is Active' };
+    return { status: 'API status is Active to go ' };
+  }
+
+
+  @Get('test')
+  @PublicRoute()
+  getTestStatus() {
+    return { status: 'Test API status is Active' };
   }
 }
